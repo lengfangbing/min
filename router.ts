@@ -1,0 +1,193 @@
+import {
+  Status
+} from "./deps.ts";
+import {
+  Req,
+  ReqMethod,
+  ReqObjectField,
+  Res
+} from "./http.ts";
+import {
+  ParseBody
+} from "./bodyParser.ts";
+import {
+  Middleware
+} from "./middleware.ts";
+import {
+  parseDynamicPath,
+  parseUrl,
+  parseUrlQuery
+} from "./utils/url/url.ts";
+import {
+  MethodMapValue
+} from './model.ts';
+
+export class Router {
+
+  // 采用Record的结构进行增加动态路由匹配( 数据量大时键值对速度大于Map, 而且Map占很大内存 )
+  // get: { func: Function, paramsName?: string,
+  // dynamicFunc?: Function, middleWare: Array || null }
+  #tree: Record<string, Record<string, MethodMapValue>> = {
+    get: {},
+    post: {},
+    put: {},
+    delete: {},
+    options: {},
+    head: {},
+    connect: {},
+    trace: {},
+    patch: {}
+  }
+  body: any
+  middleware: Middleware
+  constructor() {
+    this.body = new ParseBody();
+    this.middleware = new Middleware();
+  }
+
+  #handleRequestBody = (request: Req) => {
+    return this.body.parseBody(request);
+  }
+
+  #handleParams = (funcMap: Record<string, MethodMapValue>, request: Req): Function | null => {
+    const {url: dynamicUrl, params} = parseUrl(request.url);
+    const funcValue = funcMap[dynamicUrl] as MethodMapValue;
+    if (funcValue) {
+      const {paramsName, dynamicFunc} = funcValue;
+      if (paramsName) {
+        if (dynamicFunc && params) {
+          request.params = {[paramsName]: params};
+          return dynamicFunc;
+        }
+      }
+    }
+    return null;
+  }
+
+  #handleRequest = async (request: Req, response: Res) => {
+    // 处理query
+    const { url, query } = parseUrlQuery(request.url);
+    request = {
+      ...request,
+      query: query as ReqObjectField,
+      url,
+    }
+    const funcMap: Record<string, MethodMapValue> = this.#getTreeRouteByMethod(request.method.toLowerCase());
+    // 取出method对应的方法路由对象, 然后先匹配静态路由, 没有的话再去匹配动态路由
+    // 后期修改的话就修改这里
+    let funcValue: MethodMapValue = funcMap[url || '/'] as MethodMapValue;
+    let execFunc: Function | null;
+    // 处理body
+    await this.#handleRequestBody(request);
+    // 优先匹配静态方法
+    if (funcValue) {
+      const {func} = funcValue;
+      execFunc = func || null;
+    }else{
+      // 再去匹配动态路由
+      // 动态路由才会去处理params
+      execFunc = this.#handleParams(funcMap, request);
+    }
+    // 处理中间件, 在中间件最后处理请求request
+    const middleware = this.middleware.getMiddle();
+    // 设置redirect方法
+    response.redirect = response.redirect.bind(this, response);
+    // 设置render方法
+    response.render = response.render.bind(this, response);
+    // 取出中间件的下一个方法
+    const func = this.#composeMiddle(middleware, request, response, execFunc);
+    await func.call(this);
+  }
+
+  #composeMiddle = (middleware: Function[], request: Req, response: Res, execFunc: Function | null) => {
+    if (!Array.isArray(middleware)) throw new TypeError('Middleware must be an array!')
+    return async function () {
+      // last called middleware #
+      let index = -1
+      return dispatch(0)
+      async function dispatch (i: number): Promise<any> {
+        if (i <= index) return Promise.reject(new Error('next() called multiple times'))
+        index = i
+        let fn = middleware[i]
+        if (i === middleware.length){
+          fn = execFunc || function () {}
+          response.status = execFunc ? Status.OK : Status.NotFound;
+        }
+        try {
+          return fn(request, response, dispatch.bind(null, index + 1));
+        } catch (err) {
+          return Promise.reject(err)
+        }
+      }
+    }
+  }
+
+  #add = (method: ReqMethod, url: string, handler: Function) => {
+    // 获取该方法节点
+    const parentNode = this.#getTree()[method.toLowerCase()];
+    // 设置动态路由Map
+    if (url.split('/:').length > 1) {
+      const parseParams = parseDynamicPath(url);
+      const {url: realUrl, paramsName} = parseParams;
+      // 重新设置这个url对应的参数和方法
+      parentNode[realUrl] = {
+        ...parentNode[realUrl],
+        paramsName,
+        dynamicFunc: handler
+      } as MethodMapValue;
+      return;
+    }
+    parentNode[url] = {...parentNode[url], func: handler} as MethodMapValue;
+  }
+
+  get(url: string, handler: Function) {
+    this.#add('get', url, handler);
+  }
+
+  post(url: string, handler: Function) {
+    this.#add('post', url, handler);
+  }
+
+  put(url: string, handler: Function) {
+    this.#add('put', url, handler);
+  }
+
+  delete(url: string, handler: Function) {
+    this.#add('delete', url, handler);
+  }
+
+  options(url: string, handler: Function) {
+    this.#add('options', url, handler);
+  }
+
+  head(url: string, handler: Function) {
+    this.#add('head', url, handler);
+  }
+
+  connect(url: string, handler: Function) {
+    this.#add('connect', url, handler);
+  }
+
+  trace(url: string, handler: Function) {
+    this.#add('trace', url, handler);
+  }
+
+  patch(url: string, handler: Function) {
+    this.#add('patch', url, handler);
+  }
+
+  #getTree = () => {
+    return this.#tree;
+  }
+
+  // 获取特定的method的url及处理函数
+  #getTreeRouteByMethod = (method: string) => {
+    return this.#getTree()[method] || new Map()
+  }
+
+  async handleRoute(request: Req, response: Res) {
+    await this.#handleRequest(request, response);
+  }
+
+}
+
