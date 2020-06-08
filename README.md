@@ -1,5 +1,4 @@
 # min
-# min
 ## usage
 #### 1. start
 ```typescript
