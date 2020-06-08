@@ -49,15 +49,18 @@ export class Router {
     return this.body.parseBody(request);
   }
 
-  #handleParams = (funcMap: Record<string, MethodMapValue>, request: Req): Function | null => {
+  #handleParams = (funcMap: Record<string, MethodMapValue>, request: Req): {handler: Function, middleware: Function[]} | null => {
     const {url: dynamicUrl, params} = parseUrl(request.url);
     const funcValue = funcMap[dynamicUrl] as MethodMapValue;
     if (funcValue) {
-      const {paramsName, dynamicFunc} = funcValue;
+      const {paramsName, dynamicFunc, middleware} = funcValue;
       if (paramsName) {
         if (dynamicFunc && params) {
           request.params = {[paramsName]: params};
-          return dynamicFunc;
+          return {
+            handler: dynamicFunc,
+            middleware
+          };
         }
       }
     }
@@ -89,8 +92,9 @@ export class Router {
     }else{
       // 再去匹配动态路由
       // 动态路由才会去处理params
-      execFunc = this.#handleParams(funcMap, request);
-      ownMiddleware = [];
+      const middles = this.#handleParams(funcMap, request) as {handler: Function, middleware: Function[]} | null;
+      execFunc = middles ? middles.handler : null;
+      ownMiddleware = middles ? middles.middleware : [];
     }
     // 处理中间件, 在中间件最后处理请求request
     const middleware = this.middleware.getMiddle();

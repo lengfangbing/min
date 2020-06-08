@@ -54,7 +54,6 @@ export class Application {
 
   #add = (method: ReqMethod, handlers: RouteHandlers) => {
     const { url, handler, middleware } = handlers;
-    // @ts-ignore
     this.#router[method](url, handler, middleware || []);
   }
 
@@ -64,18 +63,18 @@ export class Application {
     return this;
   }
 
-  // #setRoutes = async (routes: RoutesConfig[], cwd: string) => {
-  //   for(let i = 0; i < routes.length; i++){
-  //     const value = routes[i];
-  //     const method: ReqMethod = value.method.toLowerCase() as ReqMethod;
-  //     const { url, func } = value;
-  //     const realFunc =
-  //       typeof func === 'string'
-  //         ? (await import(join(cwd, func))).default
-  //         : func;
-  //     this.#add(method, url, realFunc);
-  //   }
-  // }
+  #setRoutes = async (routes: RoutesConfig[], cwd: string) => {
+    for(let i = 0; i < routes.length; i++){
+      const value = routes[i];
+      const method: ReqMethod = value.method.toLowerCase() as ReqMethod;
+      const { url, func, middleware = [] } = value;
+      const handler =
+        typeof func === 'string'
+          ? (await import(join(cwd, func))).default
+          : func;
+      this.#add(method, {url, middleware, handler});
+    }
+  }
 
   // parse handler
   parseHandler(handlers: any[]): RouteHandlers{
@@ -146,13 +145,12 @@ export class Application {
       }
     }
     const { server, routes, cors: corsConfig, assets: assetsConfig = './assets' } = config;
-    console.log(colors.black('starting server ... \n'));
     // set server config
     appConfig.server = server.addr
       ? {...server, ...parseAddress(server.addr)}
       : server;
-    // routes.length
-    //   && await this.#setRoutes(routes, cwd);
+    routes.length
+      && await this.#setRoutes(routes, cwd);
     corsConfig
       && this.use(cors(corsConfig));
     assetsConfig
