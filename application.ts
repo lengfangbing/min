@@ -27,6 +27,7 @@ import {
 } from "./utils/application/application.ts";
 import {
   AppConfig,
+  ListenOptions,
   RouteHandlers,
   RoutesConfig
 } from "./model.ts";
@@ -191,6 +192,15 @@ export class Application {
     }catch(e){
       throw new Error(e);
     }
+  }
+
+  async listen(config?: string | ListenOptions){
+    if(typeof config === 'string'){
+      appConfig.server = parseAddress(config);
+    } else {
+      appConfig.server = config as ListenOptions;
+    }
+    await this.#listen();
   }
 
   async start(config?: any){
