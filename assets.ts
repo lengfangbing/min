@@ -6,7 +6,8 @@ import {
   join,
   lookup,
   Status,
-  charset
+  contentType,
+  extname
 } from "./deps.ts";
 import {
   parsePrefixUrl
@@ -14,9 +15,6 @@ import {
 import {
   decoder
 } from "./bodyParser.ts";
-import {
-  send
-} from "./response.ts";
 interface Options {
 
 }
@@ -35,11 +33,11 @@ export function assets(root: string, opts?: Options) {
       try {
         if(responseType){
           const filePath = join(path, extName);
-          const contentType = `${responseType}; charset=${charset(responseType)}`;
+          const type = contentType(extname(filePath)) || 'text/plain; charset=utf-8';
           response.body = decoder.decode(await Deno.readFile(filePath));
           response.status = Status.OK;
-          response.headers.set('content-type', contentType);
-          send(request, response);
+          response.headers.set('content-type', type);
+          response.send(request, response);
         }else{
           await next();
         }

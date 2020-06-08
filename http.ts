@@ -12,7 +12,8 @@ export interface Res{
   status: number,
   done: boolean,
   redirect: Function,
-  render: Function
+  render: Function,
+  send: Function
 }
 
 export interface Req{

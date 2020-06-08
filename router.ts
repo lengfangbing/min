@@ -49,15 +49,18 @@ export class Router {
     return this.body.parseBody(request);
   }
 
-  #handleParams = (funcMap: Record<string, MethodMapValue>, request: Req): Function | null => {
+  #handleParams = (funcMap: Record<string, MethodMapValue>, request: Req): {handler: Function, middleware: Function[]} | null => {
     const {url: dynamicUrl, params} = parseUrl(request.url);
     const funcValue = funcMap[dynamicUrl] as MethodMapValue;
     if (funcValue) {
-      const {paramsName, dynamicFunc} = funcValue;
+      const {paramsName, dynamicFunc, middleware} = funcValue;
       if (paramsName) {
         if (dynamicFunc && params) {
           request.params = {[paramsName]: params};
-          return dynamicFunc;
+          return {
+            handler: dynamicFunc,
+            middleware
+          };
         }
       }
     }
@@ -76,17 +79,22 @@ export class Router {
     // 取出method对应的方法路由对象, 然后先匹配静态路由, 没有的话再去匹配动态路由
     // 后期修改的话就修改这里
     let funcValue: MethodMapValue = funcMap[url || '/'] as MethodMapValue;
+    // 取出路由单独的中间件
+    let ownMiddleware: Function[];
     let execFunc: Function | null;
-    // 处理body
     await this.#handleRequestBody(request);
+    // 处理body
     // 优先匹配静态方法
     if (funcValue) {
       const {func} = funcValue;
       execFunc = func || null;
+      ownMiddleware = funcValue.middleware;
     }else{
       // 再去匹配动态路由
       // 动态路由才会去处理params
-      execFunc = this.#handleParams(funcMap, request);
+      const middles = this.#handleParams(funcMap, request) as {handler: Function, middleware: Function[]} | null;
+      execFunc = middles ? middles.handler : null;
+      ownMiddleware = middles ? middles.middleware : [];
     }
     // 处理中间件, 在中间件最后处理请求request
     const middleware = this.middleware.getMiddle();
@@ -94,8 +102,9 @@ export class Router {
     response.redirect = response.redirect.bind(this, response);
     // 设置render方法
     response.render = response.render.bind(this, response);
+    const middleProxy = [...middleware, ...ownMiddleware];
     // 取出中间件的下一个方法
-    const func = this.#composeMiddle(middleware, request, response, execFunc);
+    const func = this.#composeMiddle(middleProxy, request, response, execFunc);
     await func.call(this);
   }
 
@@ -122,7 +131,7 @@ export class Router {
     }
   }
 
-  #add = (method: ReqMethod, url: string, handler: Function) => {
+  #add = (method: ReqMethod, url: string, handler: Function, middleware: Function[]) => {
     // 获取该方法节点
     const parentNode = this.#getTree()[method.toLowerCase()];
     // 设置动态路由Map
@@ -133,47 +142,48 @@ export class Router {
       parentNode[realUrl] = {
         ...parentNode[realUrl],
         paramsName,
-        dynamicFunc: handler
+        dynamicFunc: handler,
+        middleware
       } as MethodMapValue;
       return;
     }
-    parentNode[url] = {...parentNode[url], func: handler} as MethodMapValue;
+    parentNode[url] = {...parentNode[url], func: handler, middleware} as MethodMapValue;
   }
 
-  get(url: string, handler: Function) {
-    this.#add('get', url, handler);
+  get(url: string, handler: Function, middleware: Function[]) {
+    this.#add('get', url, handler, middleware);
   }
 
-  post(url: string, handler: Function) {
-    this.#add('post', url, handler);
+  post(url: string, handler: Function, middleware: Function[]) {
+    this.#add('post', url, handler, middleware);
   }
 
-  put(url: string, handler: Function) {
-    this.#add('put', url, handler);
+  put(url: string, handler: Function, middleware: Function[]) {
+    this.#add('put', url, handler, middleware);
   }
 
-  delete(url: string, handler: Function) {
-    this.#add('delete', url, handler);
+  delete(url: string, handler: Function, middleware: Function[]) {
+    this.#add('delete', url, handler, middleware);
   }
 
-  options(url: string, handler: Function) {
-    this.#add('options', url, handler);
+  options(url: string, handler: Function, middleware: Function[]) {
+    this.#add('options', url, handler, middleware);
   }
 
-  head(url: string, handler: Function) {
-    this.#add('head', url, handler);
+  head(url: string, handler: Function, middleware: Function[]) {
+    this.#add('head', url, handler, middleware);
   }
 
-  connect(url: string, handler: Function) {
-    this.#add('connect', url, handler);
+  connect(url: string, handler: Function, middleware: Function[]) {
+    this.#add('connect', url, handler, middleware);
   }
 
-  trace(url: string, handler: Function) {
-    this.#add('trace', url, handler);
+  trace(url: string, handler: Function, middleware: Function[]) {
+    this.#add('trace', url, handler, middleware);
   }
 
-  patch(url: string, handler: Function) {
-    this.#add('patch', url, handler);
+  patch(url: string, handler: Function, middleware: Function[]) {
+    this.#add('patch', url, handler, middleware);
   }
 
   #getTree = () => {
@@ -182,7 +192,7 @@ export class Router {
 
   // 获取特定的method的url及处理函数
   #getTreeRouteByMethod = (method: string) => {
-    return this.#getTree()[method] || new Map()
+    return this.#getTree()[method] || {}
   }
 
   async handleRoute(request: Req, response: Res) {

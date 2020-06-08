@@ -8,17 +8,17 @@ export interface RoutesConfig{
   url: string,
   method: string,
   func: string | ModuleFunc
-  cors?: CorsOptions
+  middleware: Function[]
 }
 export interface MethodMapValue {
   func: Function,
   paramsName?: string,
   dynamicFunc?: Function
-  middleWare?: Function[]
+  middleware: Function[]
 }
 export interface RouteHandlers{
   url: string,
-  middleWare?: Function[],
+  middleware?: Function[],
   handler: Function
 }
 export interface CorsOptions {
