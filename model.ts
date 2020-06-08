@@ -34,7 +34,7 @@ export interface ListenOptions{
   hostname: string,
   certFile?: string,
   isHttps?: boolean,
-  secure?: false,
+  secure?: boolean,
   keyFile?: string
 }
 export interface RealUrl {
