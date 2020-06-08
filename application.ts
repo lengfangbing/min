@@ -52,14 +52,10 @@ export class Application {
     this.#middleware = new Middleware();
   }
 
-  // #add = (method: ReqMethod, handlers: RouteHandlers) => {
-  //   const { url, handler, middleWare } = handlers;
-  //   this.#router[method](url, handler);
-  //   // this.#router[method](url, handler);
-  // }
-
-  #add = (method: ReqMethod, url: string, handler: Function) => {
-    this.#router[method](url, handler);
+  #add = (method: ReqMethod, handlers: RouteHandlers) => {
+    const { url, handler, middleware } = handlers;
+    // @ts-ignore
+    this.#router[method](url, handler, middleware || []);
   }
 
   use(func: Function){
@@ -68,18 +64,18 @@ export class Application {
     return this;
   }
 
-  #setRoutes = async (routes: RoutesConfig[], cwd: string) => {
-    for(let i = 0; i < routes.length; i++){
-      const value = routes[i];
-      const method: ReqMethod = value.method.toLowerCase() as ReqMethod;
-      const { url, func } = value;
-      const realFunc =
-        typeof func === 'string'
-          ? (await import(join(cwd, func))).default
-          : func;
-      this.#add(method, url, realFunc);
-    }
-  }
+  // #setRoutes = async (routes: RoutesConfig[], cwd: string) => {
+  //   for(let i = 0; i < routes.length; i++){
+  //     const value = routes[i];
+  //     const method: ReqMethod = value.method.toLowerCase() as ReqMethod;
+  //     const { url, func } = value;
+  //     const realFunc =
+  //       typeof func === 'string'
+  //         ? (await import(join(cwd, func))).default
+  //         : func;
+  //     this.#add(method, url, realFunc);
+  //   }
+  // }
 
   // parse handler
   parseHandler(handlers: any[]): RouteHandlers{
@@ -90,51 +86,54 @@ export class Application {
       handler
     } as RouteHandlers;
     if(handlers.length){
-      res.middleWare = handlers;
+      res.middleware = handlers;
     }
     return res;
   }
 
-  // get(...args: any[]) {
-  //   const funcHandler: RouteHandlers = this.parseHandler(args);
-  //   console.log(funcHandler);
-  //   // this.#add('get', url, handler);
-  // }
-
-  get(url: string, handler: Function) {
-    this.#add('get', url, handler);
+  get(...args: any[]) {
+    const funcHandler: RouteHandlers = this.parseHandler(args);
+    this.#add('get', funcHandler);
   }
 
-  post(url: string, handler: Function) {
-    this.#add('post', url, handler);
+  post(...args: any[]) {
+    const funcHandler: RouteHandlers = this.parseHandler(args);
+    this.#add('post', funcHandler);
   }
 
-  put(url: string, handler: Function) {
-    this.#add('put', url, handler);
+  put(...args: any[]) {
+    const funcHandler: RouteHandlers = this.parseHandler(args);
+    this.#add('put', funcHandler);
   }
 
-  delete(url: string, handler: Function) {
-    this.#add('delete', url, handler);
+  delete(...args: any[]) {
+    const funcHandler: RouteHandlers = this.parseHandler(args);
+    this.#add('delete', funcHandler);
   }
 
-  options(url: string, handler: Function) {
-    this.#add('options', url, handler);
+  options(...args: any[]) {
+    const funcHandler: RouteHandlers = this.parseHandler(args);
+    this.#add('options', funcHandler);
   }
 
-  head(url: string, handler: Function) {
-    this.#add('head', url, handler);
+  head(...args: any[]) {
+    const funcHandler: RouteHandlers = this.parseHandler(args);
+    this.#add('head', funcHandler);
   }
 
-  connect(url: string, handler: Function) {
-    this.#add('connect', url, handler);
+  connect(...args: any[]) {
+    const funcHandler: RouteHandlers = this.parseHandler(args);
+    this.#add('connect', funcHandler);
   }
 
-  trace(url: string, handler: Function) {
-    this.#add('trace', url, handler);
+  trace(...args: any[]) {
+    const funcHandler: RouteHandlers = this.parseHandler(args);
+    this.#add('trace', funcHandler);
   }
 
-  patch(url: string, handler: Function) {
-    this.#add('patch', url, handler);
+  patch(...args: any[]) {
+    const funcHandler: RouteHandlers = this.parseHandler(args);
+    this.#add('patch', funcHandler);
   }
 
   #readConfig = async (config?: any) => {
@@ -152,8 +151,8 @@ export class Application {
     appConfig.server = server.addr
       ? {...server, ...parseAddress(server.addr)}
       : server;
-    routes.length
-      && await this.#setRoutes(routes, cwd);
+    // routes.length
+    //   && await this.#setRoutes(routes, cwd);
     corsConfig
       && this.use(cors(corsConfig));
     assetsConfig

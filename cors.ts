@@ -32,7 +32,6 @@ export function cors(options: CorsOptions = {}){
       : origin;
 
     if(!Origin || !realOrigin) return await next();
-
     // set all common response header
     response.headers.set('Access-Control-Allow-Origin', realOrigin);
     // set expose headers
