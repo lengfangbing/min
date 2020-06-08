@@ -7,7 +7,7 @@ export {
 } from "https://deno.land/std@0.54.0/http/server.ts";
 export {
   serveFile
-} from "http://deno.land/std@0.54.0/http/file_server.ts";
+} from "https://deno.land/std@0.54.0/http/file_server.ts";
 export {
   encode,
   decode,
