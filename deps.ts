@@ -38,7 +38,8 @@ export {
 } from "https://deno.land/std@0.54.0/http/http_status.ts";
 export {
   lookup,
-  charset
+  charset,
+  contentType
 } from "https://deno.land/x/media_types/mod.ts";
 export * as colors from "https://deno.land/std/fmt/colors.ts";
 export {

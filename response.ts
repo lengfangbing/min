@@ -1,6 +1,17 @@
-import {Req, Res} from "./http.ts";
-import {encode, join, Status} from "./deps.ts";
-import {decoder} from "./bodyParser.ts";
+import {
+  Req,
+  Res
+} from "./http.ts";
+import {
+  encode,
+  join,
+  Status,
+  lookup,
+  contentType,
+} from "./deps.ts";
+import {
+  decoder
+} from "./bodyParser.ts";
 
 export class Response {
   response: Res
@@ -17,22 +28,11 @@ export class Response {
       redirect: redirect,
       render: render,
       send
-    }
+    };
   }
 
   constructor() {
-    this.response = {
-      response: {
-        headers: new Headers()
-      },
-      body: null,
-      headers: new Headers(),
-      status: Status.NotFound,
-      done: false,
-      redirect: redirect,
-      render: render,
-      send
-    }
+    this.response = Response.createResponse();
   }
 
   getResponse() {
@@ -79,11 +79,8 @@ function parseResponseBody(res: Res) {
   if (typeof body === 'object') {
     response.body = encode(JSON.stringify(body));
     headers.get('Content-Type') || headers.set('Content-Type', 'application/json; charset=utf-8');
-  } else if (typeof body === 'number') {
-    response.body = body.toString();
-    headers.get('Content-Type') || headers.set('Content-Type', 'text/number; charset=utf-8');
   } else {
-    response.body = encode(body);
+    response.body = encode(body.toString());
     headers.get('Content-Type') || headers.set('Content-Type', 'text/plain; charset=utf-8');
   }
 }
