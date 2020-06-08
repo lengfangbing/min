@@ -72,9 +72,6 @@ function getContentType(contentType: string){
   return typeRes;
 }
 export class ParseBody{
-  constructor() {
-  }
-
   #hasBody = (headers: Headers): boolean => {
     return (
       headers.get("transfer-encoding") !== null ||
@@ -85,7 +82,7 @@ export class ParseBody{
   async parseBody(request: Req){
     const req: ServerRequest = request.request;
     const contentType = request.headers.get('content-type') || 'text';
-    const body = {type: '', value: {}} as ReqObjectField;
+    let body = {type: '', value: {}} as ReqObjectField;
     if(this.#hasBody(request.headers)){
       // field to save body
       let _body: ReqObjectField = {};
@@ -120,7 +117,7 @@ export class ParseBody{
       }
       Object.assign(body, {value: _body}, {type});
     }else{
-      Object.assign(body, {value: null}, {type: null});
+      body = null;
     }
     request.body = body;
   }
