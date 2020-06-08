@@ -93,46 +93,55 @@ export class Application {
   get(...args: any[]) {
     const funcHandler: RouteHandlers = this.parseHandler(args);
     this.#add('get', funcHandler);
+    return this;
   }
 
   post(...args: any[]) {
     const funcHandler: RouteHandlers = this.parseHandler(args);
     this.#add('post', funcHandler);
+    return this;
   }
 
   put(...args: any[]) {
     const funcHandler: RouteHandlers = this.parseHandler(args);
     this.#add('put', funcHandler);
+    return this;
   }
 
   delete(...args: any[]) {
     const funcHandler: RouteHandlers = this.parseHandler(args);
     this.#add('delete', funcHandler);
+    return this;
   }
 
   options(...args: any[]) {
     const funcHandler: RouteHandlers = this.parseHandler(args);
     this.#add('options', funcHandler);
+    return this;
   }
 
   head(...args: any[]) {
     const funcHandler: RouteHandlers = this.parseHandler(args);
     this.#add('head', funcHandler);
+    return this;
   }
 
   connect(...args: any[]) {
     const funcHandler: RouteHandlers = this.parseHandler(args);
     this.#add('connect', funcHandler);
+    return this;
   }
 
   trace(...args: any[]) {
     const funcHandler: RouteHandlers = this.parseHandler(args);
     this.#add('trace', funcHandler);
+    return this;
   }
 
   patch(...args: any[]) {
     const funcHandler: RouteHandlers = this.parseHandler(args);
     this.#add('patch', funcHandler);
+    return this;
   }
 
   #readConfig = async (config?: any) => {
