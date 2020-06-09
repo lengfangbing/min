@@ -5,7 +5,6 @@ import {
 import {
   Req,
   ReqMethod,
-  ReqObjectField,
   Res
 } from "./http.ts";
 import {
@@ -13,8 +12,7 @@ import {
 } from "./middleware.ts";
 import {
   parseDynamicPath,
-  parseUrl,
-  parseUrlQuery
+  parseUrl
 } from "./utils/url/url.ts";
 import {
   MethodMapValue

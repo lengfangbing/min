@@ -2,21 +2,11 @@ import {
   Response,
   ServerRequest
 } from "./deps.ts";
-
-type ConfigRoute = {
-  url: string,
-  method: string,
-  func: string | Function,
-  middleware?: Function[]
-}
 export type ReqMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace';
 export type ReqObjectField =
   { [key: string]: boolean | string | number | ReqObjectField | string[] | Uint8Array | Uint16Array | Uint32Array }
   | null
   | string;
-type ModuleFunc = {
-  default: Function
-}
 
 export interface AppConfig {
   server: ListenOptions
