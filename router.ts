@@ -99,13 +99,13 @@ export class Router {
     // 处理中间件, 在中间件最后处理请求request
     const middleware = this.middleware.getMiddle();
     // 设置redirect方法
-    response.redirect = response.redirect.bind(this, response);
+    response.redirect = response.redirect.bind(globalThis, response);
     // 设置render方法
-    response.render = response.render.bind(this, response);
-    const middleProxy = [...middleware, ...ownMiddleware];
+    response.render = response.render.bind(globalThis, response);
+    const middleProxy = middleware.concat(ownMiddleware);
     // 取出中间件的下一个方法
     const func = this.#composeMiddle(middleProxy, request, response, execFunc);
-    await func.call(this);
+    await func.call(globalThis);
   }
 
   #composeMiddle = (middleware: Function[], request: Req, response: Res, execFunc: Function | null) => {
