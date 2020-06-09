@@ -8,10 +8,11 @@ import {
   Status,
   lookup,
   contentType,
+  STATUS_TEXT,
 } from "./deps.ts";
 import {
   decoder
-} from "./bodyParser.ts";
+} from "./request.ts";
 
 export class Response {
   response: Res
@@ -45,20 +46,22 @@ async function render(response: Res, path: string) {
   try {
     response.body = decoder.decode(await Deno.readFile(join(Deno.cwd(), path)));
     response.headers.set('Content-Type', 'text/html; charset=utf-8');
-    response.status = 200;
+    response.status = Status.OK;
   } catch (e) {
     console.log(e);
-    response.status = 500;
-    response.body = 'read file wrong';
+    response.status = Status.InternalServerError;
+    response.body = STATUS_TEXT.get(Status.InternalServerError);
   }
 }
 
 async function redirect(response: Res, url: string) {
-  response.status = 302;
+  response.status = Status.Found;
   response.headers.set('Location', url);
 }
 
 export function send(req: Req, res: Res) {
+  if(res.done) return;
+  // console.log(req);
   const request = req.request;
   const {response, body, headers = new Headers(), status = Status.OK} = res;
   try {
