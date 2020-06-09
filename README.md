@@ -27,14 +27,14 @@ await app.listen('http://127.0.0.1:8000');
 ```
 
 **another way to start Application**
-* provide a min.config.js for app.start()
+* provide a min.config.ts for app.start()
 ```typescript
 import {
   Application,
   Req,
   Res
-}  from 'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts';
-import config from './min.config.js';
+} from 'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts';
+import config from './min.config.ts';
 
 const app = new Application();
 
@@ -50,6 +50,9 @@ app
 await app.start(config);
 
 // ==> min.config.js
+import {
+  MinConfig
+} from 'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts';
 const index = async (req: Req, res: Res) => {
   await res.render('template/index.html');
 };
@@ -85,15 +88,21 @@ export default {
   },
   // static files config
   "assets": "./assets"
-}
+} as MinConfig;
 
-// Its not necessary to provide a config if you promise the min.config.js is in the root of your working directory.
+// Its not necessary to provide a config file if you promise the min.config.ts is in the root of your working directory.
 
 // If you dont provide a min.config.js. 
 // It will import your working directory contains file named min.config.js automatic. such as this. 
 ```
+demo(your working directory) (● means a directory)
 
-![image](https://github.com/lengfangbing/min/blob/master/assets/minpng.png)
+* assets
+* template
+* routes <br/>
+index.ts <br/>
+min.config.ts <br/>
+deps.ts
 
 #### 2. middleware
 **If youve used koajs, its simple to understand min's middleware**

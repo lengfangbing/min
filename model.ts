@@ -1,26 +1,47 @@
+import {
+  Response,
+  ServerRequest
+} from "./deps.ts";
+
+type ConfigRoute = {
+  url: string,
+  method: string,
+  func: string | Function,
+  middleware?: Function[]
+}
+export type ReqMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace';
+export type ReqObjectField =
+  { [key: string]: boolean | string | number | ReqObjectField | string[] | Uint8Array | Uint16Array | Uint32Array }
+  | null
+  | string;
 type ModuleFunc = {
   default: Function
 }
-export interface AppConfig{
+
+export interface AppConfig {
   server: ListenOptions
 }
-export interface RoutesConfig{
+
+export interface RoutesConfig {
   url: string,
   method: string,
   func: string | ModuleFunc
-  middleware: Function[]
+  middleware?: Function[]
 }
+
 export interface MethodMapValue {
   func: Function,
   paramsName?: string,
   dynamicFunc?: Function
   middleware: Function[]
 }
-export interface RouteHandlers{
+
+export interface RouteHandlers {
   url: string,
   middleware?: Function[],
   handler: Function
 }
+
 export interface CorsOptions {
   allowMethods?: string[],
   allowHeaders?: string[],
@@ -29,7 +50,8 @@ export interface CorsOptions {
   maxAge?: number,
   exposeHeaders?: string[]
 }
-export interface ListenOptions{
+
+export interface ListenOptions {
   port: number,
   hostname: string,
   certFile?: string,
@@ -37,6 +59,7 @@ export interface ListenOptions{
   secure?: boolean,
   keyFile?: string
 }
+
 export interface RealUrl {
   url: string,
   query?: { [key: string]: any } | null,
@@ -44,4 +67,36 @@ export interface RealUrl {
   params?: string | null,
   paramsName?: string,
   extName?: string
+}
+
+export interface AssetsOptions {
+
+}
+
+export interface Res {
+  response: Response,
+  body: any | null,
+  headers: Headers,
+  status: number,
+  done: boolean,
+  redirect: Function,
+  render: Function,
+  send: Function
+}
+
+export interface Req {
+  query: ReqObjectField,
+  body: ReqObjectField,
+  url: string,
+  method: ReqMethod,
+  headers: Headers,
+  request: ServerRequest,
+  params: ReqObjectField
+}
+
+export interface MinConfig {
+  server: ListenOptions,
+  routes: RoutesConfig[],
+  cors?: CorsOptions,
+  assets?: string
 }
