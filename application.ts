@@ -78,7 +78,8 @@ export class Application {
   }
 
   // parse handler
-  parseHandler(handlers: any[]): RouteHandlers{
+  #parseHandler = (handlers: any[]): RouteHandlers => {
+    if(handlers.length < 2) throw new Error('router has no match url or handler function');
     const url = handlers.shift();
     const handler = handlers.pop();
     const res = {
@@ -92,55 +93,55 @@ export class Application {
   }
 
   get(...args: any[]) {
-    const funcHandler: RouteHandlers = this.parseHandler(args);
+    const funcHandler: RouteHandlers = this.#parseHandler(args);
     this.#add('get', funcHandler);
     return this;
   }
 
   post(...args: any[]) {
-    const funcHandler: RouteHandlers = this.parseHandler(args);
+    const funcHandler: RouteHandlers = this.#parseHandler(args);
     this.#add('post', funcHandler);
     return this;
   }
 
   put(...args: any[]) {
-    const funcHandler: RouteHandlers = this.parseHandler(args);
+    const funcHandler: RouteHandlers = this.#parseHandler(args);
     this.#add('put', funcHandler);
     return this;
   }
 
   delete(...args: any[]) {
-    const funcHandler: RouteHandlers = this.parseHandler(args);
+    const funcHandler: RouteHandlers = this.#parseHandler(args);
     this.#add('delete', funcHandler);
     return this;
   }
 
   options(...args: any[]) {
-    const funcHandler: RouteHandlers = this.parseHandler(args);
+    const funcHandler: RouteHandlers = this.#parseHandler(args);
     this.#add('options', funcHandler);
     return this;
   }
 
   head(...args: any[]) {
-    const funcHandler: RouteHandlers = this.parseHandler(args);
+    const funcHandler: RouteHandlers = this.#parseHandler(args);
     this.#add('head', funcHandler);
     return this;
   }
 
   connect(...args: any[]) {
-    const funcHandler: RouteHandlers = this.parseHandler(args);
+    const funcHandler: RouteHandlers = this.#parseHandler(args);
     this.#add('connect', funcHandler);
     return this;
   }
 
   trace(...args: any[]) {
-    const funcHandler: RouteHandlers = this.parseHandler(args);
+    const funcHandler: RouteHandlers = this.#parseHandler(args);
     this.#add('trace', funcHandler);
     return this;
   }
 
   patch(...args: any[]) {
-    const funcHandler: RouteHandlers = this.parseHandler(args);
+    const funcHandler: RouteHandlers = this.#parseHandler(args);
     this.#add('patch', funcHandler);
     return this;
   }
@@ -149,9 +150,9 @@ export class Application {
     const cwd = Deno.cwd();
     if(!config){
       try{
-        config = (await import (join(cwd, 'min.config.js'))).default;
+        config = (await import (join(cwd, 'min.config.ts'))).default;
       }catch(e){
-        throw Error ('no such file named min.config.js, please check the name or provide a min.config.js by yourself ');
+        throw Error ('no such file named min.config.ts, please check the name or provide a min.config.js by yourself ');
       }
     }
     const { server, routes, cors: corsConfig, assets: assetsConfig = './assets' } = config;
@@ -176,18 +177,7 @@ export class Application {
       const Server = isTls ? serveTLS(server) : serve(server);
       console.log(colors.black(`server is listening ${protocol}://${server.hostname}:${server.port} `))
       for await (let request of Server){
-        const req: Req = new Request({
-          url: request.url,
-          method: request.method as ReqMethod,
-          headers: request.headers,
-          request
-        }).getRequest();
-        const res: Res = new Response().getResponse();
-        await this.#router.handleRoute(req, res);
-        // 如果没有send完成请求, 才调用send
-        if(!res.done){
-          send(req, res);
-        }
+        await this.#router.handleRoute(request);
       }
     }catch(e){
       throw new Error(e);
@@ -207,5 +197,4 @@ export class Application {
     await this.#readConfig(config);
     await this.#listen();
   }
-
 }

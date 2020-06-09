@@ -12,7 +12,7 @@ import {
 } from "./deps.ts";
 import {
   decoder
-} from "./bodyParser.ts";
+} from "./request.ts";
 
 export class Response {
   response: Res
@@ -60,6 +60,8 @@ async function redirect(response: Res, url: string) {
 }
 
 export function send(req: Req, res: Res) {
+  if(res.done) return;
+  // console.log(req);
   const request = req.request;
   const {response, body, headers = new Headers(), status = Status.OK} = res;
   try {

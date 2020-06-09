@@ -14,14 +14,14 @@ import {
 } from "./utils/url/url.ts";
 import {
   decoder
-} from "./bodyParser.ts";
-interface Options {
-
-}
+} from "./request.ts";
+import {
+  AssetsOptions
+} from "./model.ts";
 
 const defaultOptions = {}
 
-export function assets(root: string, opts?: Options) {
+export function assets(root: string, opts?: AssetsOptions) {
   opts = Object.assign({}, defaultOptions, opts || {});
   const path = join(Deno.cwd(), root);
   return async function (request: Req, response: Res, next: Function) {
