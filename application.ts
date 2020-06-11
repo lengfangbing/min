@@ -146,7 +146,7 @@ export class Application {
         throw Error ('no such file named min.config.ts, please check the name or provide a min.config.js by yourself ');
       }
     }
-    const { server, routes, cors: corsConfig, assets: assetsConfig = './assets' } = config;
+    const { server, routes, cors: corsConfig, assets: assetsConfig } = config;
     // set server config
     appConfig.server = server.addr
       ? {...server, ...parseAddress(server.addr)}
