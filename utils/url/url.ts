@@ -6,66 +6,61 @@ import {
   RealUrl
 } from "../../model.ts";
 
-const DYNAMIC_URL_PARSE = /([a-zA-Z0-9\/]+)\/:/g;
-
 export function parseUrlQuery(url: string): RealUrl {
-  const res: RealUrl = {
-    url: '',
-    query: {}
-  };
-  if (url.includes('?')) {
-    const reg = /(\/?\?)(.+)/g;
-    let str = '';
-    const realUrl = url.replace(reg, function (...args) {
-      str = args[2] || '';
-      return '';
-    });
-    if (str) {
-      res.url = realUrl;
-      res.query = urlDecode(decodeURIComponent(str));
-    }
-  } else {
-    const reg = /\/$/;
-    if (reg.test(url)) {
-      res.url = url.slice(0, url.length - 1) || '/';
-    } else {
-      res.url = url;
-    }
-    res.query = null;
+  const s: number = url.lastIndexOf('?');
+  let query: {[key: string]: any} = {};
+  if(s >= 0) {
+    const q = url.substring(s+1);
+    url = url.substring(0, s);
+    query = urlDecode(q);
   }
-  return res;
-}
-
-export function parseDynamicPath(url: string) {
-  let realUrl = '';
-  const str = url.replace(DYNAMIC_URL_PARSE, function(...args){
-    realUrl = args[1];
-    return '';
-  }) || '';
-  return {
-    url: realUrl || '',
-    paramsName: str
-  }
-}
-
-export function parseUrl(url: string) {
-  const reg = /^((\/.+)+)\/([\d\w]+)$/;
-  const res = reg.exec(url);
-  return {
-    url: res ? res[2] : url,
-    params: res ? res[3] : null
-  }
-}
-
-export function parsePrefixUrl(url: string){
-  const reg = /(.+)?\/(.+)$/g;
-  const res = reg.exec(url);
-  if(!res){
-    return null;
+  if(url.endsWith('/')){
+    url = url.substring(0, url.length-1);
   }
   return {
     url,
-    prefix: res[1],
-    extName: res[2]
+    query
+  }
+}
+
+export function parseParamsName(url: string) {
+  const s = url.indexOf(':');
+  if(s === 1){
+    return {
+      url: '',
+      paramsName: url.substring(s+1)
+    }
+  }
+  return {
+    url: url.substring(0, s-1),
+    paramsName: url.substring(s+1)
+  }
+}
+
+export function parseParamsValue(url: string) {
+  const s = url.lastIndexOf('/');
+  if(s === 0){
+    return {
+      url: '',
+      params: url.substring(1)
+    }
+  }
+  return {
+    url: url.substring(0, s),
+    params: url.substring(s+1)
+  }
+}
+
+export function parseExtname(url: string){
+  const b = url.lastIndexOf('.');
+  if(b < 0){
+    return {
+      extName: '',
+      url
+    }
+  }
+  return {
+    url,
+    extName: url.substring(b)
   }
 }

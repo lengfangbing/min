@@ -11,8 +11,8 @@ import {
   Middleware
 } from "./middleware.ts";
 import {
-  parseDynamicPath,
-  parseUrl
+  parseParamsName,
+  parseParamsValue
 } from "./utils/url/url.ts";
 import {
   MethodMapValue
@@ -51,7 +51,7 @@ export class Router {
   }
 
   #handleParams = (funcMap: Record<string, MethodMapValue>, request: Req): {handler: Function, middleware: Function[]} | null => {
-    const {url: dynamicUrl, params} = parseUrl(request.url);
+    const {url: dynamicUrl, params} = parseParamsValue(request.url);
     const funcValue = funcMap[dynamicUrl] as MethodMapValue;
     if (funcValue) {
       const {paramsName, dynamicFunc, middleware} = funcValue;
@@ -134,7 +134,7 @@ export class Router {
     const parentNode = this.#getTree()[method.toLowerCase()];
     // 设置动态路由Map
     if (url.split('/:').length > 1) {
-      const parseParams = parseDynamicPath(url);
+      const parseParams = parseParamsName(url);
       const {url: realUrl, paramsName} = parseParams;
       // 重新设置这个url对应的参数和方法
       parentNode[realUrl] = {
