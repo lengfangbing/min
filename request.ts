@@ -73,7 +73,7 @@ export class Request{
           _body = JSON.parse(_b);
           type = 'json';
         }else if(contentTypeFilter.isUrlencoded){
-          _body = parseQuery(decodeStr(_b));
+          _body = parseUrlencoded(_b);
           type = 'form'
         }else{
           _body = {
@@ -113,15 +113,12 @@ async function parseFormData(contentType: string, request: ServerRequest) {
   }
   return res;
 }
-function parseQuery(str: string) {
+function parseUrlencoded(str: string) {
   return (
     str.length
       ? urlDecode(str)
       : null
   );
-}
-function decodeStr(str: string){
-  return decodeURIComponent(str);
 }
 function getContentType(contentType: string){
   const typeRes = {
