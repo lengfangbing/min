@@ -15,7 +15,7 @@ import {
 } from "./middleware.ts";
 import {
   parseAddress
-} from "./utils/application/application.ts";
+} from "./utils/address/address.ts";
 import {
   AppConfig,
   ListenOptions,
@@ -28,7 +28,7 @@ import {
 import {
   assets
 } from "./assets.ts";
-// 读取better.config.js后调用#listen保存的参数
+// min.config.ts后调用#listen保存的参数
 const appConfig: AppConfig = {
   server: {
     port: 80,
@@ -151,7 +151,7 @@ export class Application {
     appConfig.server = server.addr
       ? {...server, ...parseAddress(server.addr)}
       : server;
-    routes.length
+    routes?.length
       && await this.#setRoutes(routes, cwd);
     corsConfig
       && this.use(cors(corsConfig));
