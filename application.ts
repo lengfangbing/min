@@ -146,7 +146,7 @@ export class Application {
         throw Error ('no such file named min.config.ts, please check the name or provide a min.config.js by yourself ');
       }
     }
-    const { server, routes, cors: corsConfig, assets: assetsConfig } = config;
+    const { server, routes, cors: corsConfig, assets: assetsConfig = '' } = config;
     // set server config
     appConfig.server = server.addr
       ? {...server, ...parseAddress(server.addr)}
@@ -155,8 +155,7 @@ export class Application {
       && await this.#setRoutes(routes, cwd);
     corsConfig
       && this.use(cors(corsConfig));
-    assetsConfig
-      && this.use(assets(assetsConfig));
+    this.use(assets(assetsConfig));
   }
 
   #listen = async (): Promise<void> => {
