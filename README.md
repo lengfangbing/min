@@ -86,7 +86,7 @@ export default {
     "allowCredentials": false,
     "exposeHeaders": [""]
   },
-  // static files config
+  // static files config, default working direction
   "assets": "./assets"
 } as MinConfig;
 
