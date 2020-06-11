@@ -23,9 +23,7 @@ const defaultOptions = {}
 
 export function assets(root: string, opts?: AssetsOptions) {
   opts = Object.assign({}, defaultOptions, opts || {});
-  console.log(root);
   const path = join(Deno.cwd(), root);
-  console.log(path);
   return async function (request: Req, response: Res, next: Function) {
     // 静态资源
     const {extName, url} = parseExtname(request.url);
