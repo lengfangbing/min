@@ -1,4 +1,8 @@
 import {
+  parseParamsName,
+  parseParamsValue,
+} from "./utils/url/url.ts";
+import {
   ServerRequest,
   Status
 } from "./deps.ts";
@@ -11,11 +15,8 @@ import {
   Middleware
 } from "./middleware.ts";
 import {
-  parseParamsName,
-  parseParamsValue
-} from "./utils/url/url.ts";
-import {
-  MethodMapValue
+  MethodMapValue, 
+  ReqObjectField
 } from './model.ts';
 import {
   Request
@@ -25,88 +26,63 @@ import {
 } from "./response.ts";
 
 export class Router {
-
-  // 采用Record的结构进行增加动态路由匹配( 数据量大时键值对速度大于Map, 而且Map占很大内存 )
-  // get: { func: Function, paramsName?: string,
-  // dynamicFunc?: Function, middleWare: Array || null }
-  #tree: Record<string, Record<string, MethodMapValue>> = {
-    get: {},
-    post: {},
-    put: {},
-    delete: {},
-    options: {},
-    head: {},
-    connect: {},
-    trace: {},
-    patch: {}
-  }
+  #tree: Record<string, Record<string, MethodMapValue>>;
   middleware: Middleware
   request: Request
   response: Response
 
   constructor() {
+    this.#tree = {
+      get: {},
+      post: {},
+      put: {},
+      delete: {},
+      options: {},
+      head: {},
+      connect: {},
+      trace: {},
+      patch: {},
+    };
     this.middleware = new Middleware();
     this.request = new Request();
     this.response = new Response();
   }
 
-  #handleParams = (funcMap: Record<string, MethodMapValue>, request: Req): {handler: Function, middleware: Function[]} | null => {
-    const {url: dynamicUrl, params} = parseParamsValue(request.url);
-    const funcValue = funcMap[dynamicUrl] as MethodMapValue;
-    if (funcValue) {
-      const {paramsName, dynamicFunc, middleware} = funcValue;
-      if (paramsName) {
-        if (dynamicFunc && params) {
-          request.params = {[paramsName]: params};
-          return {
-            handler: dynamicFunc,
-            middleware
-          };
-        }
-      }
-    }
-    return null;
+  async handleRoute(request: ServerRequest) {
+    const req: Req = Request.createRequest({
+      url: request.url,
+      method: request.method.toLowerCase() as ReqMethod,
+      headers: request.headers,
+      request
+    });
+    const res: Res = Response.createResponse();
+    await this.#handleRequest(req, res);
   }
 
   #handleRequest = async (request: Req, response: Res) => {
-    // 处理query
     this.request.parseUrlAndQuery(request);
-    const funcMap: Record<string, MethodMapValue> = this.#getRouteByMethod(request.method.toLowerCase());
-    // 取出method对应的方法路由对象, 然后先匹配静态路由, 没有的话再去匹配动态路由
-    // 后期修改的话就修改这里
-    let funcValue: MethodMapValue = funcMap[request.url || '/'] as MethodMapValue;
-    // 取出路由单独的中间件
-    let ownMiddleware: Function[];
-    let execFunc: Function | null;
-    // await this.#handleRequestBody(request);
-    await this.request.parseBody(request);
-    // 处理body
-    // 优先匹配静态方法
-    if (funcValue) {
-      const {func} = funcValue;
-      execFunc = func || null;
-      ownMiddleware = funcValue.middleware;
-    }else{
-      // 再去匹配动态路由
-      // 动态路由才会去处理params
-      const middles = this.#handleParams(funcMap, request) as {handler: Function, middleware: Function[]} | null;
-      execFunc = middles ? middles.handler : null;
-      ownMiddleware = middles ? middles.middleware : [];
+    const { url, method } = request;
+    let fv: MethodMapValue | null = this.find(method, url);
+    let fn: Function | undefined = undefined;
+    const _m = this.middleware.getMiddle();
+    let m = [..._m];
+    if(fv){
+      const { middleware, handler, paramsName, params } = fv;
+      if(paramsName){
+        request.params = {[paramsName]: params} as ReqObjectField;
+      }
+      fn = handler;
+      m = [...m, ...middleware];
     }
-    // 处理中间件, 在中间件最后处理请求request
-    const middleware = this.middleware.getMiddle();
-    // 设置redirect方法
+    await this.request.parseBody(request);
     response.redirect = response.redirect.bind(globalThis, response);
-    // 设置render方法
     response.render = response.render.bind(globalThis, response);
-    const middleProxy = middleware.concat(ownMiddleware);
-    // 取出中间件的下一个方法
-    const func = this.#composeMiddle(middleProxy, request, response, execFunc);
-    await func.call(globalThis);
+    const f = this.#composeMiddle(m, request, response, fn);
+    await f.call(globalThis);
     response.send(request, response);
   }
 
-  #composeMiddle = (middleware: Function[], request: Req, response: Res, execFunc: Function | null) => {
+  #composeMiddle = (middleware: Function[], request: Req, response: Res, execFunc: Function | undefined) => {
     if (!Array.isArray(middleware)) throw new TypeError('Middleware must be an array!')
     return async function () {
       // last called middleware #
@@ -115,7 +91,7 @@ export class Router {
       async function dispatch (i: number): Promise<any> {
         if (i <= index) return Promise.reject(new Error('next() called multiple times'))
         index = i
-        let fn: Function | null = middleware[i]
+        let fn: Function | undefined = middleware[i]
         if (i === middleware.length){
           fn = execFunc
           response.status = execFunc ? Status.OK : Status.NotFound;
@@ -129,79 +105,97 @@ export class Router {
     }
   }
 
-  #add = (method: ReqMethod, url: string, handler: Function, middleware: Function[]) => {
-    // 获取该方法节点
-    const parentNode = this.#getTree()[method.toLowerCase()];
-    // 设置动态路由Map
-    if (url.split('/:').length > 1) {
-      const parseParams = parseParamsName(url);
-      const {url: realUrl, paramsName} = parseParams;
-      // 重新设置这个url对应的参数和方法
-      parentNode[realUrl] = {
-        ...parentNode[realUrl],
+  add(
+    method: string,
+    url: string,
+    handler: Function,
+    middleware: Function[] = [],
+  ) {
+    const p = this.#tree[method.toLowerCase()];
+    const i = url.lastIndexOf(":");
+    if (i >= 0) {
+      const { url: u = '/', paramsName } = parseParamsName(url, i);
+      const v = p[u];
+      p[u] = {
+        ...v,
         paramsName,
-        dynamicFunc: handler,
-        middleware
-      } as MethodMapValue;
+        dynamicHandler: handler,
+        dynamicMiddleware: middleware,
+      };
       return;
     }
-    parentNode[url] = {...parentNode[url], func: handler, middleware} as MethodMapValue;
+    p[url] = {
+      ...p[url],
+      handler,
+      middleware,
+    };
+  }
+
+  #getParamsRoute = (m: Record<string, MethodMapValue>, url: string) => {
+    const { url: u, params } = parseParamsValue(url);
+    const _v = m[u];
+    if (_v) {
+      const { dynamicHandler, dynamicMiddleware, paramsName } = _v;
+      return {
+        handler: dynamicHandler as Function,
+        middleware: dynamicMiddleware as Function[],
+        paramsName,
+        params,
+      };
+    }
+    return null;
+  };
+
+  find(method: string, url: string): MethodMapValue | null {
+    const m = this.#tree[method];
+    const v = m[url];
+    if (v) {
+      const { handler, middleware } = v;
+      if (handler) {
+        return {
+          handler,
+          middleware,
+        };
+      }
+      return this.#getParamsRoute(m, url);
+    }
+    return this.#getParamsRoute(m, url);
   }
 
   get(url: string, handler: Function, middleware: Function[]) {
-    this.#add('get', url, handler, middleware);
+    this.add("get", url, handler, middleware);
   }
 
   post(url: string, handler: Function, middleware: Function[]) {
-    this.#add('post', url, handler, middleware);
+    this.add("post", url, handler, middleware);
   }
 
   put(url: string, handler: Function, middleware: Function[]) {
-    this.#add('put', url, handler, middleware);
+    this.add("put", url, handler, middleware);
   }
 
   delete(url: string, handler: Function, middleware: Function[]) {
-    this.#add('delete', url, handler, middleware);
+    this.add("delete", url, handler, middleware);
   }
 
   options(url: string, handler: Function, middleware: Function[]) {
-    this.#add('options', url, handler, middleware);
+    this.add("options", url, handler, middleware);
   }
 
   head(url: string, handler: Function, middleware: Function[]) {
-    this.#add('head', url, handler, middleware);
+    this.add("head", url, handler, middleware);
   }
 
   connect(url: string, handler: Function, middleware: Function[]) {
-    this.#add('connect', url, handler, middleware);
+    this.add("connect", url, handler, middleware);
   }
 
   trace(url: string, handler: Function, middleware: Function[]) {
-    this.#add('trace', url, handler, middleware);
+    this.add("trace", url, handler, middleware);
   }
 
   patch(url: string, handler: Function, middleware: Function[]) {
-    this.#add('patch', url, handler, middleware);
+    this.add("patch", url, handler, middleware);
   }
 
-  #getTree = () => {
-    return this.#tree;
-  }
-
-  #getRouteByMethod = (method: string) => {
-    return this.#getTree()[method] || {}
-  }
-
-  async handleRoute(request: ServerRequest) {
-    // 处理req, res
-    const req: Req = Request.createRequest({
-      url: request.url,
-      method: request.method as ReqMethod,
-      headers: request.headers,
-      request
-    });
-    const res: Res = Response.createResponse();
-    await this.#handleRequest(req, res);
-  }
 }
-

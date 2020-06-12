@@ -164,7 +164,7 @@ export class Application {
     const protocol = isTls ? 'https' : 'http';
     try{
       const Server = isTls ? serveTLS(server as any) : serve(server);
-      console.log(colors.black(`server is listening ${protocol}://${server.hostname}:${server.port} `))
+      console.log(colors.white(`server is listening ${protocol}://${server.hostname}:${server.port} `))
       for await (let request of Server){
         await this.#router.handleRoute(request);
       }
