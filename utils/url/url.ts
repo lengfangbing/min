@@ -15,7 +15,7 @@ export function parseUrlQuery(url: string): RealUrl {
     query = urlDecode(q);
   }
   if(url.endsWith('/')){
-    url = url.substring(0, url.length-1);
+    url = url.substring(0, url.length-1) || '/';
   }
   return {
     url,
@@ -23,8 +23,8 @@ export function parseUrlQuery(url: string): RealUrl {
   }
 }
 
-export function parseParamsName(url: string) {
-  const s = url.indexOf(':');
+export function parseParamsName(url: string, i?: number) {
+  const s = i || url.indexOf(':');
   if(s === 1){
     return {
       url: '',

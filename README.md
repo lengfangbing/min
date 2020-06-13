@@ -49,7 +49,7 @@ app
   
 await app.start(config);
 
-// ==> min.config.js
+// ==> min.config.ts
 import {
   MinConfig
 } from 'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts';
@@ -92,8 +92,8 @@ export default {
 
 // Its not necessary to provide a config file if you promise the min.config.ts is in the root of your working directory.
 
-// If you dont provide a min.config.js. 
-// It will import your working directory contains file named min.config.js automatic. such as this. 
+// If you dont provide a min.config.ts. 
+// It will import your working directory contains file named min.config.ts automatic. such as this. 
 ```
 demo(your working directory) (● means a directory)
 
@@ -165,8 +165,8 @@ function timeLog (){
     await next();
   }
 }
-// if you use own middleware in min.config.js
-// min.config.js
+// if you use own middleware in min.config.ts
+// min.config.ts
 {
   routes: [
     {

@@ -30,8 +30,9 @@ function parseUrlQuery(url: string){
   }
 }
 
-function parseParamsName(url: string){
-  const s = url.indexOf(':');
+function parseParamsName(url: string, index?: number){
+  // index => :的索引
+  const s = index || url.indexOf(':');
   // 如果url 只有动态params => /:userId
   if(s === 1){
     return {

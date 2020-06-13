@@ -20,10 +20,12 @@ export interface RoutesConfig {
 }
 
 export interface MethodMapValue {
-  func: Function,
-  paramsName?: string,
-  dynamicFunc?: Function
-  middleware: Function[]
+  paramsName?: string;
+  params?: string;
+  dynamicHandler?: Function;
+  dynamicMiddleware?: Function[];
+  middleware: Function[];
+  handler: Function;
 }
 
 export interface RouteHandlers {

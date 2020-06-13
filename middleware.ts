@@ -1,13 +1,13 @@
 
-const middle: Function[] = [];
 export class Middleware{
+  static middle: Function[] = [];
 
   push(func: Function){
-    middle.push(func);
+    Middleware.middle.push(func);
   }
 
   getMiddle(){
-    return middle;
+    return Middleware.middle;
   }
 
 }
