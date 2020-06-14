@@ -11,7 +11,7 @@ import {
 const app = new Application();
 
 app
-  .use(async (request: Req, response: Res, nect: Function) => {
+  .use(async (request: Req, response: Res, next: Function) => {
     await next();
     console.log(response.body);
   })
@@ -39,7 +39,7 @@ import config from './min.config.ts';
 const app = new Application();
 
 app
-  .use(async (request: Req, response: Res, nect: Function) => {
+  .use(async (request: Req, response: Res, next: Function) => {
     await next();
     console.log(response.body);
   })
