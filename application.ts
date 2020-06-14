@@ -2,7 +2,8 @@ import {
   serve,
   colors,
   join,
-  serveTLS
+  serveTLS,
+  Status
 } from './deps.ts';
 import {
   Router
@@ -20,7 +21,11 @@ import {
   AppConfig,
   ListenOptions,
   RouteHandlers,
-  RoutesConfig
+  RoutesConfig,
+  Req,
+  Res,
+  MethodMapValue,
+  ReqObjectField
 } from "./model.ts";
 import {
   cors
@@ -28,7 +33,12 @@ import {
 import {
   assets
 } from "./assets.ts";
-// min.config.ts后调用#listen保存的参数
+import {
+  Request
+} from "./request.ts";
+import {
+  Response
+} from "./response.ts";
 const appConfig: AppConfig = {
   server: {
     port: 80,
@@ -39,9 +49,13 @@ const appConfig: AppConfig = {
 export class Application {
   #router: Router
   #middleware: Middleware
+  request: Request
+  response: Response
   constructor() {
     this.#router = new Router();
     this.#middleware = new Middleware();
+    this.request = new Request();
+    this.response = new Response();
   }
 
   #add = (method: ReqMethod, handlers: RouteHandlers) => {
@@ -68,7 +82,6 @@ export class Application {
     }
   }
 
-  // parse handler
   #parseHandler = (handlers: any[]): RouteHandlers => {
     if(handlers.length < 2) throw new Error('router has no match url or handler function');
     const url = handlers.shift();
@@ -137,6 +150,51 @@ export class Application {
     return this;
   }
 
+  #composeMiddle = (middleware: Function[], request: Req, response: Res, execFunc: Function | undefined) => {
+    if (!Array.isArray(middleware)) throw new TypeError('Middleware must be an array!')
+    return async function () {
+      let index = -1
+      return dispatch(0)
+      async function dispatch (i: number): Promise<any> {
+        if (i <= index) return Promise.reject(new Error('next() called multiple times'))
+        index = i
+        let fn: Function | undefined = middleware[i]
+        if (i === middleware.length){
+          fn = execFunc
+          response.status = execFunc ? Status.OK : Status.NotFound;
+        }
+        try {
+          return fn && fn(request, response, dispatch.bind(null, index + 1));
+        } catch (err) {
+          return Promise.reject(err)
+        }
+      }
+    }
+  }
+
+  #handleRequest = async (request: Req, response: Res) => {
+    this.request.parseUrlAndQuery(request);
+    const { url, method } = request;
+    let fv: MethodMapValue | null = this.#router.find(method, url);
+    let fn: Function | undefined = undefined;
+    const _m = this.#middleware.getMiddle();
+    let m = [..._m];
+    if(fv){
+      const { middleware, handler, paramsName, params } = fv;
+      if(paramsName){
+        request.params = {[paramsName]: params} as ReqObjectField;
+      }
+      fn = handler;
+      m = [...m, ...middleware];
+    }
+    await this.request.parseBody(request);
+    response.redirect = response.redirect.bind(globalThis, response);
+    response.render = response.render.bind(globalThis, response);
+    const f = this.#composeMiddle(m, request, response, fn);
+    await f.call(globalThis);
+    response.send(request, response);
+  }
+
   #readConfig = async (config?: any) => {
     const cwd = Deno.cwd();
     if(!config){
@@ -166,7 +224,14 @@ export class Application {
       const Server = isTls ? serveTLS(server as any) : serve(server);
       console.log(colors.white(`server is listening ${protocol}://${server.hostname}:${server.port} `))
       for await (let request of Server){
-        await this.#router.handleRoute(request);
+        const req: Req = Request.createRequest({
+          url: request.url,
+          method: request.method.toLowerCase() as ReqMethod,
+          headers: request.headers,
+          request
+        });
+        const res: Res = Response.createResponse();
+        await this.#handleRequest(req, res);
       }
     }catch(e){
       throw new Error(e);
