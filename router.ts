@@ -3,33 +3,15 @@ import {
   parseParamsValue,
 } from "./utils/url/url.ts";
 import {
-  ServerRequest,
-  Status
-} from "./deps.ts";
-import {
-  Req,
-  ReqMethod,
-  Res
-} from "./http.ts";
-import {
   Middleware
 } from "./middleware.ts";
 import {
-  MethodMapValue, 
-  ReqObjectField
+  MethodMapValue
 } from './model.ts';
-import {
-  Request
-} from "./request.ts";
-import {
-  Response
-} from "./response.ts";
 
 export class Router {
   #tree: Record<string, Record<string, MethodMapValue>>;
   middleware: Middleware
-  request: Request
-  response: Response
 
   constructor() {
     this.#tree = {
@@ -44,65 +26,6 @@ export class Router {
       patch: {},
     };
     this.middleware = new Middleware();
-    this.request = new Request();
-    this.response = new Response();
-  }
-
-  async handleRoute(request: ServerRequest) {
-    const req: Req = Request.createRequest({
-      url: request.url,
-      method: request.method.toLowerCase() as ReqMethod,
-      headers: request.headers,
-      request
-    });
-    const res: Res = Response.createResponse();
-    await this.#handleRequest(req, res);
-  }
-
-  #handleRequest = async (request: Req, response: Res) => {
-    this.request.parseUrlAndQuery(request);
-    const { url, method } = request;
-    let fv: MethodMapValue | null = this.find(method, url);
-    let fn: Function | undefined = undefined;
-    const _m = this.middleware.getMiddle();
-    let m = [..._m];
-    if(fv){
-      const { middleware, handler, paramsName, params } = fv;
-      if(paramsName){
-        request.params = {[paramsName]: params} as ReqObjectField;
-      }
-      fn = handler;
-      m = [...m, ...middleware];
-    }
-    await this.request.parseBody(request);
-    response.redirect = response.redirect.bind(globalThis, response);
-    response.render = response.render.bind(globalThis, response);
-    const f = this.#composeMiddle(m, request, response, fn);
-    await f.call(globalThis);
-    response.send(request, response);
-  }
-
-  #composeMiddle = (middleware: Function[], request: Req, response: Res, execFunc: Function | undefined) => {
-    if (!Array.isArray(middleware)) throw new TypeError('Middleware must be an array!')
-    return async function () {
-      // last called middleware #
-      let index = -1
-      return dispatch(0)
-      async function dispatch (i: number): Promise<any> {
-        if (i <= index) return Promise.reject(new Error('next() called multiple times'))
-        index = i
-        let fn: Function | undefined = middleware[i]
-        if (i === middleware.length){
-          fn = execFunc
-          response.status = execFunc ? Status.OK : Status.NotFound;
-        }
-        try {
-          return fn && fn(request, response, dispatch.bind(null, index + 1));
-        } catch (err) {
-          return Promise.reject(err)
-        }
-      }
-    }
   }
 
   add(
