@@ -1,8 +1,4 @@
-import {
-  parseUrlQuery,
-  splitPath,
-  splitUrl
-} from './utils/url/url_test.ts';
+import {parseUrlQuery, splitPath, splitUrl} from './utils/url/url_test.ts';
 
 export interface RouteValue {
   query: { [key: string]: string }
@@ -11,7 +7,11 @@ export interface RouteValue {
   handler: Function,
   middleware: Function[]
 }
-
+export interface SingleRoute {
+  middleware: Function[],
+  handler: Function,
+  params: {[key: string]: string}
+}
 export interface NewRoute {
   next: Record<string, NewRoute> | null
   middleware: Function[]
@@ -34,39 +34,56 @@ export class Router {
     };
   }
 
-  find(method: string, url: string): RouteValue | null {
-    const { url: u, query } = parseUrlQuery(url);
-    url = u || '/';
-    const funcMap = this.#tree[method];
-    const urls = splitUrl(url);
-    let val: NewRoute | null = null;
-    let previousNode: Record<string, NewRoute> | null = val;
+  #findLoop = (map: Record<string, NewRoute>, urls: any[]): null | SingleRoute => {
+    let staticVal: NewRoute | null = null;
+    let fallbackVal: Record<string, NewRoute> | null = null;
     let paramsValue: string[] = [];
     try{
-      urls.forEach((value: string) => {
-        previousNode = val ? val.next : null;
-        if(val === null){
-          if(funcMap[value]){
-            val = funcMap[value];
+      urls.forEach((value: string, index) => {
+        // 如果第一次处理到staticVal
+        if(staticVal === null){
+          // 如果有静态路由匹配
+          if(map[value]){
+            staticVal = map[value];
+
+            // 处理回退对象 fallbackVal
           }else{
-            val = funcMap[''];
+            // 如果没有静态路由匹配成功
+            const dyVal1 = map[''];
+            // 也没有定义动态路由, 就肯定没有匹配项, 直接抛出null
+            if(!dyVal1){
+              throw('no');
+            }
+            staticVal = dyVal1;
+
+            // 处理回退对象 fallbackVal
             paramsValue.push(value.substring(1));
           }
         }else{
-          if(val.next === null){
-            throw('no')
+          // 不是第一次处理到staticVal
+          // 如果都没有下个节点, url没处理完, 直接抛出null
+          if(staticVal.next === null){
+            throw('no');
           }else{
-            const nextNode = val.next[value];
-            // 如果有next下一节点
+            // 如果存在下个节点, 判断是否是静态匹配
+            const nextNode = staticVal.next[value];
+            // 如果存在静态匹配, (这里很重要, 因为有可能这个查找的Url实际是动态路由的一部分)
             if(nextNode){
-              val = nextNode;
-            }else{
-              // 还是动态路由
-              const nextDyNode = val.next[''];
-              if(nextDyNode){
-                val = nextDyNode;
+              // staticVal指向下个静态节点
+              staticVal = nextNode;
+
+              //处理回退对象 fallbackVal
+            } else {
+              // 不存在静态匹配, 可能是动态路由
+              // 如果存在动态匹配项
+              const nextNode = staticVal.next[''];
+              if(nextNode){
+                // 重新赋值主匹配项
+                staticVal = nextNode;
+                // 设置params的value
                 paramsValue.push(value.substring(1));
-              }else{
+              } else {
+                // 如果不存在动态匹配项
                 throw('no');
               }
             }
@@ -74,27 +91,28 @@ export class Router {
         }
       });
       // 查找完毕
-      if(val){
-        const { handler, middleware, paramsNames } = val;
+      if(staticVal){
+        const {handler, middleware, paramsNames} = staticVal;
+        // 如果找到的没有匹配成功的处理函数, 意味着没有定义这个路由处理
         if(handler === null){
+          // (重点, 需要设置回溯查找)
           return null;
         }else{
-          const p = paramsNames || [];
-          // @ts-ignore
+          // 如果找到了匹配项的处理方法, 意味着定义了这个路由处理
+          const p: string[] = paramsNames || [];
+          // 判断params所有取值的数组长度是否相等
           if(p.length !== paramsValue.length){
             return null;
-          }else{
+          } else {
+            // 处理params
             const params: {[key: string]: string} = {};
-            // @ts-ignore
-            p.forEach((value: string, index: number) => {
+            p.forEach((value:string, index:number) => {
               params[value] = paramsValue[index];
             });
             return {
               handler,
               middleware,
-              params,
-              url,
-              query
+              params
             }
           }
         }
@@ -107,6 +125,25 @@ export class Router {
       }
     }
     return null;
+  }
+
+  find(method: string, url: string): RouteValue | null {
+    const {url: u, query} = parseUrlQuery(url);
+    url = u || '/';
+    const funcMap = this.#tree[method];
+    const urls = splitUrl(url);
+    const res = this.#findLoop(funcMap, urls);
+    if(res === null){
+      return null;
+    }
+    const {params, middleware, handler} = res;
+    return {
+      url,
+      query,
+      params,
+      middleware,
+      handler
+    }
   }
 
   add(method: string, url: string, handler: Function, middleware: Function[]) {
@@ -158,14 +195,14 @@ export class Router {
             p = funcMap[value];
           }
         }
-      }else{
+      } else {
         // 动态路由
         // 把所有动态路由都改成''(空字符串)索引的形式构造树
         // 第一个就是动态路由
-        if(p === null){
-          if(funcMap['']){
+        if (p === null) {
+          if (funcMap['']) {
             p = funcMap[''];
-          }else{
+          } else {
             funcMap[''] = {
               handler: null,
               next: null,
@@ -174,16 +211,16 @@ export class Router {
             }
             p = funcMap[''];
           }
-          if(params){
+          if (params) {
             params.push(value.paramsName);
-          }else{
+          } else {
             params = [value.paramsName];
           }
-        }else{
-          if(p.next){
-            if(p.next['']){
+        } else {
+          if (p.next) {
+            if (p.next['']) {
               p = p.next[''];
-            }else{
+            } else {
               p.next[''] = {
                 handler: null,
                 next: null,
@@ -192,12 +229,12 @@ export class Router {
               }
               p = p.next[''];
             }
-            if(params){
+            if (params) {
               params.push(value.paramsName);
-            }else{
+            } else {
               params = [value.paramsName];
             }
-          }else{
+          } else {
             p.next = {
               '': {
                 handler: null,
@@ -207,9 +244,9 @@ export class Router {
               }
             }
             p = p.next[''];
-            if(params){
+            if (params) {
               params.push(value.paramsName);
-            }else{
+            } else {
               params = [value.paramsName];
             }
           }
@@ -240,11 +277,11 @@ const path7 = '/name/:id';
 const path8 = '/name/:id/detail';
 const path9 = '/2016207235/user/fangbing';
 const path = [path1, path2, path3, path4, path5, path6, path7, path8, path9];
-const url = '/name/user';
-// router.add('get', path2, () => {}, []);
-// router.add('get', path3, () => {}, []);
-new Array(9).fill(1).forEach((value: any,index: number) => {
-  router.add('get', path[index], () => {console.log(index)}, []);
+const url = '/name';
+new Array(9).fill(1).forEach((value: any, index: number) => {
+  router.add('get', path[index], () => {
+    console.log(index)
+  }, []);
 });
 // console.log(router.getTree()['get']['/name'].next);
 // router.find('get', url)
