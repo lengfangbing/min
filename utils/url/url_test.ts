@@ -11,8 +11,13 @@ const url2 = '/homed/api/information/detail/v4?name=冷方冰&age=22&location=be
 const url3 = '/homed/api/information/detail/v4/?name=冷方冰&age=22&location=beijing';
 const path = '/homed/api/information/user/v4/:id';
 const path1 = '/:userId';
-
-function parseUrlQuery(url: string){
+function timeTest(func: Function){
+  const time1 = performance.now();
+  func.call(null);
+  const time2 = performance.now();
+  console.log(time2 - time1);
+}
+export function parseUrlQuery(url: string){
   // 判断是否有query
   const s = url.indexOf('?'); // ?的索引
   let query = {};
@@ -30,7 +35,7 @@ function parseUrlQuery(url: string){
   }
 }
 
-function parseParamsName(url: string, index?: number){
+export function parseParamsName(url: string, index?: number){
   // index => :的索引
   const s = index || url.indexOf(':');
   // 如果url 只有动态params => /:userId
@@ -46,7 +51,7 @@ function parseParamsName(url: string, index?: number){
   }
 }
 
-function parseParamsValue(url: string){
+export function parseParamsValue(url: string){
   const s = url.lastIndexOf('/');
   if(s === 0){
     return {
@@ -59,13 +64,7 @@ function parseParamsValue(url: string){
     params: url.substring(s+1)
   }
 }
-function timeTest(func: Function){
-  const time1 = performance.now();
-  func.call(null);
-  const time2 = performance.now();
-  console.log(time2 - time1);
-}
-function parseExtname(url: string){
+export function parseExtname(url: string){
   const b = url.lastIndexOf('.');
   if(b < 0){
     return {
@@ -79,23 +78,33 @@ function parseExtname(url: string){
   }
 }
 // timeTest(parseUrlQuery.bind(null, url2));
-// timeTest(parseParamsName.bind(null, path));
-// timeTest(parseParamsValue.bind(null, url));
-// timeTest(parseExtname.bind(this, '/static/test.txt'));
-// assertEquals('/homed/api/information/detail/v4', parseUrlQuery(url1).url);
-// assertEquals({name: '冷方冰', age: '22', location: 'beijing'}, parseUrlQuery(url3).query);
-// assertEquals({}, parseUrlQuery(url).query);
-// assertEquals({url: '/homed/api/information/user/v4', paramsName: 'id'}, parseParamsName(path));
-// assertEquals({url: '', paramsName: 'userId'}, parseParamsName(path1));
-// assertEquals({url: '/homed/api/information/detail', params: 'v4'}, parseParamsValue(url));
-// assertEquals({url: '', params: 'id'}, parseParamsValue('/id'));
-// assertEquals({url: '/test.txt', extName: '.txt'}, parseExtname('/test.txt'));
-// assertEquals({url: '/static/test.txt', extName: '.txt'}, parseExtname('/static/test.txt'));
-// assertEquals({url: '/.txt', extName: '.txt'}, parseExtname('/.txt'));
-// assertEquals({url: '/test', extName: ''}, parseExtname('/test'));
+assertEquals('/homed/api/information/detail/v4', parseUrlQuery(url1).url);
+assertEquals({name: '冷方冰', age: '22', location: 'beijing'}, parseUrlQuery(url3).query);
+assertEquals({}, parseUrlQuery(url).query);
+assertEquals({url: '/homed/api/information/user/v4', paramsName: 'id'}, parseParamsName(path));
+assertEquals({url: '', paramsName: 'userId'}, parseParamsName(path1));
+assertEquals({url: '/homed/api/information/detail', params: 'v4'}, parseParamsValue(url));
+assertEquals({url: '', params: 'id'}, parseParamsValue('/id'));
+assertEquals({url: '/test.txt', extName: '.txt'}, parseExtname('/test.txt'));
+assertEquals({url: '/static/test.txt', extName: '.txt'}, parseExtname('/static/test.txt'));
+assertEquals({url: '/.txt', extName: '.txt'}, parseExtname('/.txt'));
+assertEquals({url: '/test', extName: ''}, parseExtname('/test'));
 
-
-export function splitUrl(path: string){
+export function splitUrl(url: string){
+  const res = [];
+  let _url = url.substring(1) || '/';
+  let i = 0;
+  while((i = _url.indexOf('/')) >= 0){
+    const v = _url.substring(0, i);
+    res.push(`/${v}`);
+    _url = _url.substring(i+1);
+  }
+  if(_url.length){
+    res.push(`/${_url}`);
+  }
+  return res;
+}
+export function splitPath(path: string){
   const res = [];
   let url = path.substring(1) || '/';
   let i = 0;
@@ -119,33 +128,15 @@ export function splitUrl(path: string){
   return res;
 }
 
-function unstable_splitUrl(path: string){
-  const pR = /\/[\d\w:]*/g;
-  let a = path;
-  return Array.from(a.matchAll(pR)).map(val => val?.[0]).map((val: string) => {
-    const i = val.indexOf(':');
-    if(i<0){
-      return val;
-    }
-    return {
-      paramsName: val.substring(i+1)
-    }
-  });
-}
-
 const p1 = '/user/:id';
 const p2 = '/user/:id/home'
 const p3 = '/:id/home';
-const p4 = '/:id/home/:admin';
+const p4 = '/:id/home/:admin/';
 const p5 = '/user/home';
 const p6 = '/:id';
 const p7 = '/';
 const p8 = '/home';
 const p9 = '/home/user/2016207235/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae';
 const p10 = '/home/user/2016207235';
-
-// console.log(splitUrl(p9));
-// timeTest(unstable_splitUrl.bind(this, p9));
-// timeTest(splitUrl.bind(this, p9));
+const p11 = '//name';
 // timeTest(parseParamsName.bind(null, p9));
-assertEquals(splitUrl(p7), unstable_splitUrl(p7));
