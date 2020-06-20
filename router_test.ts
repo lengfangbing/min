@@ -10,7 +10,9 @@ export interface RouteValue {
 export interface SingleRoute {
   middleware: Function[],
   handler: Function,
-  params: {[key: string]: string}
+  // params: {[key: string]: string}
+  paramsNames: string[],
+  paramsValues: string[]
 }
 export interface NewRoute {
   next: Record<string, NewRoute> | null
@@ -34,97 +36,120 @@ export class Router {
     };
   }
 
-  #findLoop = (map: Record<string, NewRoute>, urls: any[]): null | SingleRoute => {
+
+  /**
+   *
+   * @param map: 要查找的树
+   * @param urls: 目标url数组
+   *
+   * 接下来构思是这样,
+   */
+  #findLoop = (map: Record<string, NewRoute | null> | null, urls: string[]): null | SingleRoute => {
     let staticVal: NewRoute | null = null;
-    let fallbackVal: Record<string, NewRoute> | null = null;
-    let paramsValue: string[] = [];
-    try{
-      urls.forEach((value: string, index) => {
-        // 如果第一次处理到staticVal
-        if(staticVal === null){
-          // 如果有静态路由匹配
-          if(map[value]){
-            staticVal = map[value];
+    // 回退对象
+    let fallbackMap1: Record<string, NewRoute | null> | null = null;
+    let fallbackMap2: Record<string, NewRoute | null> | null = null;
+    let _url1: string[] = [];
+    let _url2: string[] = [];
+    let paramsValues: string[] = [];
+    let needFallback = false;
+    if(map === null){
+      return null;
+    }
+    for(let i = 0; i < urls.length; i++){
+      const value: string = urls[i];
+      // 如果第一次处理path part
+      if(staticVal === null){
+        // 如果有静态路由匹配
+        const stVal = map[value];
+        if(stVal){
+          staticVal = stVal;
 
-            // 处理回退对象 fallbackVal
-          }else{
-            // 如果没有静态路由匹配成功
-            const dyVal1 = map[''];
-            // 也没有定义动态路由, 就肯定没有匹配项, 直接抛出null
-            if(!dyVal1){
-              throw('no');
-            }
-            staticVal = dyVal1;
-
-            // 处理回退对象 fallbackVal
-            paramsValue.push(value.substring(1));
-          }
+          // 处理回退对象 fallbackMap
         }else{
-          // 不是第一次处理到staticVal
-          // 如果都没有下个节点, url没处理完, 直接抛出null
-          if(staticVal.next === null){
-            throw('no');
-          }else{
-            // 如果存在下个节点, 判断是否是静态匹配
-            const nextNode = staticVal.next[value];
-            // 如果存在静态匹配, (这里很重要, 因为有可能这个查找的Url实际是动态路由的一部分)
-            if(nextNode){
-              // staticVal指向下个静态节点
-              staticVal = nextNode;
-
-              //处理回退对象 fallbackVal
-            } else {
-              // 不存在静态匹配, 可能是动态路由
-              // 如果存在动态匹配项
-              const nextNode = staticVal.next[''];
-              if(nextNode){
-                // 重新赋值主匹配项
-                staticVal = nextNode;
-                // 设置params的value
-                paramsValue.push(value.substring(1));
-              } else {
-                // 如果不存在动态匹配项
-                throw('no');
-              }
-            }
-          }
-        }
-      });
-      // 查找完毕
-      if(staticVal){
-        const {handler, middleware, paramsNames} = staticVal;
-        // 如果找到的没有匹配成功的处理函数, 意味着没有定义这个路由处理
-        if(handler === null){
-          // (重点, 需要设置回溯查找)
-          return null;
-        }else{
-          // 如果找到了匹配项的处理方法, 意味着定义了这个路由处理
-          const p: string[] = paramsNames || [];
-          // 判断params所有取值的数组长度是否相等
-          if(p.length !== paramsValue.length){
+          // 如果没有静态路由匹配成功
+          const dyVal1 = map[''];
+          // 也没有定义动态路由, 这里不需要回溯
+          // 因为这是第一次匹配的情况, 这种情况只能是没有匹配项
+          // 所以直接return null
+          if(!dyVal1){
             return null;
-          } else {
-            // 处理params
-            const params: {[key: string]: string} = {};
-            p.forEach((value:string, index:number) => {
-              params[value] = paramsValue[index];
-            });
-            return {
-              handler,
-              middleware,
-              params
-            }
           }
+          staticVal = dyVal1;
+          paramsValues.push(value.substring(1));
+
+          // 处理回退对象 fallbackMap
         }
       }else{
-        return null;
-      }
-    }catch (e) {
-      if(e === 'no'){
-        return null;
+        // 不是第一次处理到staticVal
+        // 如果没有子节点
+        // 可能上个节点是个动态路由, 然而匹配一直是匹配的静态路由
+        // 需要回溯
+        if(staticVal.next === null){
+          needFallback = true
+          break;
+          // return null;
+        }else{
+          // 如果存在下个节点, 判断是否是静态路由匹配
+          const nextNode: NewRoute | null = staticVal.next[value];
+          // 如果存在静态匹配路由
+          if(nextNode){
+            //处理回退对象 fallbackMap
+
+            // staticVal指向下个静态节点
+            staticVal = nextNode;
+          } else {
+            // 不存在静态匹配, 可能是动态路由
+            // 如果存在动态匹配路由
+            const nextNode: NewRoute | null = staticVal.next[''];
+            if(nextNode){
+              // 重新赋值value
+              staticVal = nextNode;
+              // 设置params的value
+              paramsValues.push(value.substring(1));
+
+              // 处理回退对象 fallbackMap
+            } else {
+              // 如果不存在动态匹配项
+              // 可能是之前匹配的静态匹配项实际是动态匹配项
+              // 回溯查找
+              needFallback = true;
+              break;
+              // return null;
+            }
+          }
+        }
       }
     }
-    return null;
+    if(needFallback){
+      console.log(fallbackMap1);
+      console.log(fallbackMap2);
+      console.log(_url1);
+      console.log(_url2);
+    }
+    // 查找完毕
+    if(staticVal){
+      const {handler, middleware, paramsNames} = staticVal;
+      // 如果找到的没有匹配成功的处理函数
+      // 那么可能是动态的paramsValue与静态url重合
+      // 所以需要回溯查找fallbackMap
+      // 所有处理的关键是正确赋值fallbackMap, 然后在这里回溯查找
+      if(handler === null){
+        // 回溯去查找
+        return null;
+      }else{
+        // 如果找到了匹配项的处理方法, 意味着定义了这个路由处理
+        // const p: string[] = paramsNames || [];
+        return {
+          handler,
+          middleware,
+          paramsNames: paramsNames || [],
+          paramsValues
+        }
+      }
+    }else{
+      return null;
+    }
   }
 
   find(method: string, url: string): RouteValue | null {
@@ -136,7 +161,14 @@ export class Router {
     if(res === null){
       return null;
     }
-    const {params, middleware, handler} = res;
+    const {paramsNames, paramsValues, middleware, handler} = res;
+    if(paramsNames.length !== paramsValues.length){
+      return null;
+    }
+    const params: {[key: string]: string} = {};
+    paramsNames.forEach((value: string, index: number) => {
+      params[value] = paramsValues[index];
+    })
     return {
       url,
       query,
@@ -268,30 +300,37 @@ export class Router {
 
 const router = new Router();
 const path1 = '/';
-const path2 = '/:id';
-const path3 = '/:id/user/:name';
+// const path2 = '/:id';
+const path3 = '/name/:id/:name/ting';
 const path4 = '/name';
 const path5 = '/name/user/fang/bing';
 const path6 = '/name/user/fang/fang';
 const path7 = '/name/:id';
-const path8 = '/name/:id/detail';
+const path8 = '/name/:id/fang';
 const path9 = '/2016207235/user/fangbing';
-const path = [path1, path2, path3, path4, path5, path6, path7, path8, path9];
-const url = '/name';
-new Array(9).fill(1).forEach((value: any, index: number) => {
+const path = [path1, path3, path4, path5, path6, path7, path8, path9];
+const url = '/name/users/fang/ting';
+new Array(8).fill(1).forEach((value: any, index: number) => {
   router.add('get', path[index], () => {
     console.log(index)
   }, []);
 });
-// console.log(router.getTree()['get']['/name'].next);
 // router.find('get', url)
 console.log(router.find('get', url));
+function timeTest(func: Function){
+  const time1 = performance.now();
+  func.call(null);
+  const time2 = performance.now();
+  console.log(time2 - time1);
+}
+// timeTest(router.find.bind(router, 'get', url));
+console.log('end');
 // router.find('get', url)?.handler();
 
 // router.add('get', path3, () => {
 // }, []);
 // @ts-ignore
-// console.log(router.getTree()['get']['/name'].next['/user'].next);
+console.log(router.getTree()['get']['/name'].next['/user'].next);
 // console.log(router.getTree()['get'][''].next['/user'].next);
 // const count = 9000;
 // const a = new Array(count).fill(1);
