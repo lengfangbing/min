@@ -49,6 +49,7 @@ export class Router {
     let needFallback: boolean = false;
     for(let i = 0; i < urls.length; i++) {
       const url = urls[i];
+      // 下个节点对象
       let nextNode: any = routeVal ? routeVal.next : map;
       if(nextNode === null){
         for(let i = 0; i < _map.length; i++){
@@ -61,13 +62,14 @@ export class Router {
       }
       const stVal = nextNode[url];
       const dyVal = nextNode[''];
-      // 存在静态匹配
+      // 静态匹配
       if(stVal){
         routeVal = stVal;
         if(dyVal){
           _map.push(this.#findLoop.bind(this, {'': dyVal}, urls.slice(i)));
         }
       }else{
+        // 动态匹配
         if(dyVal){
           routeVal = dyVal;
         }else{

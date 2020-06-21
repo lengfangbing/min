@@ -43,11 +43,8 @@ export class Router {
     let p: NewRoute | null = null;
     let pm: {[key: string]: string } | null = null;
     us.forEach((value: string | { paramsName: string }, index: number) => {
-      // 静态路由
       if (typeof value === 'string') {
-        // 如果p代表了有值了, 就代表funcMap有匹配项了
         if (p) {
-          // 如果p有next, 表示p有下一节点, 接下来判断是否有这个value节点
           if (p.next) {
             if (p.next[value]) {
               p = p.next[value];
@@ -61,7 +58,6 @@ export class Router {
               p = p.next[value];
             }
           } else {
-            // 如果没有next, 表示没有下一节点, 这是个新开的节点
             p.next = {
               [value]: {
                 handler: null,
@@ -86,9 +82,6 @@ export class Router {
           }
         }
       } else {
-        // 动态路由
-        // 把所有动态路由都改成''(空字符串)索引的形式构造树
-        // 第一个就是动态路由
         if (p === null) {
           if (fM['']) {
             p = fM[''];
@@ -152,11 +145,8 @@ export class Router {
   }
 
   #findLoop = (map: Record<string, NewRoute | null>, urls: string[]): SingleRoute | null => {
-    // 回退查找的数组
     let _m: Function[] = [];
-    // 当前查找到的静态处理Route
     let rV: NewRoute | null = null;
-    // 是否需要回溯
     let nF: boolean = false;
     for(let i = 0; i < urls.length; i++) {
       const url = urls[i];
@@ -172,7 +162,6 @@ export class Router {
       }
       const sV = nN[url];
       const dV = nN[''];
-      // 存在静态匹配
       if(sV){
         rV = sV;
         if(dV){
