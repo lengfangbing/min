@@ -6,8 +6,9 @@ import {
   Status
 } from './deps.ts';
 import {
-  Router
-} from "./router.ts";
+  Router,
+  RouteValue
+} from "./router_test.ts";
 import {
   ReqMethod
 } from "./http.ts";
@@ -23,8 +24,7 @@ import {
   RouteHandlers,
   RoutesConfig,
   Req,
-  Res,
-  RouteValue
+  Res
 } from "./model.ts";
 import {
   cors
@@ -38,6 +38,9 @@ import {
 import {
   Response
 } from "./response.ts";
+import {
+  assertEquals
+} from "https://deno.land/std/testing/asserts.ts";
 const appConfig: AppConfig = {
   server: {
     port: 80,
@@ -59,7 +62,7 @@ export class Application {
 
   #add = (method: ReqMethod, handlers: RouteHandlers) => {
     const { url, handler, middleware } = handlers;
-    this.#router[method](url, handler, middleware || []);
+    this.#router.add(method, url, handler, middleware || []);
   }
 
   use(func: Function){
@@ -172,15 +175,17 @@ export class Application {
   }
 
   #handleRequest = async (request: Req, response: Res) => {
-    let fv: RouteValue | null = this.#router.find(request.method, request.url);
+    this.request.parseUrlAndQuery(request);
+    const { url, method } = request;
+    let fv: RouteValue | null = this.#router.find(method, url);
     let fn: Function | undefined = undefined;
     const _m = this.#middleware.getMiddle();
     let m = [..._m];
     if(fv){
-      const { middleware, handler, params, query, url } = fv;
-      request.params = params;
+      const { middleware, handler, params, url, query } = fv;
       request.url = url;
       request.query = query;
+      request.params = params;
       fn = handler;
       m = [...m, ...middleware];
     }
@@ -207,9 +212,9 @@ export class Application {
       ? {...server, ...parseAddress(server.addr)}
       : server;
     routes?.length
-      && await this.#setRoutes(routes, cwd);
+    && await this.#setRoutes(routes, cwd);
     corsConfig
-      && this.use(cors(corsConfig));
+    && this.use(cors(corsConfig));
     this.use(assets(assetsConfig));
   }
 
@@ -249,3 +254,10 @@ export class Application {
     await this.#listen();
   }
 }
+const a = new Application();
+// fetch url /name/100/v1/detail
+a.get('/name/:id/:version/detail', (req: Req, res: Res) => {
+  assertEquals({id: '100', version: 'v1'}, req.params);
+  res.body = req.params;
+});
+await a.listen('http://127.0.0.1:8000');

@@ -1,16 +1,19 @@
 import {
-  parseParamsName,
-  parseParamsValue,
+  parseUrlQuery,
+  splitPath,
+  splitUrl,
 } from "./utils/url/url.ts";
 import {
   Middleware
 } from "./middleware.ts";
 import {
-  MethodMapValue
+  NewRoute,
+  RouteValue,
+  SingleRoute
 } from './model.ts';
 
 export class Router {
-  #tree: Record<string, Record<string, MethodMapValue>>;
+  #tree: Record<string, Record<string, NewRoute>>;
   middleware: Middleware
 
   constructor() {
@@ -34,56 +37,198 @@ export class Router {
     handler: Function,
     middleware: Function[] = [],
   ) {
-    const p = this.#tree[method.toLowerCase()];
-    const i = url.lastIndexOf(":");
-    if (i >= 0) {
-      const { url: u = '/', paramsName } = parseParamsName(url, i);
-      const v = p[u];
-      p[u] = {
-        ...v,
-        paramsName,
-        dynamicHandler: handler,
-        dynamicMiddleware: middleware,
-      };
-      return;
-    }
-    p[url] = {
-      ...p[url],
-      handler,
-      middleware,
-    };
+    const fM = this.#tree[method];
+    const us = splitPath(url);
+    if (!us.length) throw new Error('router path is invalid, use /path/... instead');
+    let p: NewRoute | null = null;
+    let pm: {[key: string]: string } | null = null;
+    us.forEach((value: string | { paramsName: string }, index: number) => {
+      if (typeof value === 'string') {
+        if (p) {
+          if (p.next) {
+            if (p.next[value]) {
+              p = p.next[value];
+            } else {
+              p.next[value] = {
+                handler: null,
+                next: null,
+                middleware: [],
+                paramsNames: {}
+              }
+              p = p.next[value];
+            }
+          } else {
+            p.next = {
+              [value]: {
+                handler: null,
+                next: null,
+                middleware: [],
+                paramsNames: {}
+              }
+            };
+            p = p.next[value];
+          }
+        } else {
+          if (fM[value]) {
+            p = fM[value];
+          } else {
+            fM[value] = {
+              handler: null,
+              next: null,
+              middleware: [],
+              paramsNames: {}
+            };
+            p = fM[value];
+          }
+        }
+      } else {
+        if (p === null) {
+          if (fM['']) {
+            p = fM[''];
+          } else {
+            fM[''] = {
+              handler: null,
+              next: null,
+              middleware: [],
+              paramsNames: {}
+            }
+            p = fM[''];
+          }
+          if (pm) {
+            pm[index] = value.paramsName;
+          } else {
+            pm = {[index]: value.paramsName};
+          }
+        } else {
+          if (p.next) {
+            if (p.next['']) {
+              p = p.next[''];
+            } else {
+              p.next[''] = {
+                handler: null,
+                next: null,
+                middleware: [],
+                paramsNames: {}
+              }
+              p = p.next[''];
+            }
+            if (pm) {
+              pm[index] = value.paramsName;
+            } else {
+              pm = {[index]: value.paramsName};
+            }
+          } else {
+            p.next = {
+              '': {
+                handler: null,
+                next: null,
+                middleware: [],
+                paramsNames: {}
+              }
+            }
+            p = p.next[''];
+            if (pm) {
+              pm[index] = value.paramsName;
+            } else {
+              pm = {[index]: value.paramsName};
+            }
+          }
+        }
+      }
+    });
+    // @ts-ignore
+    p.middleware = middleware;
+    // @ts-ignore
+    p.handler = handler;
+    // @ts-ignore
+    p.paramsNames = pm;
   }
 
-  #getParamsRoute = (m: Record<string, MethodMapValue>, url: string) => {
-    const { url: u, params } = parseParamsValue(url);
-    const _v = m[u];
-    if (_v) {
-      const { dynamicHandler, dynamicMiddleware, paramsName } = _v;
-      return {
-        handler: dynamicHandler as Function,
-        middleware: dynamicMiddleware as Function[],
-        paramsName,
-        params,
-      };
+  #findLoop = (map: Record<string, NewRoute | null>, urls: string[]): SingleRoute | null => {
+    let _m: Function[] = [];
+    let rV: NewRoute | null = null;
+    let nF: boolean = false;
+    for(let i = 0; i < urls.length; i++) {
+      const url = urls[i];
+      let nN: any = rV ? rV.next : map;
+      if(nN === null){
+        for(let i = 0; i < _m.length; i++){
+          const res = _m[i]();
+          if(res){
+            return res;
+          }
+        }
+        return null;
+      }
+      const sV = nN[url];
+      const dV = nN[''];
+      if(sV){
+        rV = sV;
+        if(dV){
+          _m.push(this.#findLoop.bind(this, {'': dV}, urls.slice(i)));
+        }
+      }else{
+        if(dV){
+          rV = dV;
+        }else{
+          nF = true;
+          break;
+        }
+      }
     }
-    return null;
-  };
-
-  find(method: string, url: string): MethodMapValue | null {
-    const m = this.#tree[method];
-    const v = m[url];
-    if (v) {
-      const { handler, middleware } = v;
-      if (handler) {
+    if(rV){
+      const {handler, middleware, paramsNames} = rV;
+      if(nF){
+        for(let i = 0; i < _m.length; i++){
+          const res = _m[i]();
+          if(res){
+            return res;
+          }
+        }
+        return null;
+      }
+      if(handler === null){
+        for(let i = 0; i < _m.length; i++){
+          const res = _m[i]();
+          if(res){
+            return res;
+          }
+        }
+        return null;
+      }else{
         return {
           handler,
           middleware,
+          paramsNames
         };
       }
-      return this.#getParamsRoute(m, url);
     }
-    return this.#getParamsRoute(m, url);
+    return null;
   }
+
+  find(method: string, url: string): RouteValue | null {
+    const {url: u, query} = parseUrlQuery(url);
+    url = u || '/';
+    const fM = this.#tree[method];
+    const us = splitUrl(url) as string[];
+    const res = this.#findLoop(fM, us);
+    if(res === null){
+      return null;
+    }
+    const {paramsNames, middleware, handler} = res;
+    const params: {[key: string]: string} = {};
+    for (let i in paramsNames){
+      params[paramsNames[i]] = us[+i].substring(1);
+    }
+    return {
+      url,
+      query: query || {},
+      params: params || {},
+      middleware,
+      handler
+    }
+  }
+
 
   get(url: string, handler: Function, middleware: Function[]) {
     this.add("get", url, handler, middleware);
