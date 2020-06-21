@@ -127,16 +127,5 @@ export function splitPath(path: string){
   }
   return res;
 }
-
-const p1 = '/user/:id';
-const p2 = '/user/:id/home'
-const p3 = '/:id/home';
-const p4 = '/:id/home/:admin/';
-const p5 = '/user/home';
-const p6 = '/:id';
-const p7 = '/';
-const p8 = '/home';
-const p9 = '/home/user/2016207235/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae/feagrsgh/awrfaetgsys/htrhrther/yerrtwefsd/5464574/fwefw/8658565/sdwfew/653463634/fwefweg/6586584584/fagasegs/:dfaefae';
-const p10 = '/home/user/2016207235';
-const p11 = '//name';
-// timeTest(parseParamsName.bind(null, p9));
+assertEquals(['/name',{paramsName: 'id'}, '/v1'], splitPath('/name/:id/v1'));
+assertEquals(['/name', '/fangbing', '/v1'], splitUrl('/name/fangbing/v1'));

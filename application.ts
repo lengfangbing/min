@@ -24,8 +24,7 @@ import {
   RoutesConfig,
   Req,
   Res,
-  MethodMapValue,
-  ReqObjectField
+  RouteValue
 } from "./model.ts";
 import {
   cors
@@ -173,17 +172,15 @@ export class Application {
   }
 
   #handleRequest = async (request: Req, response: Res) => {
-    this.request.parseUrlAndQuery(request);
-    const { url, method } = request;
-    let fv: MethodMapValue | null = this.#router.find(method, url);
+    let fv: RouteValue | null = this.#router.find(request.method, request.url);
     let fn: Function | undefined = undefined;
     const _m = this.#middleware.getMiddle();
     let m = [..._m];
     if(fv){
-      const { middleware, handler, paramsName, params } = fv;
-      if(paramsName){
-        request.params = {[paramsName]: params} as ReqObjectField;
-      }
+      const { middleware, handler, params, query, url } = fv;
+      request.params = params;
+      request.url = url;
+      request.query = query;
       fn = handler;
       m = [...m, ...middleware];
     }

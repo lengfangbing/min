@@ -88,3 +88,26 @@ export function splitUrl(path: string){
   }
   return res;
 }
+export function splitPath(path: string){
+  const res = [];
+  let url = path.substring(1) || '/';
+  let i = 0;
+  while((i = url.indexOf('/')) >= 0){
+    const v = url.substring(0, i);
+    let j = 0;
+    if((j = v.indexOf(':')) >= 0){
+      res.push({paramsName: v.substring(j+1)});
+    }else{
+      res.push(`/${v}`);
+    }
+    url = url.substring(i+1);
+  }
+  if(url.length){
+    if((i = url.indexOf(':')) >= 0){
+      res.push({paramsName: url.substring(i+1)});
+    }else{
+      res.push(`/${url}`);
+    }
+  }
+  return res;
+}

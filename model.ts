@@ -18,16 +18,24 @@ export interface RoutesConfig {
   func: string | Function
   middleware?: Function[]
 }
-
-export interface MethodMapValue {
-  paramsName?: string;
-  params?: string;
-  dynamicHandler?: Function;
-  dynamicMiddleware?: Function[];
-  middleware: Function[];
-  handler: Function;
+export interface RouteValue {
+  query: { [key: string]: string }
+  url: string
+  params: { [key: string]: string },
+  handler: Function,
+  middleware: Function[]
 }
-
+export interface SingleRoute {
+  middleware: Function[],
+  handler: Function,
+  paramsNames: {[key: string]: string }
+}
+export interface NewRoute {
+  next: Record<string, NewRoute> | null
+  middleware: Function[]
+  handler: Function | null,
+  paramsNames: {[key: string]: string }
+}
 export interface RouteHandlers {
   url: string,
   middleware?: Function[],

@@ -24,9 +24,7 @@ import {
   RouteHandlers,
   RoutesConfig,
   Req,
-  Res,
-  MethodMapValue,
-  ReqObjectField
+  Res
 } from "./model.ts";
 import {
   cors
@@ -40,6 +38,9 @@ import {
 import {
   Response
 } from "./response.ts";
+import {
+  assertEquals
+} from "https://deno.land/std/testing/asserts.ts";
 const appConfig: AppConfig = {
   server: {
     port: 80,
@@ -253,27 +254,10 @@ export class Application {
     await this.#listen();
   }
 }
-
-const app = new Application();
-// app.use(async (req: Req, res: Res, next: Function) => {
-//   const t1 = performance.now();
-//   await next();
-//   const t2 = performance.now();
-//   res.headers.set('x-response-time', (t2 - t1).toString());
-// });
-// app.get('/getList2/:name/v1', (req: Req, res: Res) => {
-//   // console.log(req);
-//   res.body = {
-//     query: req.query,
-//     params: req.params
-//   }
-// });
-const count = 9000;
-const a = new Array(count).fill(1);
-a.forEach((value, index) => {
-  app.get(`/getList${index}/:user/:id/v1/`, (req: Req, res: Res) => res.body= {
-    params: req.params,
-    index
-  });
+const a = new Application();
+// fetch url /name/100/v1/detail
+a.get('/name/:id/:version/detail', (req: Req, res: Res) => {
+  assertEquals({id: '100', version: 'v1'}, req.params);
+  res.body = req.params;
 });
-await app.listen('http://127.0.0.1:8000');
+await a.listen('http://127.0.0.1:8000');
