@@ -4,7 +4,7 @@ import {
   Res
 }  from './deps.ts';
 const app = new Application();
-
+import config from './min.config.ts';
 function requestLogger(){
   return async function(req: Req, res: Res, next: Function){
     const time1 = performance.now();
@@ -22,3 +22,5 @@ app
   })
   .use(requestLogger());
 await app.start(await import('./min.config.ts'));
+// or
+// await app.start(config);

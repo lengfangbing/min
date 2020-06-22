@@ -35,6 +35,7 @@ import {
 import {
   Response
 } from "./response.ts";
+
 const appConfig: AppConfig = {
   server: {
     port: 80,
@@ -192,7 +193,8 @@ export class Application {
   }
 
   #readConfig = async (config: any) => {
-    config = config.default;
+    // config.constructor === undefined => config = await import('./min.config.ts')
+    config = config.constructor ? config : config.default;
     const { server, routes, cors: corsConfig, assets: assetsConfig = '' } = config;
     // set server config
     appConfig.server = server.addr
