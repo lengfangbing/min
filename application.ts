@@ -202,6 +202,7 @@ export class Application {
       try{
         config = (await import (join(cwd, './min.config.ts'))).default;
       }catch(e){
+        console.log(e);
         throw Error ('no such file named min.config.ts, please check the name or provide a min.config.ts by yourself ');
       }
     }else{
