@@ -1,7 +1,6 @@
 import {
   serve,
   colors,
-  join,
   serveTLS,
   Status
 } from './deps.ts';
@@ -66,15 +65,12 @@ export class Application {
     return this;
   }
 
-  #setRoutes = async (routes: RoutesConfig[], cwd: string) => {
+  #setRoutes = async (routes: RoutesConfig[]) => {
     for(let i = 0; i < routes.length; i++){
       const value = routes[i];
       const method: ReqMethod = value.method.toLowerCase() as ReqMethod;
       const { url, func, middleware = [] } = value;
-      const handler =
-        typeof func === 'string'
-          ? (await import(join(cwd, func))).default
-          : func;
+      const handler = func;
       this.#add(method, {url, middleware, handler});
     }
   }
@@ -195,26 +191,15 @@ export class Application {
     response.send(request, response);
   }
 
-  #readConfig = async (config?: any) => {
-    const cwd = Deno.cwd();
-    console.log(`your min.config.ts is in ${join(cwd, './min.config.ts')}`);
-    if(!config){
-      try{
-        config = (await import (join(cwd, './min.config.ts'))).default;
-      }catch(e){
-        console.log(e);
-        throw Error ('no such file named min.config.ts, please check the name or provide a min.config.ts by yourself ');
-      }
-    }else{
-      config = config.default;
-    }
+  #readConfig = async (config: any) => {
+    config = config.default;
     const { server, routes, cors: corsConfig, assets: assetsConfig = '' } = config;
     // set server config
     appConfig.server = server.addr
       ? {...server, ...parseAddress(server.addr)}
       : server;
     routes?.length
-      && await this.#setRoutes(routes, cwd);
+      && await this.#setRoutes(routes);
     corsConfig
       && this.use(cors(corsConfig));
     this.use(assets(assetsConfig));
@@ -251,7 +236,7 @@ export class Application {
     await this.#listen();
   }
 
-  async start(config?: any){
+  async start(config: any){
     await this.#readConfig(config);
     await this.#listen();
   }

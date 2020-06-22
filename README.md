@@ -6,7 +6,7 @@ The Application class provides some apis for user. Most use use() to add one mid
 `.use(function: Function)`<br>
 add one async function in middleware, it works for global routers;
 
-`.start(config? MinConfig)` 
+`.start(config: any)` 
 and
 `.listen(config: string | ListenOptions)`
 ```typescript
@@ -39,7 +39,7 @@ interface RoutesConfig {
   middleware?: Function[]
 }
 ```
-Its not necessary to provide a config for start function, it will automatic read your config file named min.config.ts. You can check the demo in ***examples/demo2*** .
+You should provide a config for start function. You can check the demo in ***examples/demo2*** .
 
 `support methods`
 
@@ -81,6 +81,6 @@ respond a file such as index.html -- AsyncFunction
 * `.send(req: Req, res: Res)`
 manual respond with the req and res that user provided
 ## usage
-You can find demo in ***examples*** directory .
-
+You can find demo in ***examples*** directory .<nr>
+**Now, I am working on request.cookies and automatic import min.config.ts**
 #### **if you have some issues or suggestions, you could contact me**

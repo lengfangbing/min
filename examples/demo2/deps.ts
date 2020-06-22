@@ -3,4 +3,4 @@ export {
   Req,
   Res,
   MinConfig
-}  from 'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts';
+} from 'https://raw.githubusercontent.com/lengfangbing/min/router-node/mod.ts';

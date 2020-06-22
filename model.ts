@@ -15,7 +15,7 @@ export interface AppConfig {
 export interface RoutesConfig {
   url: string,
   method: string,
-  func: string | Function
+  func: Function
   middleware?: Function[]
 }
 export interface RouteValue {

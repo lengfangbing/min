@@ -21,6 +21,4 @@ app
     console.log(response.body);
   })
   .use(requestLogger());
-await app.start();
-// manual provide a config file for app.start
-// await app.start(await import('./min.config.ts'));
+await app.start(await import('./min.config.ts'));

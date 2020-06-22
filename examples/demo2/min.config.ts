@@ -9,6 +9,7 @@ import {
   render,
   routerMiddleware
 } from './routes/index.ts';
+
 export default {
   server: {
     port: 7000,
@@ -34,11 +35,6 @@ export default {
       url: '/postData',
       method: 'post',
       func: postData
-    },
-    {
-      url: '/test',
-      method: 'get',
-      func: '/routes/test.ts'
     },
     {
       url: '/redirect',
