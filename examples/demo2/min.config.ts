@@ -9,6 +9,7 @@ import {
   render,
   routerMiddleware
 } from './routes/index.ts';
+
 export default {
   server: {
     port: 7000,
