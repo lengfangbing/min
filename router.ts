@@ -2,7 +2,7 @@ import {
   parseUrlQuery,
   splitPath,
   splitUrl,
-} from "./utils/url/url.ts";
+} from "./utils/http/url/url.ts";
 import {
   Middleware
 } from "./middleware.ts";
@@ -178,15 +178,6 @@ export class Router {
     }
     if(rV){
       const {handler, middleware, paramsNames} = rV;
-      if(nF){
-        for(let i = 0; i < _m.length; i++){
-          const res = _m[i]();
-          if(res){
-            return res;
-          }
-        }
-        return null;
-      }
       if(handler === null){
         for(let i = 0; i < _m.length; i++){
           const res = _m[i]();
@@ -196,6 +187,15 @@ export class Router {
         }
         return null;
       }else{
+        if(nF){
+          for(let i = 0; i < _m.length; i++){
+            const res = _m[i]();
+            if(res){
+              return res;
+            }
+          }
+          return null;
+        }
         return {
           handler,
           middleware,

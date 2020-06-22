@@ -1,10 +1,10 @@
 import {
   urlDecode
-} from "../../deps.ts";
+} from "../../../deps.ts";
 
 import {
   RealUrl
-} from "../../model.ts";
+} from "../../../model.ts";
 
 export function parseUrlQuery(url: string): RealUrl {
   const s: number = url.lastIndexOf('?');
@@ -20,34 +20,6 @@ export function parseUrlQuery(url: string): RealUrl {
   return {
     url,
     query
-  }
-}
-
-export function parseParamsName(url: string, i?: number) {
-  const s = i || url.indexOf(':');
-  if(s === 1){
-    return {
-      url: '',
-      paramsName: url.substring(s+1)
-    }
-  }
-  return {
-    url: url.substring(0, s-1),
-    paramsName: url.substring(s+1)
-  }
-}
-
-export function parseParamsValue(url: string) {
-  const s = url.lastIndexOf('/');
-  if(s === 0){
-    return {
-      url: '',
-      params: url.substring(1)
-    }
-  }
-  return {
-    url: url.substring(0, s),
-    params: url.substring(s+1)
   }
 }
 
@@ -87,6 +59,13 @@ export function splitUrl(path: string){
     }
   }
   return res;
+}
+export function parseUrlencoded(str: string) {
+  return (
+    str.length
+      ? urlDecode(str)
+      : null
+  );
 }
 export function splitPath(path: string){
   const res = [];

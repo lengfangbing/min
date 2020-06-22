@@ -1,20 +1,20 @@
 import {
   Req,
-  ReqMethod
-} from "./http.ts";
+  ReqMethod,
+  ReqObjectField
+} from "./model.ts";
 import {
-  FormFile,
-  is,
-  MultipartReader,
-  urlDecode,
   ServerRequest
 } from "./deps.ts";
 import {
-  parseUrlQuery
-} from "./utils/url/url.ts";
+  parseUrlencoded
+} from "./utils/http/url/url.ts";
 import {
-  ReqObjectField
-} from "./http.ts";
+  parseFormData
+} from "./utils/http/body/parse.ts";
+import {
+  getRequestType
+} from "./utils/http/contentType/contentType.ts";
 
 export const decoder = new TextDecoder();
 
@@ -27,17 +27,9 @@ export class Request{
       request: new ServerRequest(),
       url: '',
       method: 'get' as ReqMethod,
-      headers: new Headers(),
+      headers: config.request.headers,
       ...config
     };
-  }
-
-  parseUrlAndQuery(request: Req){
-    const { url, query } = parseUrlQuery(request.url);
-    Object.assign(request, {
-      query: query as ReqObjectField,
-      url,
-    });
   }
 
   #hasBody = (headers: Headers): boolean => {
@@ -50,16 +42,16 @@ export class Request{
   async parseBody(request: Req){
     const req: ServerRequest = request.request;
     const contentType = request.headers.get('content-type') || 'text';
-    let body = {type: '', value: {}} as ReqObjectField;
+    let body: ReqObjectField = {type: '', value: {}};
     if(this.#hasBody(request.headers)){
       // field to save body
-      let _body: ReqObjectField = {};
+      let _body = {};
       // field to save type
       let type: string = '';
-      const contentTypeFilter = getContentType(contentType);
+      const contentTypeFilter = getRequestType(contentType);
       // deal with form-data first
       if(contentTypeFilter.isFormData){
-        _body = await parseFormData(contentType, req) as ReqObjectField;
+        _body = await parseFormData(contentType, req);
         type = 'formData';
       }else{
         // get net request body text
@@ -73,7 +65,7 @@ export class Request{
           _body = JSON.parse(_b);
           type = 'json';
         }else if(contentTypeFilter.isUrlencoded){
-          _body = parseUrlencoded(_b);
+          _body = parseUrlencoded(_b) || {};
           type = 'form'
         }else{
           _body = {
@@ -83,67 +75,13 @@ export class Request{
           type = 'raw';
         }
       }
+      body['type'] = type;
+      body['value'] = _body;
       Object.assign(body, {value: _body}, {type});
     }else{
-      body = null;
+      body = {};
     }
     request.body = body;
   }
 }
-async function parseFormData(contentType: string, request: ServerRequest) {
-  const boundaryReg = /boundary=(.+)/i;
-  const match = contentType.match(boundaryReg);
-  const boundary = match?.[1];
-  const res: {[key: string]: string | FormFile} = {};
-  if(boundary) {
-    const mr = new MultipartReader(request.r, boundary);
-    // 20MB
-    const form = await mr.readForm(20 * 1024 * 1024);
-    // const form: any = await multiParser(request);
-    if (form) {
-      for (const [key, value] of form.entries()) {
-        const newValue: any = value || {};
-        const val = <FormFile>value;
-        if (val.content) {
-          newValue.value = decoder.decode(val.content);
-        }
-        res[key] = <string | FormFile>value;
-      }
-    }
-  }
-  return res;
-}
-function parseUrlencoded(str: string) {
-  return (
-    str.length
-      ? urlDecode(str)
-      : null
-  );
-}
-function getContentType(contentType: string){
-  const typeRes = {
-    isText: false,
-    isUrlencoded: false,
-    isJson: false,
-    isFormData: false
-  }
-  s: {
-    if(is(contentType, ['json'])){
-      typeRes.isJson = true;
-      break s;
-    }
-    if(is(contentType, ['urlencoded'])){
-      typeRes.isUrlencoded = true;
-      break s;
-    }
-    if(is(contentType, ['multipart'])){
-      typeRes.isFormData = true;
-      break s;
-    }
-    if(is(contentType, ['text'])){
-      typeRes.isText = true;
-      break s;
-    }
-  }
-  return typeRes;
-}
+

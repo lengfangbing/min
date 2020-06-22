@@ -4,7 +4,7 @@ import {
 } from "./deps.ts";
 export type ReqMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace';
 export type ReqObjectField =
-  { [key: string]: boolean | string | number | ReqObjectField | string[] | Uint8Array | Uint16Array | Uint32Array }
+  Record<string, any>
   | null
   | string;
 

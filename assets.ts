@@ -1,8 +1,4 @@
 import {
-  Req,
-  Res
-} from "./http.ts";
-import {
   join,
   lookup,
   Status,
@@ -11,12 +7,14 @@ import {
 } from "./deps.ts";
 import {
   parseExtname
-} from "./utils/url/url.ts";
+} from "./utils/http/url/url.ts";
 import {
   decoder
 } from "./request.ts";
 import {
-  AssetsOptions
+  AssetsOptions,
+  Req,
+  Res
 } from "./model.ts";
 
 const defaultOptions = {}

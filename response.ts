@@ -1,21 +1,22 @@
 import {
   Req,
   Res
-} from "./http.ts";
+} from "./model.ts";
 import {
-  encode,
   join,
   Status,
-  lookup,
-  contentType,
   STATUS_TEXT,
+  contentType,
+  extname
 } from "./deps.ts";
 import {
   decoder
 } from "./request.ts";
+import {
+  parseResponseBody
+} from "./utils/http/body/parse.ts";
 
 export class Response {
-  response: Res
 
   static createResponse() {
     return {
@@ -26,42 +27,35 @@ export class Response {
       headers: new Headers(),
       status: Status.NotFound,
       done: false,
-      redirect: redirect,
-      render: render,
+      redirect: this.redirect,
+      render: this.render,
       send
     };
   }
 
-  constructor() {
-    this.response = Response.createResponse();
+  static async render(res: Res, path: string){
+    const v = decoder.decode(await Deno.readFile(join(Deno.cwd(), path)));
+    const cType = contentType(extname(path)) || 'text/plain; charset=utf-8';
+    try {
+      res.body = v;
+      res.headers.set('Content-Type', cType);
+      res.status = Status.OK;
+    } catch (e) {
+      console.log(e);
+      res.status = Status.InternalServerError;
+      res.body = STATUS_TEXT.get(Status.InternalServerError);
+    }
   }
 
-  getResponse() {
-    return this.response;
+  static redirect(res: Res, url: string){
+    res.status = Status.Found;
+    res.headers.set('Location', url);
   }
 
-}
-
-async function render(response: Res, path: string) {
-  try {
-    response.body = decoder.decode(await Deno.readFile(join(Deno.cwd(), path)));
-    response.headers.set('Content-Type', 'text/html; charset=utf-8');
-    response.status = Status.OK;
-  } catch (e) {
-    console.log(e);
-    response.status = Status.InternalServerError;
-    response.body = STATUS_TEXT.get(Status.InternalServerError);
-  }
-}
-
-async function redirect(response: Res, url: string) {
-  response.status = Status.Found;
-  response.headers.set('Location', url);
 }
 
 export function send(req: Req, res: Res) {
   if(res.done) return;
-  // console.log(req);
   const request = req.request;
   const {response, body, headers = new Headers(), status = Status.OK} = res;
   try {
@@ -77,13 +71,3 @@ export function send(req: Req, res: Res) {
   }
 }
 
-function parseResponseBody(res: Res) {
-  const {response, body, headers = new Headers()} = res;
-  if (typeof body === 'object') {
-    response.body = encode(JSON.stringify(body));
-    headers.get('Content-Type') || headers.set('Content-Type', 'application/json; charset=utf-8');
-  } else {
-    response.body = encode(body.toString());
-    headers.get('Content-Type') || headers.set('Content-Type', 'text/plain; charset=utf-8');
-  }
-}
