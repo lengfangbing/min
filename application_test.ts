@@ -10,15 +10,13 @@ import {
   RouteValue
 } from "./router_test.ts";
 import {
-  ReqMethod
-} from "./http.ts";
-import {
   Middleware
 } from "./middleware.ts";
 import {
   parseAddress
 } from "./utils/address/address.ts";
 import {
+  ReqMethod,
   AppConfig,
   ListenOptions,
   RouteHandlers,
@@ -240,7 +238,7 @@ export class Application {
     }
   }
 
-  async listen(config?: string | ListenOptions){
+  async listen(config: string | ListenOptions){
     if(typeof config === 'string'){
       appConfig.server = parseAddress(config);
     } else {
@@ -259,5 +257,17 @@ const a = new Application();
 a.get('/name/:id/:version/detail', (req: Req, res: Res) => {
   assertEquals({id: '100', version: 'v1'}, req.params);
   res.body = req.params;
+});
+a.get('/test', (req: Req, res: Res) => {
+  res.body = [1,2,3,4];
+});
+// fetch url /name/110/fangbing/ting/v1
+a.get('/name/:id/:name/ting/:version', (req: Req, res: Res) => {
+  assertEquals({id: '110', name: 'fangbing', version: 'v1'}, req.params);
+  res.body = {
+    params: req.params,
+    query: req.query,
+    url: req.url
+  }
 });
 await a.listen('http://127.0.0.1:8000');

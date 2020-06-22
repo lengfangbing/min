@@ -1,12 +1,10 @@
 import {
-  Req,
-  Res
-} from "./http.ts";
-import {
   send
 } from "./response.ts";
 import {
-  CorsOptions
+  CorsOptions,
+  Req,
+  Res
 } from "./model.ts";
 
 const defaultMethods = ['GET', 'POST', 'PUT',

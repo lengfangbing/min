@@ -9,15 +9,13 @@ import {
   Router
 } from "./router.ts";
 import {
-  ReqMethod
-} from "./http.ts";
-import {
   Middleware
 } from "./middleware.ts";
 import {
   parseAddress
 } from "./utils/address/address.ts";
 import {
+  ReqMethod,
   AppConfig,
   ListenOptions,
   RouteHandlers,
@@ -235,7 +233,7 @@ export class Application {
     }
   }
 
-  async listen(config?: string | ListenOptions){
+  async listen(config: string | ListenOptions){
     if(typeof config === 'string'){
       appConfig.server = parseAddress(config);
     } else {

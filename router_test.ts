@@ -2,10 +2,12 @@ import {
   parseUrlQuery,
   splitPath,
   splitUrl
-} from './utils/url/url_test.ts';
+} from './utils/http/url/url_test.ts';
+
 import {
   assertEquals
 } from "https://deno.land/std/testing/asserts.ts";
+
 export interface RouteValue {
   query: { [key: string]: string }
   url: string
@@ -13,11 +15,13 @@ export interface RouteValue {
   handler: Function,
   middleware: Function[]
 }
+
 export interface SingleRoute {
   middleware: Function[],
   handler: Function,
   paramsNames: {[key: string]: string }
 }
+
 export interface NewRoute {
   next: Record<string, NewRoute> | null
   middleware: Function[]
@@ -80,15 +84,6 @@ export class Router {
     }
     if(routeVal){
       const {handler, middleware, paramsNames} = routeVal;
-      if(needFallback){
-        for(let i = 0; i < _map.length; i++){
-          const res = _map[i]();
-          if(res){
-            return res;
-          }
-        }
-        return null;
-      }
       if(handler === null){
         for(let i = 0; i < _map.length; i++){
           const res = _map[i]();
@@ -98,6 +93,15 @@ export class Router {
         }
         return null;
       }else{
+        if(needFallback){
+          for(let i = 0; i < _map.length; i++){
+            const res = _map[i]();
+            if(res){
+              return res;
+            }
+          }
+          return null;
+        }
         return {
           handler,
           middleware,
@@ -156,7 +160,7 @@ export class Router {
               p = p.next[value];
             }
           } else {
-            // 如果没有next, 表示没有下一节点, 这是个新开的节点
+            // 如果没有next, 表示没有下一节点, 这是个新节点
             p.next = {
               [value]: {
                 handler: null,

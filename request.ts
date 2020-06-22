@@ -1,20 +1,21 @@
 import {
   Req,
-  ReqMethod
-} from "./http.ts";
+  ReqMethod,
+  ReqObjectField
+} from "./model.ts";
 import {
-  FormFile,
-  is,
-  MultipartReader,
-  urlDecode,
   ServerRequest
 } from "./deps.ts";
 import {
+  parseUrlencoded,
   parseUrlQuery
-} from "./utils/url/url.ts";
+} from "./utils/http/url/url.ts";
 import {
-  ReqObjectField
-} from "./http.ts";
+  parseFormData
+} from "./utils/http/body/parse.ts";
+import {
+  getRequestType
+} from "./utils/http/contentType/contentType.ts";
 
 export const decoder = new TextDecoder();
 
@@ -56,7 +57,7 @@ export class Request{
       let _body: ReqObjectField = {};
       // field to save type
       let type: string = '';
-      const contentTypeFilter = getContentType(contentType);
+      const contentTypeFilter = getRequestType(contentType);
       // deal with form-data first
       if(contentTypeFilter.isFormData){
         _body = await parseFormData(contentType, req) as ReqObjectField;
@@ -90,60 +91,4 @@ export class Request{
     request.body = body;
   }
 }
-async function parseFormData(contentType: string, request: ServerRequest) {
-  const boundaryReg = /boundary=(.+)/i;
-  const match = contentType.match(boundaryReg);
-  const boundary = match?.[1];
-  const res: {[key: string]: string | FormFile} = {};
-  if(boundary) {
-    const mr = new MultipartReader(request.r, boundary);
-    // 20MB
-    const form = await mr.readForm(20 * 1024 * 1024);
-    // const form: any = await multiParser(request);
-    if (form) {
-      for (const [key, value] of form.entries()) {
-        const newValue: any = value || {};
-        const val = <FormFile>value;
-        if (val.content) {
-          newValue.value = decoder.decode(val.content);
-        }
-        res[key] = <string | FormFile>value;
-      }
-    }
-  }
-  return res;
-}
-function parseUrlencoded(str: string) {
-  return (
-    str.length
-      ? urlDecode(str)
-      : null
-  );
-}
-function getContentType(contentType: string){
-  const typeRes = {
-    isText: false,
-    isUrlencoded: false,
-    isJson: false,
-    isFormData: false
-  }
-  s: {
-    if(is(contentType, ['json'])){
-      typeRes.isJson = true;
-      break s;
-    }
-    if(is(contentType, ['urlencoded'])){
-      typeRes.isUrlencoded = true;
-      break s;
-    }
-    if(is(contentType, ['multipart'])){
-      typeRes.isFormData = true;
-      break s;
-    }
-    if(is(contentType, ['text'])){
-      typeRes.isText = true;
-      break s;
-    }
-  }
-  return typeRes;
-}
+

@@ -3,14 +3,11 @@ import {
 } from "https://deno.land/std/testing/asserts.ts";
 import {
   urlDecode
-} from "../../deps.ts";
+} from "../../../deps.ts";
 
 const url = '/homed/api/information/detail/v4';
 const url1 = '/homed/api/information/detail/v4/';
-const url2 = '/homed/api/information/detail/v4?name=冷方冰&age=22&location=beijing';
 const url3 = '/homed/api/information/detail/v4/?name=冷方冰&age=22&location=beijing';
-const path = '/homed/api/information/user/v4/:id';
-const path1 = '/:userId';
 function timeTest(func: Function){
   const time1 = performance.now();
   func.call(null);
@@ -35,35 +32,6 @@ export function parseUrlQuery(url: string){
   }
 }
 
-export function parseParamsName(url: string, index?: number){
-  // index => :的索引
-  const s = index || url.indexOf(':');
-  // 如果url 只有动态params => /:userId
-  if(s === 1){
-    return {
-      url: '',
-      paramsName: url.substring(s+1)
-    }
-  }
-  return {
-    url: url.substring(0, s-1),
-    paramsName: url.substring(s+1)
-  }
-}
-
-export function parseParamsValue(url: string){
-  const s = url.lastIndexOf('/');
-  if(s === 0){
-    return {
-      url: '',
-      params: url.substring(1)
-    }
-  }
-  return {
-    url: url.substring(0, s),
-    params: url.substring(s+1)
-  }
-}
 export function parseExtname(url: string){
   const b = url.lastIndexOf('.');
   if(b < 0){
@@ -77,14 +45,16 @@ export function parseExtname(url: string){
     extName: url.substring(b)
   }
 }
-// timeTest(parseUrlQuery.bind(null, url2));
+export function parseUrlencoded(str: string) {
+  return (
+    str.length
+      ? urlDecode(str)
+      : null
+  );
+}
 assertEquals('/homed/api/information/detail/v4', parseUrlQuery(url1).url);
 assertEquals({name: '冷方冰', age: '22', location: 'beijing'}, parseUrlQuery(url3).query);
 assertEquals({}, parseUrlQuery(url).query);
-assertEquals({url: '/homed/api/information/user/v4', paramsName: 'id'}, parseParamsName(path));
-assertEquals({url: '', paramsName: 'userId'}, parseParamsName(path1));
-assertEquals({url: '/homed/api/information/detail', params: 'v4'}, parseParamsValue(url));
-assertEquals({url: '', params: 'id'}, parseParamsValue('/id'));
 assertEquals({url: '/test.txt', extName: '.txt'}, parseExtname('/test.txt'));
 assertEquals({url: '/static/test.txt', extName: '.txt'}, parseExtname('/static/test.txt'));
 assertEquals({url: '/.txt', extName: '.txt'}, parseExtname('/.txt'));
@@ -104,6 +74,7 @@ export function splitUrl(url: string){
   }
   return res;
 }
+
 export function splitPath(path: string){
   const res = [];
   let url = path.substring(1) || '/';
@@ -127,5 +98,6 @@ export function splitPath(path: string){
   }
   return res;
 }
-assertEquals(['/name',{paramsName: 'id'}, '/v1'], splitPath('/name/:id/v1'));
+
+assertEquals(['/name', {paramsName: 'id'}, '/v1'], splitPath('/name/:id/v1'));
 assertEquals(['/name', '/fangbing', '/v1'], splitUrl('/name/fangbing/v1'));
