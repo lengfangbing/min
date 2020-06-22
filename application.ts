@@ -21,7 +21,7 @@ import {
   RoutesConfig,
   Req,
   Res,
-  RouteValue, MinConfig
+  RouteValue
 } from "./model.ts";
 import {
   cors
@@ -236,7 +236,7 @@ export class Application {
     await this.#listen();
   }
 
-  async start(config: string | MinConfig){
+  async start(config: any){
     await this.#readConfig(config);
     await this.#listen();
   }

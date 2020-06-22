@@ -37,11 +37,6 @@ export default {
       func: postData
     },
     {
-      url: '/test',
-      method: 'get',
-      func: '/routes/test.ts'
-    },
-    {
       url: '/redirect',
       method: 'GET',
       func: redirect
