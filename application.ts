@@ -173,14 +173,19 @@ export class Application {
     let fv: RouteValue | null = this.#router.find(request.method, request.url);
     let fn: Function | undefined = undefined;
     const _m = this.#middleware.getMiddle();
-    let m = [..._m];
+    let m: Function[] = [];
+    _m.forEach((value: Function) => {
+      m.push(value);
+    })
     if(fv){
       const { middleware, handler, params, query, url } = fv;
       request.params = params;
       request.url = url;
       request.query = query;
       fn = handler;
-      m = [...m, ...middleware];
+      middleware.forEach((value: Function) => {
+        m.push(value);
+      });
     }
     await this.request.parseBody(request);
     response.redirect = response.redirect.bind(globalThis, response);
@@ -192,12 +197,15 @@ export class Application {
 
   #readConfig = async (config?: any) => {
     const cwd = Deno.cwd();
+    console.log(`your min.config.ts is in ${join(cwd, './min.config.ts')}`);
     if(!config){
       try{
-        config = (await import (join(cwd, 'min.config.ts'))).default;
+        config = (await import (join(cwd, './min.config.ts'))).default;
       }catch(e){
-        throw Error ('no such file named min.config.ts, please check the name or provide a min.config.js by yourself ');
+        throw Error ('no such file named min.config.ts, please check the name or provide a min.config.ts by yourself ');
       }
+    }else{
+      config = config.default;
     }
     const { server, routes, cors: corsConfig, assets: assetsConfig = '' } = config;
     // set server config

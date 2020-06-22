@@ -173,7 +173,6 @@ export class Application {
   }
 
   #handleRequest = async (request: Req, response: Res) => {
-    this.request.parseUrlAndQuery(request);
     const { url, method } = request;
     let fv: RouteValue | null = this.#router.find(method, url);
     let fn: Function | undefined = undefined;

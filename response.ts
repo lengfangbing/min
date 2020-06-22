@@ -6,6 +6,8 @@ import {
   join,
   Status,
   STATUS_TEXT,
+  contentType,
+  extname
 } from "./deps.ts";
 import {
   decoder
@@ -32,9 +34,11 @@ export class Response {
   }
 
   static async render(res: Res, path: string){
+    const v = decoder.decode(await Deno.readFile(join(Deno.cwd(), path)));
+    const cType = contentType(extname(path)) || 'text/plain; charset=utf-8';
     try {
-      res.body = decoder.decode(await Deno.readFile(join(Deno.cwd(), path)));
-      res.headers.set('Content-Type', 'text/html; charset=utf-8');
+      res.body = v;
+      res.headers.set('Content-Type', cType);
       res.status = Status.OK;
     } catch (e) {
       console.log(e);
