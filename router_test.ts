@@ -246,9 +246,7 @@ console.log('you imported test module');
 const router = new Router();
 const path1 = '/name/:id/:version/detail';
 const url = '/name/2016207235/v1/detail';
-router.add('get', path1, () => {
-  console.log(path1);
-});
+
 // test time used, remember with --allow-hrtime
 function timeTest(func: Function){
   const time1 = performance.now();
@@ -258,4 +256,7 @@ function timeTest(func: Function){
 }
 // for example
 timeTest(router.find.bind(router, 'get', url));
+router.add('get', path1, () => {
+  console.log(path1);
+});
 assertEquals({id: '100', version: 'v1'}, router.find('get', '/name/100/v1/detail/')?.params);
