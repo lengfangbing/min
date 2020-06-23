@@ -45,7 +45,7 @@ export class Router {
   }
 
   #findLoop = (map: Record<string, NewRoute | null>, urls: string[]): SingleRoute | null => {
-    // 回退查找的数组
+    // 回溯查找的数组
     let _map: Function[] = [];
     // 当前查找到的静态处理Route
     let routeVal: NewRoute | null = null;
@@ -140,12 +140,12 @@ export class Router {
     const urls = splitPath(url);
     if (!urls.length) throw new Error('router path is invalid, use /path/... instead');
     let p: NewRoute | null = null;
-    let params: {[key: string]: string } | null = null;
+    let params: {[key: string]: string } = {};
     urls.forEach((value: string | { paramsName: string }, index: number) => {
       // 静态路由
       if (typeof value === 'string') {
         // 如果p代表了有值了, 就代表funcMap有匹配项了
-        if (p) {
+        if (p !== null) {
           // 如果p有next, 表示p有下一节点, 接下来判断是否有这个value节点
           if (p.next) {
             if (p.next[value]) {
@@ -200,11 +200,7 @@ export class Router {
             }
             p = funcMap[''];
           }
-          if (params) {
-            params[index] = value.paramsName;
-          } else {
-            params = {[index]: value.paramsName};
-          }
+          params[index] = value.paramsName;
         } else {
           if (p.next) {
             if (p.next['']) {
@@ -218,11 +214,7 @@ export class Router {
               }
               p = p.next[''];
             }
-            if (params) {
-              params[index] = value.paramsName;
-            } else {
-              params = {[index]: value.paramsName};
-            }
+            params[index] = value.paramsName;
           } else {
             p.next = {
               '': {
@@ -233,11 +225,7 @@ export class Router {
               }
             }
             p = p.next[''];
-            if (params) {
-              params[index] = value.paramsName;
-            } else {
-              params = {[index]: value.paramsName};
-            }
+            params[index] = value.paramsName;
           }
         }
       }
@@ -254,12 +242,11 @@ export class Router {
     return this.#tree;
   }
 }
+console.log('you imported test module');
 const router = new Router();
 const path1 = '/name/:id/:version/detail';
 const url = '/name/2016207235/v1/detail';
-router.add('get', path1, () => {
-  console.log(path1);
-});
+
 // test time used, remember with --allow-hrtime
 function timeTest(func: Function){
   const time1 = performance.now();
@@ -269,4 +256,7 @@ function timeTest(func: Function){
 }
 // for example
 timeTest(router.find.bind(router, 'get', url));
+router.add('get', path1, () => {
+  console.log(path1);
+});
 assertEquals({id: '100', version: 'v1'}, router.find('get', '/name/100/v1/detail/')?.params);

@@ -41,7 +41,7 @@ export class Router {
     const us = splitPath(url);
     if (!us.length) throw new Error('router path is invalid, use /path/... instead');
     let p: NewRoute | null = null;
-    let pm: {[key: string]: string } | null = null;
+    let pm: {[key: string]: string } = {};
     us.forEach((value: string | { paramsName: string }, index: number) => {
       if (typeof value === 'string') {
         if (p) {
@@ -94,11 +94,7 @@ export class Router {
             }
             p = fM[''];
           }
-          if (pm) {
-            pm[index] = value.paramsName;
-          } else {
-            pm = {[index]: value.paramsName};
-          }
+          pm[index] = value.paramsName;
         } else {
           if (p.next) {
             if (p.next['']) {
@@ -112,11 +108,7 @@ export class Router {
               }
               p = p.next[''];
             }
-            if (pm) {
-              pm[index] = value.paramsName;
-            } else {
-              pm = {[index]: value.paramsName};
-            }
+            pm[index] = value.paramsName;
           } else {
             p.next = {
               '': {
@@ -127,11 +119,7 @@ export class Router {
               }
             }
             p = p.next[''];
-            if (pm) {
-              pm[index] = value.paramsName;
-            } else {
-              pm = {[index]: value.paramsName};
-            }
+            pm[index] = value.paramsName;
           }
         }
       }

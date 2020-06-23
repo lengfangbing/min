@@ -69,15 +69,12 @@ export class Application {
     return this;
   }
 
-  #setRoutes = async (routes: RoutesConfig[], cwd: string) => {
+  #setRoutes = async (routes: RoutesConfig[]) => {
     for(let i = 0; i < routes.length; i++){
       const value = routes[i];
       const method: ReqMethod = value.method.toLowerCase() as ReqMethod;
       const { url, func, middleware = [] } = value;
-      const handler =
-        typeof func === 'string'
-          ? (await import(join(cwd, func))).default
-          : func;
+      const handler = func;
       this.#add(method, {url, middleware, handler});
     }
   }
@@ -195,23 +192,17 @@ export class Application {
   }
 
   #readConfig = async (config?: any) => {
-    const cwd = Deno.cwd();
-    if(!config){
-      try{
-        config = (await import (join(cwd, 'min.config.ts'))).default;
-      }catch(e){
-        throw Error ('no such file named min.config.ts, please check the name or provide a min.config.js by yourself ');
-      }
-    }
+    // config.constructor === undefined => config = await import('./min.config.ts')
+    config = config.constructor ? config : config.default;
     const { server, routes, cors: corsConfig, assets: assetsConfig = '' } = config;
     // set server config
     appConfig.server = server.addr
       ? {...server, ...parseAddress(server.addr)}
       : server;
     routes?.length
-    && await this.#setRoutes(routes, cwd);
+      && await this.#setRoutes(routes);
     corsConfig
-    && this.use(cors(corsConfig));
+      && this.use(cors(corsConfig));
     this.use(assets(assetsConfig));
   }
 
@@ -246,27 +237,27 @@ export class Application {
     await this.#listen();
   }
 
-  async start(config?: any){
+  async start(config: any){
     await this.#readConfig(config);
     await this.#listen();
   }
 }
-const a = new Application();
-// fetch url /name/100/v1/detail
-a.get('/name/:id/:version/detail', (req: Req, res: Res) => {
-  assertEquals({id: '100', version: 'v1'}, req.params);
-  res.body = req.params;
-});
-a.get('/test', (req: Req, res: Res) => {
-  res.body = [1,2,3,4];
-});
-// fetch url /name/110/fangbing/ting/v1
-a.get('/name/:id/:name/ting/:version', (req: Req, res: Res) => {
-  assertEquals({id: '110', name: 'fangbing', version: 'v1'}, req.params);
-  res.body = {
-    params: req.params,
-    query: req.query,
-    url: req.url
-  }
-});
-await a.listen('http://127.0.0.1:8000');
+// const a = new Application();
+// // fetch url /name/100/v1/detail
+// a.get('/name/:id/:version/detail', (req: Req, res: Res) => {
+//   assertEquals({id: '100', version: 'v1'}, req.params);
+//   res.body = req.params;
+// });
+// a.get('/test', (req: Req, res: Res) => {
+//   res.body = [1,2,3,4];
+// });
+// // fetch url /name/110/fangbing/ting/v1
+// a.get('/name/:id/:name/ting/:version', (req: Req, res: Res) => {
+//   assertEquals({id: '110', name: 'fangbing', version: 'v1'}, req.params);
+//   res.body = {
+//     params: req.params,
+//     query: req.query,
+//     url: req.url
+//   }
+// });
+// await a.listen('http://127.0.0.1:8000');
