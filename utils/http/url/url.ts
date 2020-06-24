@@ -90,3 +90,28 @@ export function splitPath(path: string){
   }
   return res;
 }
+export function parseUrlToMap (url: string){
+  const r: Map<string, any> = new Map<string, any>();
+  if(!url) return r;
+  let i = -1;
+  while((i = url.indexOf(';')) >= 0){
+    const s = url.substring(0, i);
+    const j = s.indexOf('=');
+    if(j < 0){
+      r.set(s, true);
+    }else{
+      r.set(s.substring(0, j), s.substring(j+1));
+    }
+    url = url.substring(i+1).trim();
+  }
+  return r;
+}
+export function parseMapToString (map: Map<any, any>){
+  let res = '';
+  for(let [k, v] of map.entries()){
+    res += typeof v === "boolean"
+      ? `${k}; `
+      : `${k}=${v}; `;
+  }
+  return res;
+}

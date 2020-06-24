@@ -15,6 +15,9 @@ import {
 import {
   parseResponseBody
 } from "./utils/http/body/parse.ts";
+import {
+  parseMapToString
+} from "./utils/http/url/url.ts";
 
 export class Response {
 
@@ -29,6 +32,7 @@ export class Response {
       done: false,
       redirect: this.redirect,
       render: this.render,
+      cookies: new Map<string, any>(),
       send
     };
   }
@@ -57,7 +61,7 @@ export class Response {
 export function send(req: Req, res: Res) {
   if(res.done) return;
   const request = req.request;
-  const {response, body, headers = new Headers(), status = Status.OK} = res;
+  const {response, body, headers = new Headers(), status = Status.OK, cookies} = res;
   try {
     if (body) {
       parseResponseBody(res);
@@ -65,6 +69,9 @@ export function send(req: Req, res: Res) {
       response.body = undefined;
     }
     res.done = true;
+    if(cookies.size > 0){
+      headers.set('Set-Cookie', parseMapToString(cookies));
+    }
     request.respond({...response, headers, status});
   } catch (e) {
     console.log(e);

@@ -98,6 +98,43 @@ export function splitPath(path: string){
   }
   return res;
 }
-
+declare global{
+  interface Map<K,V>{
+    toObj: Function
+  }
+}
+Map.prototype.toObj = function () {
+  const r: Record<string, any> = {};
+  for(let [k, v] of this.entries()){
+    r[k] = v;
+  }
+  return r;
+}
+export function parseUrlToMap (url: string){
+  const res: Map<string, any> = new Map<string, any>();
+  let i = -1;
+  while((i = url.indexOf(';')) >= 0){
+    const str = url.substring(0, i);
+    const index = str.indexOf('=');
+    if(index < 0){
+      res.set(str, true);
+    }else{
+      res.set(str.substring(0, index), str.substring(index+1));
+    }
+    url = url.substring(i+1).trim();
+  }
+  return res;
+}
+export function parseMapToString (map: Map<any, any>){
+  let res = '';
+  for(let [k, v] of map.entries()){
+    res += typeof v === "boolean"
+      ? `${k}; `
+      : `${k}=${v}; `;
+  }
+  return res;
+}
+assertEquals('name=123; age; ', parseMapToString(parseUrlToMap('name=123; age; ')));
+assertEquals({name: '123', age: true}, parseUrlToMap('name=123; age;').toObj());
 assertEquals(['/name', {paramsName: 'id'}, '/v1'], splitPath('/name/:id/v1'));
 assertEquals(['/name', '/fangbing', '/v1'], splitUrl('/name/fangbing/v1'));
