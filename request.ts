@@ -7,7 +7,8 @@ import {
   ServerRequest
 } from "./deps.ts";
 import {
-  parseUrlencoded
+  parseUrlencoded,
+  parseUrlToMap
 } from "./utils/http/url/url.ts";
 import {
   parseFormData
@@ -17,7 +18,6 @@ import {
 } from "./utils/http/contentType/contentType.ts";
 
 export const decoder = new TextDecoder();
-
 export class Request{
   static createRequest(config: any) {
     return {
@@ -28,6 +28,7 @@ export class Request{
       url: '',
       method: 'get' as ReqMethod,
       headers: config.request.headers,
+      cookies: parseUrlToMap(config.request.headers.get('cookie')),
       ...config
     };
   }

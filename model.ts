@@ -81,7 +81,8 @@ export interface Res {
   done: boolean,
   redirect: Function,
   render: Function,
-  send: Function
+  send: Function,
+  cookies: Map<string, any>
 }
 
 export interface Req {
@@ -91,7 +92,8 @@ export interface Req {
   method: ReqMethod,
   headers: Headers,
   request: ServerRequest,
-  params: ReqObjectField
+  params: ReqObjectField,
+  cookies: Headers | Map<string, any>
 }
 
 export interface MinConfig {
