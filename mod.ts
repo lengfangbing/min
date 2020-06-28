@@ -3,6 +3,10 @@ export {
 } from './application.ts';
 
 export {
+  assets
+} from './assets.ts';
+
+export {
   cors
 } from './cors.ts';
 
