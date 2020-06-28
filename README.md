@@ -86,5 +86,3 @@ respond a file such as index.html -- AsyncFunction
 manual respond with the req and res that user provided
 ## usage
 You can find demo in ***examples*** directory .<nr>
-**Now, I am working on request.cookies and automatic import min.config.ts**
-#### **if you have some issues or suggestions, you could contact me**
