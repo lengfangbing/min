@@ -1,9 +1,9 @@
 import {
+  contentType,
+  extname,
   join,
   lookup,
-  Status,
-  contentType,
-  extname
+  Status
 } from "./deps.ts";
 import {
   parseExtname
@@ -12,7 +12,6 @@ import {
   decoder
 } from "./request.ts";
 import {
-  AssetsOptions,
   Req,
   Res
 } from "./model.ts";
@@ -44,7 +43,11 @@ export function assets(options: string | Record<string, any> = '') {
           await next();
         }
       } catch (e) {
-        console.log(e);
+        if (opts.onerror) {
+          opts.onerror(e);
+        } else {
+          return e;
+        }
       }
     } else {
       await next();
