@@ -55,5 +55,10 @@ export default {
     allowCredentials: false
   },
   // set assets request render files directory, default is working directory
-  assets: "assets"
+  assets: {
+    path: "assets",
+    onerror: (e: Error) => {
+      console.log(e);
+    }
+  }
 } as MinConfig;

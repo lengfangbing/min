@@ -100,5 +100,5 @@ export interface MinConfig {
   server: ListenOptions,
   routes: RoutesConfig[],
   cors?: CorsOptions,
-  assets?: string
+  assets?: string | Record<string, any>
 }
