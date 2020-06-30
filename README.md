@@ -81,6 +81,64 @@ respond a file such as index.html -- AsyncFunction
 * `.send(req: Req, res: Res)`
 manual respond with the req and res that user provided
 ## usage
-You can find demo in ***examples*** directory .<nr>
-**Now, I am working on request.cookies and automatic import min.config.ts**
+```typescript
+import {
+  Application,
+  Req,
+  Res,
+  HandlerFunc,
+  MiddlewareFunc
+}  from 'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts';
+
+const app = new Application();
+
+function routerLogger(): MiddlewareFunc{
+  return async function(req, res, next){
+    const time1 = performance.now();
+    await next();
+    const time2 = performance.now();
+    res.headers.set('router-response-time', (time2 - time1).toString());
+  }
+}
+// if you dont give function return type, just give return function arguments type
+function requestLogger(){
+  return async function(req: Req, res: Res, next: Function){
+    const time1 = performance.now();
+    await next();
+    const time2 = performance.now();
+    res.headers.set('request-response-time', (time2 - time1).toString());
+  }
+}
+
+app
+  .use(async (request, response, next) => {
+    console.log(request.url);
+    await next();
+    console.log(response.body);
+  })
+  .use(requestLogger())
+  .get('/', routerLogger(), (request, response) => {
+    response.body = 'hello world';
+  })
+  .post('/post', async (req, res, next) => {
+    console.log(`body is ${req.body}`);
+    await next();
+  }, (req, res) => {
+    res.body = {
+      isPost: true,
+      requestBody: req.body
+    }
+  })
+  .get('/render', async (req: Req, res: Res) => {
+    // if you want, you could give function arguments type
+    await res.render('template/index.html');
+  });
+
+await app.listen('http://127.0.0.1:8000');
+
+```
+
+###**You can find more demos in ***examples*** directory .<nr>**
+**Now, I am working on automatic import min.config.ts(getting some trouble)<br>
+If you are interested in min.config.ts, just look at demo2**
 #### **if you have some issues or suggestions, you could contact me**
