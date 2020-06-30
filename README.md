@@ -67,6 +67,8 @@ the request headers -- Headers
 the request body -- Object
 * `.request`
 the server request -- ServerRequest
+* `.cookies`
+the request cookie -- Map
 ### Res
 * `.body`
 the response body -- any
@@ -74,6 +76,8 @@ the response body -- any
 the response headers -- Headers
 * `.status`
 the response status, default set one of these (404, 200, 500) -- number
+* `.cookies`
+the response cookie -- Map
 * `.redirect(url: string)`
 respond a status with 301(default), and set Location header in url. -- Function
 * `.render(path: string)`
