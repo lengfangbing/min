@@ -12,11 +12,10 @@ import {
   decoder
 } from "./request.ts";
 import {
-  Req,
-  Res
+  MiddlewareFunc
 } from "./model.ts";
 
-export function assets(options: string | Record<string, any> = '') {
+export function assets(options: string | Record<string, any> = ''): MiddlewareFunc {
   let opts: Record<string, any>;
   if (typeof options === "string") {
     opts = {
@@ -26,7 +25,7 @@ export function assets(options: string | Record<string, any> = '') {
     opts = options;
   }
   const path = join(Deno.cwd(), opts.path);
-  return async function (request: Req, response: Res, next: Function) {
+  return async function (request, response, next) {
     // 静态资源
     const {extName, url} = parseExtname(request.url);
     if (extName) {
@@ -46,7 +45,7 @@ export function assets(options: string | Record<string, any> = '') {
         if (opts.onerror) {
           opts.onerror(e);
         } else {
-          return e;
+          throw Error(e);
         }
       }
     } else {

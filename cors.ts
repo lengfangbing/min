@@ -3,13 +3,12 @@ import {
 } from "./response.ts";
 import {
   CorsOptions,
-  Req,
-  Res
+  MiddlewareFunc
 } from "./model.ts";
 
 const defaultMethods = ['GET', 'POST', 'PUT',
   'DELETE', 'HEAD', 'PATCH'];
-export function cors(options: CorsOptions = {}){
+export function cors(options: CorsOptions = {}): MiddlewareFunc{
   let realOrigin = '';
   const {
     origin = '*',
@@ -19,7 +18,7 @@ export function cors(options: CorsOptions = {}){
     maxAge,
     allowHeaders
   } = options;
-  return async function(request: Req, response: Res, next: Function){
+  return async function(request, response, next){
     const method = request.method.toUpperCase();
     const Origin = request.headers.get('Origin');
     // set vary

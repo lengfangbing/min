@@ -7,9 +7,11 @@ export {
 } from './cors.ts';
 
 export {
-  MinConfig,
   Req,
-  Res
+  Res,
+  MinConfig,
+  MiddlewareFunc,
+  HandlerFunc
 } from './model.ts';
 
 export{
