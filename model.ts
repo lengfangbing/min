@@ -7,6 +7,9 @@ export type ReqObjectField =
   Record<string, any>
   | null
   | string;
+export type HandlerFunc = (req: Req, res: Res) => Promise<unknown> | unknown
+export type MiddlewareFunc = (req: Req, res: Res, next: Function) => Promise<unknown> | unknown
+export type MethodFuncArgument = HandlerFunc[] | MiddlewareFunc[]
 
 export interface AppConfig {
   server: ListenOptions
@@ -15,8 +18,18 @@ export interface AppConfig {
 export interface RoutesConfig {
   url: string,
   method: string,
-  func: Function
-  middleware?: Function[]
+  func: HandlerFunc
+  middleware?: MiddlewareFunc[]
+}
+export interface NewRoute {
+  next: Record<string, NewRoute> | null
+  middleware: Function[]
+  handler: Function | null,
+  paramsNames: {[key: string]: string }
+}
+export interface RouteHandlers {
+  middleware?: Function[],
+  handler: HandlerFunc
 }
 export interface RouteValue {
   query: { [key: string]: string }
@@ -29,17 +42,6 @@ export interface SingleRoute {
   middleware: Function[],
   handler: Function,
   paramsNames: {[key: string]: string }
-}
-export interface NewRoute {
-  next: Record<string, NewRoute> | null
-  middleware: Function[]
-  handler: Function | null,
-  paramsNames: {[key: string]: string }
-}
-export interface RouteHandlers {
-  url: string,
-  middleware?: Function[],
-  handler: Function
 }
 
 export interface CorsOptions {
@@ -73,6 +75,16 @@ export interface AssetsOptions {
 
 }
 
+export interface Req {
+  query: ReqObjectField,
+  body: ReqObjectField,
+  url: string,
+  method: ReqMethod,
+  headers: Headers,
+  request: ServerRequest,
+  params: ReqObjectField,
+  cookies: Headers | Map<string, any>
+}
 export interface Res {
   response: Response,
   body: any | null,
@@ -84,18 +96,6 @@ export interface Res {
   send: Function,
   cookies: Map<string, any>
 }
-
-export interface Req {
-  query: ReqObjectField,
-  body: ReqObjectField,
-  url: string,
-  method: ReqMethod,
-  headers: Headers,
-  request: ServerRequest,
-  params: ReqObjectField,
-  cookies: Headers | Map<string, any>
-}
-
 export interface MinConfig {
   server: ListenOptions,
   routes: RoutesConfig[],

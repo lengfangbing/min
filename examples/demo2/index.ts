@@ -1,12 +1,11 @@
 import {
   Application,
-  Req,
-  Res
+  MiddlewareFunc
 }  from './deps.ts';
 const app = new Application();
 import config from './min.config.ts';
-function requestLogger(){
-  return async function(req: Req, res: Res, next: Function){
+function requestLogger(): MiddlewareFunc{
+  return async function(req, res, next){
     const time1 = performance.now();
     await next();
     const time2 = performance.now();
@@ -15,7 +14,7 @@ function requestLogger(){
 }
 
 app
-  .use(async (request: Req, response: Res, next: Function) => {
+  .use(async (request, response, next) => {
     console.log(request.url);
     await next();
     console.log(response.body);

@@ -21,7 +21,9 @@ import {
   RoutesConfig,
   Req,
   Res,
-  RouteValue
+  RouteValue,
+  MiddlewareFunc,
+  MethodFuncArgument
 } from "./model.ts";
 import {
   cors
@@ -55,33 +57,31 @@ export class Application {
     this.response = new Response();
   }
 
-  #add = (method: ReqMethod, handlers: RouteHandlers) => {
-    const { url, handler, middleware } = handlers;
-    this.#router[method](url, handler, middleware || []);
+  #add = (method: ReqMethod, url: string, handlers: RouteHandlers) => {
+    const {handler, middleware} = handlers;
+    this.#router.add(method, url, handler, middleware || []);
   }
 
-  use(func: Function){
-    if(typeof func !== 'function') throw new Error('use function arguments must be a function type');
+  use(func: MiddlewareFunc) {
+    if (typeof func !== 'function') throw new Error('use function arguments must be a function type');
     this.#middleware.push(func);
     return this;
   }
 
   #setRoutes = async (routes: RoutesConfig[]) => {
-    for(let i = 0; i < routes.length; i++){
+    for (let i = 0; i < routes.length; i++) {
       const value = routes[i];
       const method: ReqMethod = value.method.toLowerCase() as ReqMethod;
-      const { url, func, middleware = [] } = value;
+      const {url, func, middleware = []} = value;
       const handler = func;
-      this.#add(method, {url, middleware, handler});
+      this.#add(method, url, {middleware, handler});
     }
   }
 
   #parseHandler = (handlers: any[]): RouteHandlers => {
-    if(handlers.length < 2) throw new Error('router has no match url or handler function');
-    const url = handlers.shift();
+    if(handlers.length < 1) throw new Error('router has no match url or handler function');
     const handler = handlers.pop();
     const res = {
-      url,
       handler
     } as RouteHandlers;
     if(handlers.length){
@@ -90,57 +90,57 @@ export class Application {
     return res;
   }
 
-  get(...args: any[]) {
-    const funcHandler: RouteHandlers = this.#parseHandler(args);
-    this.#add('get', funcHandler);
+  get(path: string, ...handlers: MethodFuncArgument) {
+    const funcHandler: RouteHandlers = this.#parseHandler(handlers);
+    this.#add('get', path, funcHandler);
     return this;
   }
 
-  post(...args: any[]) {
-    const funcHandler: RouteHandlers = this.#parseHandler(args);
-    this.#add('post', funcHandler);
+  post(path: string, ...handlers: Function[]) {
+    const funcHandler: RouteHandlers = this.#parseHandler(handlers);
+    this.#add('post', path, funcHandler);
     return this;
   }
 
-  put(...args: any[]) {
-    const funcHandler: RouteHandlers = this.#parseHandler(args);
-    this.#add('put', funcHandler);
+  put(path: string, ...handlers: Function[]) {
+    const funcHandler: RouteHandlers = this.#parseHandler(handlers);
+    this.#add('put', path, funcHandler);
     return this;
   }
 
-  delete(...args: any[]) {
-    const funcHandler: RouteHandlers = this.#parseHandler(args);
-    this.#add('delete', funcHandler);
+  delete(path: string, ...handlers: Function[]) {
+    const funcHandler: RouteHandlers = this.#parseHandler(handlers);
+    this.#add('delete', path, funcHandler);
     return this;
   }
 
-  options(...args: any[]) {
-    const funcHandler: RouteHandlers = this.#parseHandler(args);
-    this.#add('options', funcHandler);
+  options(path: string, ...handlers: Function[]) {
+    const funcHandler: RouteHandlers = this.#parseHandler(handlers);
+    this.#add('options', path, funcHandler);
     return this;
   }
 
-  head(...args: any[]) {
-    const funcHandler: RouteHandlers = this.#parseHandler(args);
-    this.#add('head', funcHandler);
+  head(path: string, ...handlers: Function[]) {
+    const funcHandler: RouteHandlers = this.#parseHandler(handlers);
+    this.#add('head', path, funcHandler);
     return this;
   }
 
-  connect(...args: any[]) {
-    const funcHandler: RouteHandlers = this.#parseHandler(args);
-    this.#add('connect', funcHandler);
+  connect(path: string, ...handlers: Function[]) {
+    const funcHandler: RouteHandlers = this.#parseHandler(handlers);
+    this.#add('connect', path, funcHandler);
     return this;
   }
 
-  trace(...args: any[]) {
-    const funcHandler: RouteHandlers = this.#parseHandler(args);
-    this.#add('trace', funcHandler);
+  trace(path: string, ...handlers: Function[]) {
+    const funcHandler: RouteHandlers = this.#parseHandler(handlers);
+    this.#add('trace', path, funcHandler);
     return this;
   }
 
-  patch(...args: any[]) {
-    const funcHandler: RouteHandlers = this.#parseHandler(args);
-    this.#add('patch', funcHandler);
+  patch(path: string, ...handlers: Function[]) {
+    const funcHandler: RouteHandlers = this.#parseHandler(handlers);
+    this.#add('patch', path, funcHandler);
     return this;
   }
 
@@ -155,10 +155,10 @@ export class Application {
         let fn: Function | undefined = middleware[i]
         if (i === middleware.length){
           fn = execFunc
-          response.status = execFunc ? Status.OK : Status.NotFound;
+          response.status = execFunc ? Status.OK : Status.NotFound
         }
         try {
-          return fn && fn(request, response, dispatch.bind(null, index + 1));
+          return fn && fn(request, response, dispatch.bind(null, index + 1))
         } catch (err) {
           return Promise.reject(err)
         }

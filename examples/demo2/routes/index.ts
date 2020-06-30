@@ -1,16 +1,18 @@
 import {
   Req,
-  Res
+  Res,
+  HandlerFunc,
+  MiddlewareFunc
 } from '../deps.ts';
-export const routerMiddleware = () => {
-  return async (req: Req, res: Res, next: Function) => {
+export const routerMiddleware = (): MiddlewareFunc => {
+  return async (req, res, next) => {
     const time1 = performance.now();
     await next();
     const time2 = performance.now();
     res.headers.set('router-response-time', (time2 - time1).toString());
   }
 }
-export const testDynamicRoute = (req: Req, res: Res) => {
+export const testDynamicRoute: HandlerFunc = (req, res) => {
   console.log(req.params);
   console.log(req.query);
   res.body = {

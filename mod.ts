@@ -13,7 +13,9 @@ export {
 export {
   MinConfig,
   Req,
-  Res
+  Res,
+  MiddlewareFunc,
+  HandlerFunc
 } from './model.ts';
 
 export{
