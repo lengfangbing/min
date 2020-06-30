@@ -25,7 +25,7 @@ function requestLogger(){
 }
 
 app
-  .use(async (request: Req, response: Res, next: Function) => {
+  .use(async (request, response, next) => {
     console.log(request.url);
     await next();
     console.log(response.body);
