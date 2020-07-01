@@ -134,6 +134,21 @@ export function parseMapToString (map: Map<any, any>){
   }
   return res;
 }
+export function parseResponseCookie(options?: Record<string, unknown>){
+  if (!options) return '';
+  let res = [];
+  for (let i in options) {
+    if(options.hasOwnProperty(i)){
+      if (typeof options[i] === 'boolean'){
+        if(options[i]) res.push(i);
+      }else{
+        res.push(`${i}=${options[i]}`);
+      }
+    }
+  }
+  return res.join(';');
+}
+assertEquals('domain=.foo.com;Path=/;secure;httpOnly', parseResponseCookie({domain: '.foo.com', Path: '/', secure: true, httpOnly: true}));
 assertEquals('name=123; age; ', parseMapToString(parseUrlToMap('name=123; age; ')));
 assertEquals({name: '123', age: true}, parseUrlToMap('name=123; age;').toObj());
 assertEquals(['/name', {paramsName: 'id'}, '/v1'], splitPath('/name/:id/v1'));

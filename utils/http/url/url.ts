@@ -1,11 +1,21 @@
 import {
   urlDecode
 } from "../../../deps.ts";
-
 import {
   RealUrl
 } from "../../../model.ts";
-
+declare global{
+  interface Map<K,V>{
+    toObj: Function
+  }
+}
+Map.prototype.toObj = function () {
+  const r: Record<string, any> = {};
+  for(let [k, v] of this.entries()){
+    r[k] = v;
+  }
+  return r;
+}
 export function parseUrlQuery(url: string): RealUrl {
   const s: number = url.lastIndexOf('?');
   let query: {[key: string]: any} = {};
@@ -92,6 +102,8 @@ export function splitPath(path: string){
 }
 export function parseUrlToMap (url: string){
   const r: Map<string, any> = new Map<string, any>();
+  url = url.trim();
+  if(!url.endsWith(';')) url += ';';
   if(!url) return r;
   let i = -1;
   while((i = url.indexOf(';')) >= 0){
@@ -114,4 +126,18 @@ export function parseMapToString (map: Map<any, any>){
       : `${k}=${v}; `;
   }
   return res;
+}
+export function parseResponseCookie(options?: Record<string, unknown>){
+  if (!options) return '';
+  let res = [];
+  for (let i in options) {
+    if(options.hasOwnProperty(i)){
+      if (typeof options[i] === 'boolean'){
+        res.push(i);
+      }else{
+        res.push(`${i}=${options[i]}`);
+      }
+    }
+  }
+  return res.join(';');
 }

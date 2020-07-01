@@ -18,6 +18,9 @@ import {
 import {
   parseMapToString
 } from "./utils/http/url/url.ts";
+import {
+  Cookie
+} from "./cookie.ts";
 
 export class Response {
 
@@ -32,7 +35,7 @@ export class Response {
       done: false,
       redirect: this.redirect,
       render: this.render,
-      cookies: new Map<string, any>(),
+      cookies: new Cookie(),
       send
     };
   }
@@ -69,9 +72,9 @@ export function send(req: Req, res: Res) {
       response.body = undefined;
     }
     res.done = true;
-    if(cookies.size > 0){
-      headers.set('Set-Cookie', parseMapToString(cookies));
-    }
+    cookies.getCookies().forEach((value) => {
+      headers.set('Set-Cookie', value);
+    });
     request.respond({...response, headers, status});
   } catch (e) {
     console.log(e);
