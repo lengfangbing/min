@@ -7,7 +7,8 @@ import {
   postData,
   redirect,
   render,
-  routerMiddleware
+  routerMiddleware,
+  testCookie
 } from './routes/index.ts';
 
 export default {
@@ -45,6 +46,11 @@ export default {
       url: '/',
       method: 'Get',
       func: render
+    },
+    {
+      url: '/cookie',
+      method: 'get',
+      func: testCookie
     }
   ],
   cors: {
