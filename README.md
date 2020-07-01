@@ -77,7 +77,7 @@ the response headers -- Headers
 * `.status`
 the response status, default set one of these (404, 200, 500) -- number
 * `.cookies`
-the response cookie -- Map
+the response cookie -- Cookie
 * `.redirect(url: string)`
 respond a status with 301(default), and set Location header in url. -- Function
 * `.render(path: string)`
@@ -133,7 +133,24 @@ app
       requestBody: req.body
     }
   })
-  .get('/render', async (req: Req, res: Res) => {
+  .get('/cookie', (request, response) => {
+    // parse cookie to object
+    console.log(request.cookies.toObj());
+    // name value options
+    response.cookies.append('name', 'fangbing', {
+      domain: '127.0.0.1',
+      secure: true
+    });
+    response.cookies.append('age', '22', {
+      domain: '127.0.0.1',
+      httpOnly: true
+    });
+    response.body = {
+      name: 'test-cookie',
+      cookies: request.cookies.toObj()
+    }
+  })
+  .get('/render', async (req, res) => {
     // if you want, you could give function arguments type
     await res.render('template/index.html');
   });
