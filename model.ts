@@ -2,6 +2,10 @@ import {
   Response,
   ServerRequest
 } from "./deps.ts";
+import {
+  Cookie
+} from "./cookie.ts";
+
 export type ReqMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace';
 export type ReqObjectField =
   Record<string, any>
@@ -83,7 +87,7 @@ export interface Req {
   headers: Headers,
   request: ServerRequest,
   params: ReqObjectField,
-  cookies: Headers | Map<string, any>
+  cookies: Map<string, any>
 }
 export interface Res {
   response: Response,
@@ -94,7 +98,7 @@ export interface Res {
   redirect: Function,
   render: Function,
   send: Function,
-  cookies: Map<string, any>
+  cookies: Cookie
 }
 export interface MinConfig {
   server: ListenOptions,
