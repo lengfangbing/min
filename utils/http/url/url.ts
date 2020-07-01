@@ -12,7 +12,7 @@ declare global{
 Map.prototype.toObj = function () {
   const r: Record<string, any> = {};
   for(let [k, v] of this.entries()){
-    r[k] = v;
+    r[k.trim()] = v;
   }
   return r;
 }
@@ -32,7 +32,6 @@ export function parseUrlQuery(url: string): RealUrl {
     query
   }
 }
-
 export function parseExtname(url: string){
   const b = url.lastIndexOf('.');
   if(b < 0){
@@ -46,7 +45,6 @@ export function parseExtname(url: string){
     extName: url.substring(b)
   }
 }
-
 export function splitUrl(path: string){
   const res = [];
   let url = path.substring(1) || '/';
@@ -106,7 +104,7 @@ export function parseUrlToMap (url: string){
   if(!url.endsWith(';')) url += ';';
   if(!url) return r;
   let i = -1;
-  while((i = url.indexOf(';')) >= 0){
+  while((i = url.indexOf(';')) > 0){
     const s = url.substring(0, i);
     const j = s.indexOf('=');
     if(j < 0){

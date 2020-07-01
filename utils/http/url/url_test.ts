@@ -106,14 +106,14 @@ declare global{
 Map.prototype.toObj = function () {
   const r: Record<string, any> = {};
   for(let [k, v] of this.entries()){
-    r[k] = v;
+    r[k.trim()] = v;
   }
   return r;
 }
 export function parseUrlToMap (url: string){
   const res: Map<string, any> = new Map<string, any>();
   let i = -1;
-  while((i = url.indexOf(';')) >= 0){
+  while((i = url.indexOf(';')) > 0){
     const str = url.substring(0, i);
     const index = str.indexOf('=');
     if(index < 0){
