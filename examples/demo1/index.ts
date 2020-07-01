@@ -34,6 +34,23 @@ app
   .get('/', routerLogger(), (request, response) => {
     response.body = 'hello world';
   })
+  .get('/cookie', (request, response) => {
+    // parse cookie to object
+    console.log(request.cookies.toObj());
+    // name value options
+    response.cookies.append('name', 'fangbing', {
+      domain: '127.0.0.1',
+      secure: true
+    });
+    response.cookies.append('age', '22', {
+      domain: '127.0.0.1',
+      httpOnly: true
+    });
+    response.body = {
+      name: 'test-cookie',
+      cookies: request.cookies.toObj()
+    }
+  })
   .post('/post', async (req, res, next) => {
     console.log(`body is ${req.body}`);
     await next();
