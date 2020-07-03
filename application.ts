@@ -96,49 +96,49 @@ export class Application {
     return this;
   }
 
-  post(path: string, ...handlers: Function[]) {
+  post(path: string, ...handlers: MethodFuncArgument) {
     const funcHandler: RouteHandlers = this.#parseHandler(handlers);
     this.#add('post', path, funcHandler);
     return this;
   }
 
-  put(path: string, ...handlers: Function[]) {
+  put(path: string, ...handlers: MethodFuncArgument) {
     const funcHandler: RouteHandlers = this.#parseHandler(handlers);
     this.#add('put', path, funcHandler);
     return this;
   }
 
-  delete(path: string, ...handlers: Function[]) {
+  delete(path: string, ...handlers: MethodFuncArgument) {
     const funcHandler: RouteHandlers = this.#parseHandler(handlers);
     this.#add('delete', path, funcHandler);
     return this;
   }
 
-  options(path: string, ...handlers: Function[]) {
+  options(path: string, ...handlers: MethodFuncArgument) {
     const funcHandler: RouteHandlers = this.#parseHandler(handlers);
     this.#add('options', path, funcHandler);
     return this;
   }
 
-  head(path: string, ...handlers: Function[]) {
+  head(path: string, ...handlers: MethodFuncArgument) {
     const funcHandler: RouteHandlers = this.#parseHandler(handlers);
     this.#add('head', path, funcHandler);
     return this;
   }
 
-  connect(path: string, ...handlers: Function[]) {
+  connect(path: string, ...handlers: MethodFuncArgument) {
     const funcHandler: RouteHandlers = this.#parseHandler(handlers);
     this.#add('connect', path, funcHandler);
     return this;
   }
 
-  trace(path: string, ...handlers: Function[]) {
+  trace(path: string, ...handlers: MethodFuncArgument) {
     const funcHandler: RouteHandlers = this.#parseHandler(handlers);
     this.#add('trace', path, funcHandler);
     return this;
   }
 
-  patch(path: string, ...handlers: Function[]) {
+  patch(path: string, ...handlers: MethodFuncArgument) {
     const funcHandler: RouteHandlers = this.#parseHandler(handlers);
     this.#add('patch', path, funcHandler);
     return this;
