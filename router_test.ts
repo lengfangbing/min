@@ -245,6 +245,7 @@ export class Router {
 console.log('you imported test module');
 const router = new Router();
 const path1 = '/name/:id/:version/detail';
+const path2 = '/name/:da/:tt/ga';
 const url = '/name/2016207235/v1/detail';
 
 // test time used, remember with --allow-hrtime
@@ -259,4 +260,8 @@ timeTest(router.find.bind(router, 'get', url));
 router.add('get', path1, () => {
   console.log(path1);
 });
+router.add('get', path2, () => {
+  console.log(path2);
+});
 assertEquals({id: '100', version: 'v1'}, router.find('get', '/name/100/v1/detail/')?.params);
+assertEquals({da: '100', tt: 'v1'}, router.find('get', '/name/100/v1/ga/')?.params);
