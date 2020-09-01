@@ -62,7 +62,10 @@ app
   })
   .get('/render', async (req: Req, res: Res) => {
     await res.render('template/index.html');
-  });
+  })
+  .get('/detail/:id/today', async (req, res) => {
+    res.body = req.params
+  })
 
 await app.listen('http://127.0.0.1:8000');
 // ts will infer the get handler functions arguments type
