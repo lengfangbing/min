@@ -16,9 +16,6 @@ import {
   parseResponseBody
 } from "./utils/http/body/parse.ts";
 import {
-  parseMapToString
-} from "./utils/http/url/url.ts";
-import {
   Cookie
 } from "./cookie.ts";
 
