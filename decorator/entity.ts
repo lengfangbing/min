@@ -1,7 +1,7 @@
 import {Entity} from "./decorator.type.ts";
 import {Middleware} from "./middleware.ts";
 import {Router} from "./router.ts";
-import {Application} from "./application.ts";
+import {DecorationApplication} from "./application.ts";
 import {ListenOptions} from "../model.ts";
 
 const defaultServer = {
@@ -20,11 +20,11 @@ export function getApp() {
   return entity.app;
 }
 
-export function getAppInitial(): Application {
+export function getAppInitial(): DecorationApplication {
   if (entity.app === null) {
-    setApp(new Application());
+    setApp(new DecorationApplication());
   }
-  return entity.app as Application;
+  return entity.app as DecorationApplication;
 }
 
 export function getRouter() {

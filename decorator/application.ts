@@ -21,7 +21,7 @@ import {cors} from "../cors.ts";
 import {assets} from "../assets.ts";
 import {appConfig} from "../application.ts";
 
-export class Application {
+export class DecorationApplication {
   request: Request
   response: Response
   constructor() {
