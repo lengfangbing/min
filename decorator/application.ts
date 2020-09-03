@@ -197,7 +197,7 @@ export class Application {
         await this.#handleRequest(req, res);
       }
     }catch(e){
-      throw new Error(e);
+      console.error(e);
     }
   }
 
