@@ -80,13 +80,13 @@ export interface AssetsOptions {
 }
 
 export interface Req {
-  query: ReqObjectField,
+  query: Record<string, any>,
   body: ReqObjectField,
   url: string,
   method: ReqMethod,
   headers: Headers,
   request: ServerRequest,
-  params: ReqObjectField,
+  params: Record<string, any>,
   cookies: Map<string, any>
 }
 export interface Res {
