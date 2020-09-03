@@ -1,7 +1,7 @@
-import { getApp } from "./entity.ts";
+import { getAppInitial, getServer } from "./entity.ts";
 
 export class App {
   async startServer() {
-    console.log(getApp());
+    await getAppInitial().listen(getServer());
   }
 }
