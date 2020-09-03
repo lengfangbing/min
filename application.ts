@@ -38,7 +38,7 @@ import {
   Response
 } from "./response.ts";
 
-const appConfig: AppConfig = {
+export const appConfig: AppConfig = {
   server: {
     port: 80,
     hostname: '127.0.0.1'

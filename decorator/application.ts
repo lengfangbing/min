@@ -5,7 +5,6 @@ import {
 import {Request} from "../request.ts";
 import {Response} from "../response.ts";
 import {
-  AppConfig,
   ListenOptions,
   MethodFuncArgument,
   MiddlewareFunc,
@@ -20,13 +19,7 @@ import {colors, serve, serveTLS, Status} from "../deps.ts";
 import {parseAddress} from "../utils/address/address.ts";
 import {cors} from "../cors.ts";
 import {assets} from "../assets.ts";
-
-const appConfig: AppConfig = {
-  server: {
-    port: 80,
-    hostname: '127.0.0.1'
-  }
-};
+import {appConfig} from "../application.ts";
 
 export class Application {
   request: Request

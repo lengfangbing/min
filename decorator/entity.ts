@@ -1,4 +1,8 @@
-import {Entity, MiddlewareFunc, ServerConfig} from "./lib.min.d.ts";
+import {Entity} from "./decorator.type.ts";
+import {Middleware} from "./middleware.ts";
+import {Router} from "./router.ts";
+import {Application} from "./application.ts";
+import {ListenOptions} from "../model.ts";
 
 const defaultServer = {
   port: 8000,
@@ -9,15 +13,29 @@ const entity: Entity = {
   app: null,
   router: null,
   server: defaultServer,
-  middleware: [],
+  middleware: null,
 };
 
 export function getApp() {
   return entity.app;
 }
 
+export function getAppInitial(): Application {
+  if (entity.app === null) {
+    setApp(new Application());
+  }
+  return entity.app as Application;
+}
+
 export function getRouter() {
   return entity.router;
+}
+
+export function getRouterInitial(): Router {
+  if (entity.router === null) {
+    setRouter(new Router());
+  }
+  return entity.router as Router;
 }
 
 export function getServer() {
@@ -28,6 +46,13 @@ export function getMiddleware() {
   return entity.middleware;
 }
 
+export function getMiddlewareInitial(): Middleware {
+  if (entity.middleware === null) {
+    setMiddleware(new Middleware());
+  }
+  return entity.middleware as Middleware;
+}
+
 export function setApp(app: any) {
   entity.app = app;
 }
@@ -36,10 +61,10 @@ export function setRouter(router: any) {
   entity.router = router;
 }
 
-export function setServer(server: ServerConfig) {
+export function setServer(server: ListenOptions) {
   entity.server = server;
 }
 
-export function setMiddleware(middleware: MiddlewareFunc) {
-  entity.middleware.push(middleware);
+export function setMiddleware(middleware: Middleware) {
+  entity.middleware = middleware;
 }

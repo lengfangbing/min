@@ -1,4 +1,3 @@
-
 export class Middleware{
   static middle: Function[] = [];
 
