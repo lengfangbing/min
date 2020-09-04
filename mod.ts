@@ -1,4 +1,22 @@
 export {
+  StartApplication,
+  Route,
+  Prefix,
+  App,
+  Middleware,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Patch,
+  Head,
+  Options,
+  Connect,
+  Trace,
+  Start
+} from './decorator/decorator.ts';
+
+export {
   Application
 } from './application.ts';
 
