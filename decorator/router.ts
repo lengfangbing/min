@@ -241,8 +241,4 @@ export class Router {
     this.add("patch", url, handler, middleware);
   }
 
-  getTree() {
-    return this.#tree;
-  }
-
 }
