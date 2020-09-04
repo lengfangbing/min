@@ -1,6 +1,11 @@
 # min
 
-> **A** **decorator** Deno web framework
+> **A** **decorator** Deno web framework <br/>
+
+[![tag](https://img.shields.io/github/tag/lengfangbing/min.svg)](https://github.com/lengfangbing/min)
+[![license](https://img.shields.io/github/license/lengfangbing/min.svg)](https://github.com/lengfangbing/min)
+[![tag](https://img.shields.io/badge/deno->=1.0.0-green.svg)](https://github.com/denoland/deno)
+[![tag](https://img.shields.io/badge/std-0.65.0-green.svg)](https://github.com/denoland/deno)
 ## <strong>it supports decorator now! you could find demos in examples directory~</strong>
 ## introduction
 A framework for Deno's http server, combine Koa's middleware and Express's internal feature. If you are used to using Koa or Express, it'll be easy for you~<br/>
