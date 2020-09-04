@@ -237,10 +237,6 @@ export class Router {
     // @ts-ignore
     p.paramsNames = params;
   }
-
-  getTree() {
-    return this.#tree;
-  }
 }
 console.log('you imported test module');
 const router = new Router();

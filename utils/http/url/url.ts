@@ -100,6 +100,9 @@ export function splitPath(path: string){
 }
 export function parseUrlToMap (url: string){
   const r: Map<string, any> = new Map<string, any>();
+  if (url === null) {
+    return r;
+  }
   url = url.trim();
   if(!url.endsWith(';')) url += ';';
   if(!url) return r;

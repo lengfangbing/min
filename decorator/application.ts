@@ -1,70 +1,42 @@
 import {
-  serve,
-  colors,
-  serveTLS,
-  Status
-} from './deps.ts';
+  getRouterInitial,
+  getMiddlewareInitial
+} from "./entity.ts";
+import {Request} from "../request.ts";
+import {Response} from "../response.ts";
 import {
-  Router
-} from "./router.ts";
-import {
-  Middleware
-} from "./middleware.ts";
-import {
-  parseAddress
-} from "./utils/address/address.ts";
-import {
-  ReqMethod,
-  AppConfig,
   ListenOptions,
+  MethodFuncArgument,
+  MiddlewareFunc,
+  Req,
+  ReqMethod,
+  Res,
   RouteHandlers,
   RoutesConfig,
-  Req,
-  Res,
-  RouteValue,
-  MiddlewareFunc,
-  MethodFuncArgument
-} from "./model.ts";
-import {
-  cors
-} from "./cors.ts";
-import {
-  assets
-} from "./assets.ts";
-import {
-  Request
-} from "./request.ts";
-import {
-  Response
-} from "./response.ts";
+  RouteValue
+} from "../model.ts";
+import {colors, serve, serveTLS, Status} from "../deps.ts";
+import {parseAddress} from "../utils/address/address.ts";
+import {cors} from "../cors.ts";
+import {assets} from "../assets.ts";
+import {appConfig} from "../application.ts";
 
-export const appConfig: AppConfig = {
-  server: {
-    port: 80,
-    hostname: '127.0.0.1'
-  }
-};
-
-export class Application {
-  #router: Router
-  #middleware: Middleware
+export class DecorationApplication {
   request: Request
   response: Response
   constructor() {
-    this.#router = new Router();
-    this.#middleware = new Middleware();
     this.request = new Request();
     this.response = new Response();
   }
 
   #add = (method: ReqMethod, url: string, handlers: RouteHandlers) => {
     const {handler, middleware} = handlers;
-    this.#router.add(method, url, handler, middleware || []);
+    getRouterInitial().add(method, url, handler, middleware || []);
   }
 
   use(func: MiddlewareFunc) {
     if (typeof func !== 'function') throw new Error('use function arguments must be a function type');
-    this.#middleware.push(func);
+    getMiddlewareInitial().push(func);
     return this;
   }
 
@@ -167,9 +139,9 @@ export class Application {
   }
 
   #handleRequest = async (request: Req, response: Res) => {
-    let fv: RouteValue | null = this.#router.find(request.method, request.url);
+    let fv: RouteValue | null = getRouterInitial().find(request.method, request.url);
     let fn: Function | undefined = undefined;
-    const _m = this.#middleware.getMiddle();
+    const _m = getMiddlewareInitial().getMiddle();
     let m: Function[] = [];
     _m.forEach((value: Function) => {
       m.push(value);
@@ -201,9 +173,9 @@ export class Application {
       ? {...server, ...parseAddress(server.addr)}
       : server;
     routes?.length
-      && await this.#setRoutes(routes);
+    && await this.#setRoutes(routes);
     corsConfig
-      && this.use(cors(corsConfig));
+    && this.use(cors(corsConfig));
     this.use(assets(assetsConfig));
   }
 
@@ -225,7 +197,7 @@ export class Application {
         await this.#handleRequest(req, res);
       }
     }catch(e){
-      throw new Error(e);
+      console.error(e);
     }
   }
 
