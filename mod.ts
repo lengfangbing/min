@@ -4,6 +4,7 @@ export {
   Prefix,
   App,
   Middleware,
+  ApplyMiddleware,
   Get,
   Post,
   Put,
