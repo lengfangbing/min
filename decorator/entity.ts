@@ -14,6 +14,7 @@ const entity: Entity = {
   router: null,
   server: defaultServer,
   middleware: null,
+  routes: [],
 };
 
 export function getApp() {
@@ -67,4 +68,16 @@ export function setServer(server: ListenOptions) {
 
 export function setMiddleware(middleware: Middleware) {
   entity.middleware = middleware;
+}
+
+export function getRoutes() {
+  return entity.routes;
+}
+
+export function setRoutes(routes: Entity['routes'][number]) {
+  entity.routes.push(routes);
+}
+
+export function clearRoutes() {
+  entity.routes = [];
 }
