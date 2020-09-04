@@ -1,26 +1,33 @@
-import {getRouterInitial, getRoutes, setApp, setRoutes, clearRoutes, setServer} from "./entity.ts";
+import {
+  getRouterInitial,
+  getRoutes,
+  setApp,
+  setRoutes,
+  clearRoutes,
+  setServer,
+  getMiddlewareInitial
+} from "./entity.ts";
 import {App} from "./app.ts";
 import {DecorationApplication} from "./application.ts";
-import {ListenOptions, MethodFuncArgument, MiddlewareFunc} from "../model.ts";
+import {ListenOptions, MethodFuncArgument} from "../model.ts";
 
-const StartApplication: ClassDecorator = target => {
+const consumeRoutes = (target: Function) => {
   const router = getRouterInitial();
-  setApp(new DecorationApplication());
   const path = target.prototype.decorator_prefix_min || '';
   getRoutes().forEach(val => {
     router[val.method](path + val.path, val.handler, val.middleware);
   });
   clearRoutes();
+}
+
+const StartApplication: ClassDecorator = target => {
+  setApp(new DecorationApplication());
+  consumeRoutes(target);
   return target;
 }
 
-const Module: ClassDecorator = target => {
-  const router = getRouterInitial();
-  const path = target.prototype.decorator_prefix_min || '';
-  getRoutes().forEach(val => {
-    router[val.method](path + val.path, val.handler, val.middleware);
-  });
-  clearRoutes();
+const Route: ClassDecorator = target => {
+  consumeRoutes(target);
   return target;
 }
 
@@ -29,6 +36,12 @@ const Prefix = (path: string): ClassDecorator => {
     target.prototype.decorator_prefix_min = path;
     return target;
   }
+}
+
+const Middleware: MethodDecorator = (target, propertyKey, descriptor: TypedPropertyDescriptor<any>) => {
+  const middleware = getMiddlewareInitial();
+  middleware.push(descriptor.value);
+  return descriptor;
 }
 
 const Start = (server: ListenOptions): MethodDecorator => {
@@ -86,4 +99,4 @@ const Put = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   }
 }
 
-export {StartApplication, App, Prefix, Start, Get, Post, Delete, Put, Module};
+export {StartApplication, App, Prefix, Start, Get, Post, Delete, Put, Route, Middleware};
