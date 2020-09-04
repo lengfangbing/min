@@ -11,6 +11,10 @@ export type ReqObjectField =
   Record<string, any>
   | null
   | string;
+export type ReqBody = {
+  type: string,
+  value: any,
+}
 export type HandlerFunc = (req: Req, res: Res) => Promise<unknown> | unknown
 export type MiddlewareFunc = (req: Req, res: Res, next: Function) => Promise<unknown> | unknown
 export type MethodFuncArgument = HandlerFunc[] | MiddlewareFunc[]
@@ -81,7 +85,10 @@ export interface AssetsOptions {
 
 export interface Req {
   query: Record<string, any>,
-  body: ReqObjectField,
+  body: {
+    type: string,
+    value: any
+  },
   url: string,
   method: ReqMethod,
   headers: Headers,

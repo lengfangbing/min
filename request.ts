@@ -1,7 +1,6 @@
 import {
-  Req,
+  Req, ReqBody,
   ReqMethod,
-  ReqObjectField
 } from "./model.ts";
 import {
   ServerRequest
@@ -43,7 +42,7 @@ export class Request{
   async parseBody(request: Req){
     const req: ServerRequest = request.request;
     const contentType = request.headers.get('content-type') || 'text';
-    let body: ReqObjectField = {type: '', value: {}};
+    let body: ReqBody = {type: '', value: {}};
     if(this.#hasBody(request.headers)){
       // field to save body
       let _body = {};
@@ -80,7 +79,10 @@ export class Request{
       body['value'] = _body;
       Object.assign(body, {value: _body}, {type});
     }else{
-      body = {};
+      body = {
+        type: '',
+        value: ''
+      };
     }
     request.body = body;
   }
