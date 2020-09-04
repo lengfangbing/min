@@ -44,6 +44,16 @@ const Middleware: MethodDecorator = (target, propertyKey, descriptor: TypedPrope
   return descriptor;
 }
 
+const ApplyMiddleware = (args: MethodFuncArgument): MethodDecorator => {
+  const middleware = getMiddlewareInitial();
+  args.forEach(val => {
+    middleware.push(val);
+  })
+  return (target, propertyKey, descriptor) => {
+    return descriptor;
+  }
+}
+
 const Start = (server: ListenOptions): MethodDecorator => {
   setServer(server);
   return (target, propertyKey, descriptor) => {
@@ -159,4 +169,4 @@ const Trace = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   }
 }
 
-export {StartApplication, App, Prefix, Start, Get, Post, Delete, Put, Route, Middleware, Patch, Options, Head, Connect, Trace};
+export {StartApplication, App, Prefix, Start, Get, Post, Delete, Put, Route, Middleware, Patch, Options, Head, Connect, Trace, ApplyMiddleware};
