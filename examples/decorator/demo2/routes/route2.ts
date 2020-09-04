@@ -14,7 +14,7 @@ class Route2 {
   @Get('/test')
   test(req: Req, res: Res) {
     res.body = {
-      prefix: '/test2_prefix'
+      prefix: '/route2'
     }
   }
 }
