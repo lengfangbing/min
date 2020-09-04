@@ -7,17 +7,13 @@ import {
 } from "./cookie.ts";
 
 export type ReqMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace';
-export type ReqObjectField =
-  Record<string, any>
-  | null
-  | string;
 export type ReqBody = {
   type: string,
   value: any,
 }
 export type HandlerFunc = (req: Req, res: Res) => Promise<unknown> | unknown
 export type MiddlewareFunc = (req: Req, res: Res, next: Function) => Promise<unknown> | unknown
-export type MethodFuncArgument = HandlerFunc[] | MiddlewareFunc[]
+export type MethodFuncArgument = Array<MiddlewareFunc>
 
 export interface AppConfig {
   server: ListenOptions

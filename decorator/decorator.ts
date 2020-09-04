@@ -1,7 +1,7 @@
 import {getRouterInitial, getRoutes, setApp, setRoutes, clearRoutes, setServer} from "./entity.ts";
 import {App} from "./app.ts";
 import {DecorationApplication} from "./application.ts";
-import {ListenOptions, MethodFuncArgument} from "../model.ts";
+import {ListenOptions, MethodFuncArgument, MiddlewareFunc} from "../model.ts";
 
 const StartApplication: ClassDecorator = target => {
   const router = getRouterInitial();
@@ -38,10 +38,10 @@ const Start = (server: ListenOptions): MethodDecorator => {
   }
 }
 
-const Get = (path: string, ...args: MethodFuncArgument): MethodDecorator => {
+const Get = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
     setRoutes({
-      middleware: args,
+      middleware: args || [],
       handler: descriptor.value,
       path,
       method: 'get',
@@ -50,10 +50,10 @@ const Get = (path: string, ...args: MethodFuncArgument): MethodDecorator => {
   }
 }
 
-const Post = (path: string, ...args: MethodFuncArgument): MethodDecorator => {
+const Post = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
     setRoutes({
-      middleware: args,
+      middleware: args || [],
       handler: descriptor.value,
       path,
       method: 'post',
@@ -62,10 +62,10 @@ const Post = (path: string, ...args: MethodFuncArgument): MethodDecorator => {
   }
 }
 
-const Delete = (path: string, ...args: MethodFuncArgument): MethodDecorator => {
+const Delete = (path: string, args: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
     setRoutes({
-      middleware: args,
+      middleware: args || [],
       handler: descriptor.value,
       path,
       method: 'delete',
@@ -74,10 +74,10 @@ const Delete = (path: string, ...args: MethodFuncArgument): MethodDecorator => {
   }
 }
 
-const Put = (path: string, ...args: MethodFuncArgument): MethodDecorator => {
+const Put = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
     setRoutes({
-      middleware: args,
+      middleware: args || [],
       handler: descriptor.value,
       path,
       method: 'put',
