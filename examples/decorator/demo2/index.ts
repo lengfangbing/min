@@ -18,7 +18,7 @@ import {
 export class TestClass extends App {
 
   // ApplyMiddleware is to add third middleware func
-  @ApplyMiddleware([assets('/static'), cors()])
+  @ApplyMiddleware([assets('/examples/decorator/demo2/static'), cors()])
   // use own middleware
   @Middleware
   async middle1(req: Req, res: Res, next: Function) {
@@ -72,6 +72,7 @@ export class TestClass extends App {
 
 const initial = new TestClass();
 
+// the order about import is related to middlewares' order
 // add another Route class
 await import('./routes/route1.ts');
 await import('./routes/route2.ts');

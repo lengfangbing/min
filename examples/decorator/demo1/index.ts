@@ -3,7 +3,7 @@ import {App, ApplyMiddleware, assets, cors, Get, Middleware, Req, Res, Start, St
 @StartApplication
 export class TestClass extends App {
 
-  @ApplyMiddleware([assets('/static'), cors()])
+  @ApplyMiddleware([assets('/examples/decorator/demo1/static'), cors()])
   @Middleware
   async middle1(req: Req, res: Res, next: Function) {
     console.log('middle1');

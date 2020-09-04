@@ -1,5 +1,6 @@
+## <strong>it supports decorator now! you could find demos in examples directory~</strong>
 ## introduction
-A framework for Deno's http server, combine Koa's middleware and Express's internal feature. If you are used to using Koa or Express, it'll be easy for you~
+A framework for Deno's http server, combine Koa's middleware and Express's internal feature. If you are used to using Koa or Express, it'll be easy for you~<br/>
 ## Application, Req, Res
 ### Application
 The Application class provides some apis for user. Most use use() to add one middleware async function. Other like get(), post() and ...<br> 
@@ -54,9 +55,9 @@ You should provide a config for start function. You can check the demo in ***exa
 args means the first argument is router path, the last argument is router handler, the rest is middleware only for this router
 ### Req
 * `.query`
-the url search query -- object
+the url search query -- Record<string, any>
 * `.params`
-the dynamic router params value -- object
+the dynamic router params value -- Record<string, any>
 * `.url`
 the request url without url search -- string
 * `.method`
@@ -64,14 +65,14 @@ the request method as lowercase -- string
 * `.headers`
 the request headers -- Headers
 * `.body`
-the request body -- Object
+the request body -- {type: string,value: any}
 * `.request`
 the server request -- ServerRequest
 * `.cookies`
-the request cookie -- Map
+the request cookie -- Map<string, any>
 ### Res
 * `.body`
-the response body -- any
+the response body -- any | null
 * `.headers`
 the response headers -- Headers
 * `.status`
@@ -85,6 +86,57 @@ respond a file such as index.html -- AsyncFunction
 * `.send(req: Req, res: Res)`
 manual respond with the req and res that user provided
 ## usage
+```typescript
+import {
+  App,
+  ApplyMiddleware,
+  assets,
+  cors,
+  Get,
+  Middleware,
+  Req,
+  Res,
+  Start,
+  StartApplication
+} from "'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts'";
+
+@StartApplication
+export class TestClass extends App {
+
+  @ApplyMiddleware([assets('/examples/decorator/demo1/static'), cors()])
+  @Middleware
+  async middle1(req: Req, res: Res, next: Function) {
+    console.log('middle1');
+    await next();
+    console.log('middle1 end');
+  }
+
+  @Middleware
+  async middle2(req: Req, res: Res, next: Function) {
+    console.log('middle2');
+    await next();
+    console.log('middle2 end');
+  }
+
+  @Get('/test')
+  async testHandle(req: Req, res: Res) {
+    // fetch url `${hostname}:${port}/test/?name=myName&age=20`
+    res.body = req.query;
+  }
+
+  @Start({port: 8000, hostname: '127.0.0.1'})
+  async start() {
+    await this.startServer();
+  }
+
+}
+
+const initial = new TestClass();
+
+await initial.start();
+```
+### You can use both these ways to create new http server
+
 ```typescript
 import {
   Application,
