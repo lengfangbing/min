@@ -1,10 +1,10 @@
 import {
   Res
-} from "../../../model.ts";
+} from "../../model.ts";
 import {
   encode, FormFile, MultipartReader, ServerRequest
-} from "../../../deps.ts";
-import {decoder} from "../../../request.ts";
+} from "../../deps.ts";
+import {decoder} from "../../request.ts";
 
 export function parseResponseBody(res: Res) {
   const {response, body, headers = new Headers()} = res;

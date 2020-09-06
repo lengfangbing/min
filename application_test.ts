@@ -16,7 +16,7 @@ import {
 } from "./middleware.ts";
 import {
   parseAddress
-} from "./utils/address/address.ts";
+} from "./utils/parse/address.ts";
 import {
   AppConfig,
   ListenOptions,

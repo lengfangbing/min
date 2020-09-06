@@ -3,7 +3,7 @@ import {
 } from "https://deno.land/std/testing/asserts.ts";
 import {
   urlDecode
-} from "../../../deps.ts";
+} from "../../deps.ts";
 
 const url = '/homed/api/information/detail/v4';
 const url1 = '/homed/api/information/detail/v4/';
@@ -44,13 +44,6 @@ export function parseExtname(url: string){
     url,
     extName: url.substring(b)
   }
-}
-export function parseUrlencoded(str: string) {
-  return (
-    str.length
-      ? urlDecode(str)
-      : null
-  );
 }
 assertEquals('/homed/api/information/detail/v4', parseUrlQuery(url1).url);
 assertEquals({name: '冷方冰', age: '22', location: 'beijing'}, parseUrlQuery(url3).query);
@@ -110,21 +103,6 @@ Map.prototype.toObj = function () {
   }
   return r;
 }
-export function parseUrlToMap (url: string){
-  const res: Map<string, any> = new Map<string, any>();
-  let i = -1;
-  while((i = url.indexOf(';')) > 0){
-    const str = url.substring(0, i);
-    const index = str.indexOf('=');
-    if(index < 0){
-      res.set(str, true);
-    }else{
-      res.set(str.substring(0, index), str.substring(index+1));
-    }
-    url = url.substring(i+1).trim();
-  }
-  return res;
-}
 export function parseMapToString (map: Map<any, any>){
   let res = '';
   for(let [k, v] of map.entries()){
@@ -149,7 +127,5 @@ export function parseResponseCookie(options?: Record<string, unknown>){
   return res.join(';');
 }
 assertEquals('domain=.foo.com;Path=/;secure;httpOnly', parseResponseCookie({domain: '.foo.com', Path: '/', secure: true, httpOnly: true}));
-assertEquals('name=123; age; ', parseMapToString(parseUrlToMap('name=123; age; ')));
-assertEquals({name: '123', age: true}, parseUrlToMap('name=123; age;').toObj());
 assertEquals(['/name', {paramsName: 'id'}, '/v1'], splitPath('/name/:id/v1'));
 assertEquals(['/name', '/fangbing', '/v1'], splitUrl('/name/fangbing/v1'));

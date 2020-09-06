@@ -2,7 +2,7 @@ import {
   parseUrlQuery,
   splitPath,
   splitUrl,
-} from "./utils/http/url/url.ts";
+} from "./utils/parse/url.ts";
 import {
   Middleware
 } from "./middleware.ts";

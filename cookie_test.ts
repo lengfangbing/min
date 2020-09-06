@@ -1,6 +1,6 @@
 import {
   parseResponseCookie
-} from "./utils/http/url/url_test.ts";
+} from "./utils/test/url_test.ts";
 import {
   assertEquals
 } from "https://deno.land/std/testing/asserts.ts";

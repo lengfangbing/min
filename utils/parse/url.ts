@@ -1,9 +1,9 @@
 import {
   urlDecode
-} from "../../../deps.ts";
+} from "../../deps.ts";
 import {
   RealUrl
-} from "../../../model.ts";
+} from "../../model.ts";
 declare global{
   interface Map<K,V>{
     toObj: Function
@@ -98,7 +98,7 @@ export function splitPath(path: string){
   }
   return res;
 }
-export function parseUrlToMap (url: string){
+export function parseQsToMap (url: string){
   const r: Map<string, any> = new Map<string, any>();
   if (url === null) {
     return r;
@@ -118,15 +118,6 @@ export function parseUrlToMap (url: string){
     url = url.substring(i+1).trim();
   }
   return r;
-}
-export function parseMapToString (map: Map<any, any>){
-  let res = '';
-  for(let [k, v] of map.entries()){
-    res += typeof v === "boolean"
-      ? `${k}; `
-      : `${k}=${v}; `;
-  }
-  return res;
 }
 export function parseResponseCookie(options?: Record<string, unknown>){
   if (!options) return '';

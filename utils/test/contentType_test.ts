@@ -1,6 +1,6 @@
 import {
   is
-} from "../../../deps.ts";
+} from "../../deps.ts";
 
 import {
   assertEquals

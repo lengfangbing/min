@@ -7,7 +7,7 @@ import {
 } from "./deps.ts";
 import {
   parseExtname
-} from "./utils/http/url/url.ts";
+} from "./utils/parse/url.ts";
 import {
   decoder
 } from "./request.ts";

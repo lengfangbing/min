@@ -2,7 +2,7 @@ import {
   parseUrlQuery,
   splitPath,
   splitUrl
-} from './utils/http/url/url_test.ts';
+} from './utils/test/url_test.ts';
 
 import {
   assertEquals

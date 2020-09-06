@@ -1,5 +1,6 @@
 import {
-  Req, ReqBody,
+  Req,
+  ReqBody,
   ReqMethod,
 } from "./model.ts";
 import {
@@ -7,14 +8,14 @@ import {
 } from "./deps.ts";
 import {
   parseUrlencoded,
-  parseUrlToMap
-} from "./utils/http/url/url.ts";
+  parseQsToMap
+} from "./utils/parse/url.ts";
 import {
   parseFormData
-} from "./utils/http/body/parse.ts";
+} from "./utils/parse/body.ts";
 import {
   getRequestType
-} from "./utils/http/contentType/contentType.ts";
+} from "./utils/contentType/contentType.ts";
 
 export const decoder = new TextDecoder();
 export class Request{
@@ -27,7 +28,7 @@ export class Request{
       url: '',
       method: 'get' as ReqMethod,
       headers: config.request.headers,
-      cookies: parseUrlToMap(config.request.headers.get('cookie')),
+      cookies: parseQsToMap(config.request.headers.get('cookie')),
       ...config
     };
   }

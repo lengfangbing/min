@@ -16,7 +16,7 @@ import {
   RouteValue
 } from "../model.ts";
 import {colors, serve, serveTLS, Status} from "../deps.ts";
-import {parseAddress} from "../utils/address/address.ts";
+import {parseAddress} from "../utils/parse/address.ts";
 import {cors} from "../cors.ts";
 import {assets} from "../assets.ts";
 import {appConfig} from "../application.ts";

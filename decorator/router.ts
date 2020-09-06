@@ -1,5 +1,5 @@
 import {NewRoute, RouteValue, SingleRoute} from "../model.ts";
-import {parseUrlQuery, splitPath, splitUrl} from "../utils/http/url/url.ts";
+import {parseUrlQuery, splitPath, splitUrl} from "../utils/parse/url.ts";
 
 export class Router {
   #tree: Record<string, Record<string, NewRoute>>;

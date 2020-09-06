@@ -14,7 +14,7 @@ import {
 } from "./request.ts";
 import {
   parseResponseBody
-} from "./utils/http/body/parse.ts";
+} from "./utils/parse/body.ts";
 import {
   Cookie
 } from "./cookie.ts";

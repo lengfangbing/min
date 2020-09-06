@@ -1,6 +1,6 @@
 import {
   parseResponseCookie
-} from "./utils/http/url/url.ts";
+} from "./utils/parse/url.ts";
 
 export class Cookie {
   #cookie: string[]
