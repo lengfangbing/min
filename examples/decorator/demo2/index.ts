@@ -34,7 +34,10 @@ export class TestClass extends App {
     console.log('middle2 end');
   }
 
-  @Get('/id/:id/info')
+  @Get('/id/:id/info', [async (req: Req, res: Res, next: Function) => {
+    console.log(`I am a middleware func in ${req.url}`);
+    await next();
+  }])
   async testHandle2(req: Req, res: Res) {
     console.log(req.query);
     console.log(req.params);

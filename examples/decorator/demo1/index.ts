@@ -3,7 +3,7 @@ import {App, ApplyMiddleware, assets, cors, Get, Middleware, Req, Res, Start, St
 @StartApplication
 export class TestClass extends App {
 
-  @ApplyMiddleware([assets('/examples/decorator/demo1/static'), cors()])
+  @ApplyMiddleware([assets('/static'), cors()])
   @Middleware
   async middle1(req: Req, res: Res, next: Function) {
     console.log('middle1');
@@ -21,6 +21,8 @@ export class TestClass extends App {
   @Get('/test')
   async testHandle(req: Req, res: Res) {
     // fetch url `${hostname}:${port}/test/?name=myName&age=20`
+    res.cookies.append('name', '123');
+    res.cookies.append('age', '22');
     res.body = req.query;
   }
 
