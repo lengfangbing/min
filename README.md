@@ -106,7 +106,7 @@ import {
   Res,
   Start,
   StartApplication
-} from "'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts'";
+} from "https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts";
 
 @StartApplication
 export class TestClass extends App {
@@ -143,6 +143,7 @@ const initial = new TestClass();
 
 await initial.start();
 ```
+
 ### You can use both these ways to create new http server
 
 ```typescript
