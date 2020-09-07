@@ -31,7 +31,7 @@ export interface NewRoute {
 
 export class Router {
   #tree: Record<string, Record<string, NewRoute>>;
-
+  #initRoute: () => NewRoute;
   constructor() {
     this.#tree = {
       get: {},
@@ -42,6 +42,12 @@ export class Router {
       head: {},
       patch: {},
     };
+    this.#initRoute = () => ({
+      next: null,
+      handler: null,
+      middleware: [],
+      paramsNames: {}
+    });
   }
 
   #forEachBackMap = (map: Array<() => SingleRoute | null>): SingleRoute | null => {
@@ -144,23 +150,13 @@ export class Router {
             if (p.next[value]) {
               p = p.next[value];
             } else {
-              p.next[value] = {
-                handler: null,
-                next: null,
-                middleware: [],
-                paramsNames: {}
-              }
+              p.next[value] = this.#initRoute();
               p = p.next[value];
             }
           } else {
             // 如果没有next, 表示没有下一节点, 这是个新节点
             p.next = {
-              [value]: {
-                handler: null,
-                next: null,
-                middleware: [],
-                paramsNames: {}
-              }
+              [value]: this.#initRoute()
             };
             p = p.next[value];
           }
@@ -168,12 +164,7 @@ export class Router {
           if (funcMap[value]) {
             p = funcMap[value];
           } else {
-            funcMap[value] = {
-              handler: null,
-              next: null,
-              middleware: [],
-              paramsNames: {}
-            };
+            funcMap[value] = this.#initRoute();
             p = funcMap[value];
           }
         }
@@ -185,12 +176,7 @@ export class Router {
           if (funcMap['']) {
             p = funcMap[''];
           } else {
-            funcMap[''] = {
-              handler: null,
-              next: null,
-              middleware: [],
-              paramsNames: {}
-            }
+            funcMap[''] = this.#initRoute();
             p = funcMap[''];
           }
           params[index] = value.paramsName;
@@ -199,23 +185,13 @@ export class Router {
             if (p.next['']) {
               p = p.next[''];
             } else {
-              p.next[''] = {
-                handler: null,
-                next: null,
-                middleware: [],
-                paramsNames: {}
-              }
+              p.next[''] = this.#initRoute();
               p = p.next[''];
             }
             params[index] = value.paramsName;
           } else {
             p.next = {
-              '': {
-                handler: null,
-                next: null,
-                middleware: [],
-                paramsNames: {}
-              }
+              '': this.#initRoute()
             }
             p = p.next[''];
             params[index] = value.paramsName;

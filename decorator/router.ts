@@ -3,6 +3,7 @@ import {parseUrlQuery, splitPath, splitUrl} from "../utils/parse/url.ts";
 
 export class Router {
   #tree: Record<string, Record<string, NewRoute>>;
+  #initRoute: () => NewRoute;
 
   constructor() {
     this.#tree = {
@@ -16,6 +17,12 @@ export class Router {
       trace: {},
       patch: {},
     };
+    this.#initRoute = () => ({
+      next: null,
+      handler: null,
+      middleware: [],
+      paramsNames: {}
+    });
   }
 
   #forEachBackMap = (map: Array<() => SingleRoute | null>): SingleRoute | null => {
@@ -46,22 +53,12 @@ export class Router {
             if (p.next[value]) {
               p = p.next[value];
             } else {
-              p.next[value] = {
-                handler: null,
-                next: null,
-                middleware: [],
-                paramsNames: {}
-              }
+              p.next[value] = this.#initRoute();
               p = p.next[value];
             }
           } else {
             p.next = {
-              [value]: {
-                handler: null,
-                next: null,
-                middleware: [],
-                paramsNames: {}
-              }
+              [value]: this.#initRoute()
             };
             p = p.next[value];
           }
@@ -69,12 +66,7 @@ export class Router {
           if (fM[value]) {
             p = fM[value];
           } else {
-            fM[value] = {
-              handler: null,
-              next: null,
-              middleware: [],
-              paramsNames: {}
-            };
+            fM[value] = this.#initRoute();
             p = fM[value];
           }
         }
@@ -83,12 +75,7 @@ export class Router {
           if (fM['']) {
             p = fM[''];
           } else {
-            fM[''] = {
-              handler: null,
-              next: null,
-              middleware: [],
-              paramsNames: {}
-            }
+            fM[''] = this.#initRoute();
             p = fM[''];
           }
           pm[index] = value.paramsName;
@@ -97,23 +84,13 @@ export class Router {
             if (p.next['']) {
               p = p.next[''];
             } else {
-              p.next[''] = {
-                handler: null,
-                next: null,
-                middleware: [],
-                paramsNames: {}
-              }
+              p.next[''] = this.#initRoute();
               p = p.next[''];
             }
             pm[index] = value.paramsName;
           } else {
             p.next = {
-              '': {
-                handler: null,
-                next: null,
-                middleware: [],
-                paramsNames: {}
-              }
+              '': this.#initRoute()
             }
             p = p.next[''];
             pm[index] = value.paramsName;
