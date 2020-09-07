@@ -7,12 +7,16 @@ import {
 } from "./cookie.ts";
 
 export type ReqMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head' | 'connect' | 'trace';
+
 export type ReqBody = {
   type: string,
   value: any,
 }
+
 export type HandlerFunc = (req: Req, res: Res) => Promise<unknown> | unknown
+
 export type MiddlewareFunc = (req: Req, res: Res, next: Function) => Promise<unknown> | unknown
+
 export type MethodFuncArgument = Array<MiddlewareFunc>
 
 export interface AppConfig {
@@ -25,27 +29,30 @@ export interface RoutesConfig {
   func: HandlerFunc
   middleware?: MiddlewareFunc[]
 }
-export interface NewRoute {
-  next: Record<string, NewRoute> | null
-  middleware: Function[]
-  handler: Function | null,
-  paramsNames: {[key: string]: string }
-}
+
 export interface RouteHandlers {
   middleware?: Function[],
   handler: HandlerFunc
 }
 export interface RouteValue {
-  query: { [key: string]: string }
+  query: Record<string, string>
   url: string
-  params: { [key: string]: string },
-  handler: Function,
+  params: Record<string, string>
+  handler: Function
   middleware: Function[]
 }
+
 export interface SingleRoute {
   middleware: Function[],
   handler: Function,
-  paramsNames: {[key: string]: string }
+  paramsNames: Record<string, string>
+}
+
+export interface NewRoute {
+  next: Record<string, NewRoute> | null
+  middleware: Function[]
+  handler: Function | null,
+  paramsNames: Record<string, string>
 }
 
 export interface CorsOptions {
