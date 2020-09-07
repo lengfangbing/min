@@ -9,24 +9,24 @@ import {
 } from "https://deno.land/std/testing/asserts.ts";
 
 export interface RouteValue {
-  query: { [key: string]: string }
+  query: Record<string, string>
   url: string
-  params: { [key: string]: string },
-  handler: Function,
+  params: Record<string, string>
+  handler: Function
   middleware: Function[]
 }
 
 export interface SingleRoute {
   middleware: Function[],
   handler: Function,
-  paramsNames: {[key: string]: string }
+  paramsNames: Record<string, string>
 }
 
 export interface NewRoute {
   next: Record<string, NewRoute> | null
   middleware: Function[]
   handler: Function | null,
-  paramsNames: {[key: string]: string }
+  paramsNames: Record<string, string>
 }
 
 export class Router {
@@ -44,9 +44,19 @@ export class Router {
     };
   }
 
+  #forEachBackMap = (map: Array<() => SingleRoute | null>): SingleRoute | null => {
+    for(let i = 0; i < map.length; i++){
+      const res = map[i]();
+      if(res){
+        return res;
+      }
+    }
+    return null;
+  }
+
   #findLoop = (map: Record<string, NewRoute | null>, urls: string[]): SingleRoute | null => {
     // 回溯查找的数组
-    let _map: Function[] = [];
+    let _map: Array<() => SingleRoute | null> = [];
     // 当前查找到的静态处理Route
     let routeVal: NewRoute | null = null;
     // 是否需要回溯
@@ -56,13 +66,7 @@ export class Router {
       // 下个节点对象
       let nextNode: any = routeVal ? routeVal.next : map;
       if(nextNode === null){
-        for(let i = 0; i < _map.length; i++){
-          const res = _map[i]();
-          if(res){
-            return res;
-          }
-        }
-        return null;
+        return this.#forEachBackMap(_map);
       }
       const stVal = nextNode[url];
       const dyVal = nextNode[''];
@@ -85,22 +89,10 @@ export class Router {
     if(routeVal){
       const {handler, middleware, paramsNames} = routeVal;
       if(handler === null){
-        for(let i = 0; i < _map.length; i++){
-          const res = _map[i]();
-          if(res){
-            return res;
-          }
-        }
-        return null;
+        return this.#forEachBackMap(_map);
       }else{
         if(needFallback){
-          for(let i = 0; i < _map.length; i++){
-            const res = _map[i]();
-            if(res){
-              return res;
-            }
-          }
-          return null;
+          return this.#forEachBackMap(_map);
         }
         return {
           handler,
@@ -138,9 +130,10 @@ export class Router {
   add(method: string, url: string, handler: Function, middleware: Function[] = []) {
     const funcMap = this.#tree[method];
     const urls = splitPath(url);
-    if (!urls.length) throw new Error('router path is invalid, use /path/... instead');
+    if (!urls.length) throw new Error('router.add first argument path is invalid, use /path instead');
+    // p理解为一个查找路由这个数据结构的指针
     let p: NewRoute | null = null;
-    let params: {[key: string]: string } = {};
+    let params: NewRoute['paramsNames'] = {};
     urls.forEach((value: string | { paramsName: string }, index: number) => {
       // 静态路由
       if (typeof value === 'string') {
@@ -230,12 +223,14 @@ export class Router {
         }
       }
     });
-    // @ts-ignore
-    p.middleware = middleware;
-    // @ts-ignore
-    p.handler = handler;
-    // @ts-ignore
-    p.paramsNames = params;
+    if (p === null) {
+      throw(`add route into Router got error during: ${url} - ${method}\n`);
+    } else {
+      p = p as NewRoute;
+      p.middleware = middleware;
+      p.handler = handler;
+      p.paramsNames = params;
+    }
   }
 }
 console.log('you imported test module');

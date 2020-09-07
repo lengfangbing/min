@@ -18,6 +18,16 @@ export class Router {
     };
   }
 
+  #forEachBackMap = (map: Array<() => SingleRoute | null>): SingleRoute | null => {
+    for(let i = 0; i < map.length; i++){
+      const res = map[i]();
+      if(res){
+        return res;
+      }
+    }
+    return null;
+  }
+
   add(
     method: string,
     url: string,
@@ -28,7 +38,7 @@ export class Router {
     const us = splitPath(url);
     if (!us.length) throw new Error('router path is invalid, use /path/... instead');
     let p: NewRoute | null = null;
-    let pm: {[key: string]: string } = {};
+    let pm: NewRoute['paramsNames'] = {};
     us.forEach((value: string | { paramsName: string }, index: number) => {
       if (typeof value === 'string') {
         if (p) {
@@ -111,29 +121,25 @@ export class Router {
         }
       }
     });
-    // @ts-ignore
-    p.middleware = middleware;
-    // @ts-ignore
-    p.handler = handler;
-    // @ts-ignore
-    p.paramsNames = pm;
+    if (p === null) {
+      throw(`add route into Router got error during: ${url} - ${method}\n`);
+    } else {
+      p = p as NewRoute;
+      p.middleware = middleware;
+      p.handler = handler;
+      p.paramsNames = pm;
+    }
   }
 
   #findLoop = (map: Record<string, NewRoute | null>, urls: string[]): SingleRoute | null => {
-    let _m: Function[] = [];
+    let _m: Array<() => SingleRoute | null> = [];
     let rV: NewRoute | null = null;
     let nF: boolean = false;
     for(let i = 0; i < urls.length; i++) {
       const url = urls[i];
       let nN: any = rV ? rV.next : map;
       if(nN === null){
-        for(let i = 0; i < _m.length; i++){
-          const res = _m[i]();
-          if(res){
-            return res;
-          }
-        }
-        return null;
+        return this.#forEachBackMap(_m);
       }
       const sV = nN[url];
       const dV = nN[''];
@@ -154,22 +160,10 @@ export class Router {
     if(rV){
       const {handler, middleware, paramsNames} = rV;
       if(handler === null){
-        for(let i = 0; i < _m.length; i++){
-          const res = _m[i]();
-          if(res){
-            return res;
-          }
-        }
-        return null;
+        return this.#forEachBackMap(_m);
       }else{
         if(nF){
-          for(let i = 0; i < _m.length; i++){
-            const res = _m[i]();
-            if(res){
-              return res;
-            }
-          }
-          return null;
+          return this.#forEachBackMap(_m);
         }
         return {
           handler,
