@@ -93,7 +93,10 @@ respond a status with 301(default), and set Location header in url. -- Function
 respond a file such as index.html -- AsyncFunction
 * `.send(req: Req, res: Res)`
 manual respond with the req and res that user provided
+
+
 ## usage
+### You can use all these ways to create new http server
 ```typescript
 import {
   App,
@@ -147,8 +150,6 @@ const initial = new TestClass();
 
 await initial.start();
 ```
-
-### You can use both these ways to create new http server
 
 ```typescript
 import {
