@@ -2,20 +2,12 @@ import {App, ApplyMiddleware, assets, cors, Get, Middleware, Req, Res, Start, St
 
 @StartApplication
 export class TestClass extends App {
-
   @ApplyMiddleware([assets('/static'), cors()])
   @Middleware
   async middle1(req: Req, res: Res, next: Function) {
     console.log('middle1');
     await next();
     console.log('middle1 end');
-  }
-
-  @Middleware
-  async middle2(req: Req, res: Res, next: Function) {
-    console.log('middle2');
-    await next();
-    console.log('middle2 end');
   }
 
   @Get('/test')
@@ -30,7 +22,6 @@ export class TestClass extends App {
   async start() {
     await this.startServer();
   }
-
 }
 
 const initial = new TestClass();

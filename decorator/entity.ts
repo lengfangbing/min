@@ -17,10 +17,6 @@ const entity: Entity = {
   routes: [],
 };
 
-export function getApp() {
-  return entity.app;
-}
-
 export function getAppInitial(): DecorationApplication {
   if (entity.app === null) {
     setApp(new DecorationApplication());
@@ -28,8 +24,8 @@ export function getAppInitial(): DecorationApplication {
   return entity.app as DecorationApplication;
 }
 
-export function getRouter() {
-  return entity.router;
+export function setApp(app: any) {
+  entity.app = app;
 }
 
 export function getRouterInitial(): Router {
@@ -39,12 +35,16 @@ export function getRouterInitial(): Router {
   return entity.router as Router;
 }
 
+export function setRouter(router: any) {
+  entity.router = router;
+}
+
 export function getServer() {
   return entity.server;
 }
 
-export function getMiddleware() {
-  return entity.middleware;
+export function setServer(server: ListenOptions) {
+  entity.server = server;
 }
 
 export function getMiddlewareInitial(): Middleware {
@@ -52,18 +52,6 @@ export function getMiddlewareInitial(): Middleware {
     setMiddleware(new Middleware());
   }
   return entity.middleware as Middleware;
-}
-
-export function setApp(app: any) {
-  entity.app = app;
-}
-
-export function setRouter(router: any) {
-  entity.router = router;
-}
-
-export function setServer(server: ListenOptions) {
-  entity.server = server;
 }
 
 export function setMiddleware(middleware: Middleware) {

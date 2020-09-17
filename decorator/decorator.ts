@@ -11,7 +11,7 @@ import {App} from "./app.ts";
 import {DecorationApplication} from "./application.ts";
 import {ListenOptions, MethodFuncArgument} from "../model.ts";
 
-const consumeRoutes = (target: Function) => {
+const consumeRoutes: ClassDecorator = (target: Function) => {
   const router = getRouterInitial();
   const path = target.prototype.decorator_prefix_min || '';
   getRoutes().forEach(val => {
