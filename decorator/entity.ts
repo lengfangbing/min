@@ -17,19 +17,15 @@ const entity: Entity = {
   routes: [],
 };
 
-export function getApp() {
-  return entity.app;
-}
-
-export function setApp(app: any) {
-  entity.app = app;
-}
-
 export function getAppInitial(): DecorationApplication {
   if (entity.app === null) {
     setApp(new DecorationApplication());
   }
   return entity.app as DecorationApplication;
+}
+
+export function setApp(app: any) {
+  entity.app = app;
 }
 
 export function getRouterInitial(): Router {
