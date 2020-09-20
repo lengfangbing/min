@@ -1,7 +1,6 @@
 import {
   parseUrlQuery,
   splitPath,
-  splitNewPath,
   splitUrl
 } from './utils/test/url_test.ts';
 
