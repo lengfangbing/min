@@ -93,7 +93,10 @@ respond a status with 301(default), and set Location header in url. -- Function
 respond a file such as index.html -- AsyncFunction
 * `.send(req: Req, res: Res)`
 manual respond with the req and res that user provided
+
+
 ## usage
+### You can use all these ways to create new http server
 ```typescript
 import {
   App,
@@ -111,7 +114,7 @@ import {
 @StartApplication
 export class TestClass extends App {
 
-  @ApplyMiddleware([assets('/examples/decorator/demo1/static'), cors()])
+  @ApplyMiddleware([assets('/static'), cors()])
   @Middleware
   async middle1(req: Req, res: Res, next: Function) {
     console.log('middle1');
@@ -128,7 +131,11 @@ export class TestClass extends App {
 
   @Get('/test')
   async testHandle(req: Req, res: Res) {
+    // parse Cookie to a object
+    console.log(req.cookies.toObj());
     // fetch url `${hostname}:${port}/test/?name=myName&age=20`
+    res.cookies.append('name', '123');
+    res.cookies.append('age', '22');
     res.body = req.query;
   }
 
@@ -143,8 +150,6 @@ const initial = new TestClass();
 
 await initial.start();
 ```
-
-### You can use both these ways to create new http server
 
 ```typescript
 import {
