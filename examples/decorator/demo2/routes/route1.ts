@@ -4,6 +4,7 @@ import {Get, Route, Middleware, Req, Res} from "../deps.ts";
 @Route
 class Route1 {
   @Middleware
+  // this middleware will only work for this Route
   async middle3(req: Req, res: Res, next: Function) {
     console.log('route1 middle');
     await next();
