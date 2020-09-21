@@ -16,4 +16,5 @@ export declare type Entity = {
     middleware: Function[],
     handler: Function,
   }>;
+  middlewares: Array<MiddlewareFunc>;
 };
