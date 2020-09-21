@@ -76,32 +76,7 @@ export function splitPath(path: string){
     const v = url.substring(0, i);
     let j = 0;
     if((j = v.indexOf(':')) >= 0){
-      res.push({paramsName: v.substring(j+1)});
-    }else{
-      res.push(`/${v}`);
-    }
-    url = url.substring(i+1);
-  }
-  if(url.length){
-    if((i = url.indexOf(':')) >= 0){
-      res.push({paramsName: url.substring(i+1)});
-    }else{
-      res.push(`/${url}`);
-    }
-  }
-  return res;
-}
-export function splitNewPath(path: string){
-  const res = [];
-  let url = path.substring(1) || '/';
-  let i = 0;
-  while((i = url.indexOf('/')) >= 0){
-    const v = url.substring(0, i);
-    let j = 0;
-    if((j = v.indexOf(':')) >= 0){
       res.push({key: '', paramsName: v.substring(j+1)});
-    }else if((j = v.indexOf('*')) >= 0){
-      res.push({key: '#', paramsName: v.substring(j+1)});
     }else{
       res.push(`/${v}`);
     }
@@ -110,8 +85,6 @@ export function splitNewPath(path: string){
   if(url.length){
     if((i = url.indexOf(':')) >= 0){
       res.push({key: '', paramsName: url.substring(i+1)});
-    }else if((i = url.indexOf('*')) >= 0){
-      res.push({key: '#', paramsName: url.substring(i+1)});
     }else{
       res.push(`/${url}`);
     }
@@ -154,5 +127,5 @@ export function parseResponseCookie(options?: Record<string, unknown>){
   return res.join(';');
 }
 assertEquals('domain=.foo.com;Path=/;secure;httpOnly', parseResponseCookie({domain: '.foo.com', Path: '/', secure: true, httpOnly: true}));
-assertEquals(['/name', {paramsName: 'id'}, '/v1'], splitPath('/name/:id/v1'));
+assertEquals(['/name', {key: '', paramsName: 'id'}, '/v1'], splitPath('/name/:id/v1'));
 assertEquals(['/name', '/fangbing', '/v1'], splitUrl('/name/fangbing/v1'));

@@ -1,7 +1,6 @@
 import {
   parseUrlQuery,
   splitPath,
-  splitNewPath,
   splitUrl
 } from './utils/test/url_test.ts';
 
@@ -141,7 +140,7 @@ export class Router {
     // p理解为一个查找路由这个数据结构的指针
     let p: NewRoute | null = null;
     let params: NewRoute['paramsNames'] = {};
-    urls.forEach((value: string | { paramsName: string }, index: number) => {
+    urls.forEach((value: string | { key: string,  paramsName: string }, index: number) => {
       // 静态路由
       if (typeof value === 'string') {
         // 如果p代表了有值了, 就代表funcMap有匹配项了
@@ -174,27 +173,27 @@ export class Router {
         // 把所有动态路由都改成''(空字符串)索引的形式构造树
         // 第一个就是动态路由
         if (p === null) {
-          if (funcMap['']) {
-            p = funcMap[''];
+          if (funcMap[value.key]) {
+            p = funcMap[value.key];
           } else {
-            funcMap[''] = this.#initRoute();
-            p = funcMap[''];
+            funcMap[value.key] = this.#initRoute();
+            p = funcMap[value.key];
           }
           params[index] = value.paramsName;
         } else {
           if (p.next) {
-            if (p.next['']) {
-              p = p.next[''];
+            if (p.next[value.key]) {
+              p = p.next[value.key];
             } else {
-              p.next[''] = this.#initRoute();
-              p = p.next[''];
+              p.next[value.key] = this.#initRoute();
+              p = p.next[value.key];
             }
             params[index] = value.paramsName;
           } else {
             p.next = {
-              '': this.#initRoute()
+              [value.key]: this.#initRoute()
             }
-            p = p.next[''];
+            p = p.next[value.key];
             params[index] = value.paramsName;
           }
         }
