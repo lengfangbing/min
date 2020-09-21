@@ -5,24 +5,42 @@ import {
   setRoutes,
   clearRoutes,
   setServer,
-  getMiddlewareInitial
+  getMiddlewareInitial,
+  getMiddlewares,
+  setMiddlewares,
+  clearMiddlewares,
 } from "./entity.ts";
 import {App} from "./app.ts";
 import {DecorationApplication} from "./application.ts";
 import {ListenOptions, MethodFuncArgument} from "../model.ts";
 
+const consumeApplication: ClassDecorator = (target: Function) => {
+  const middleware = getMiddlewareInitial();
+  const router = getRouterInitial();
+  const path = target.prototype.decorator_prefix_min || '';
+  getMiddlewares().forEach(val => {
+    middleware.push(val);
+  });
+  getRoutes().forEach(val => {
+    router[val.method](path + val.path, val.handler, val.middleware);
+  });
+  clearMiddlewares();
+  clearRoutes();
+}
+
 const consumeRoutes: ClassDecorator = (target: Function) => {
   const router = getRouterInitial();
   const path = target.prototype.decorator_prefix_min || '';
   getRoutes().forEach(val => {
-    router[val.method](path + val.path, val.handler, val.middleware);
+    router[val.method](path + val.path, val.handler, val.middleware.concat(getMiddlewares()));
   });
+  clearMiddlewares();
   clearRoutes();
 }
 
 const StartApplication: ClassDecorator = target => {
   setApp(new DecorationApplication());
-  consumeRoutes(target);
+  consumeApplication(target);
   return target;
 }
 
@@ -39,16 +57,14 @@ const Prefix = (path: string): ClassDecorator => {
 }
 
 const Middleware: MethodDecorator = (target, propertyKey, descriptor: TypedPropertyDescriptor<any>) => {
-  const middleware = getMiddlewareInitial();
-  middleware.push(descriptor.value);
+  setMiddlewares(descriptor.value);
   return descriptor;
 }
 
 const ApplyMiddleware = (args: MethodFuncArgument): MethodDecorator => {
-  const middleware = getMiddlewareInitial();
   args.forEach(val => {
-    middleware.push(val);
-  })
+    setMiddlewares(val);
+  });
   return (target, propertyKey, descriptor) => {
     return descriptor;
   }
