@@ -2,7 +2,7 @@ import {Entity} from "./decorator.type.ts";
 import {Middleware} from "./middleware.ts";
 import {Router} from "./router.ts";
 import {DecorationApplication} from "./application.ts";
-import {ListenOptions} from "../model.ts";
+import {ListenOptions, MiddlewareFunc} from "../model.ts";
 
 const defaultServer = {
   port: 8000,
@@ -15,6 +15,7 @@ const entity: Entity = {
   server: defaultServer,
   middleware: null,
   routes: [],
+  middlewares: [],
 };
 
 export function getAppInitial(): DecorationApplication {
@@ -68,4 +69,16 @@ export function setRoutes(routes: Entity['routes'][number]) {
 
 export function clearRoutes() {
   entity.routes = [];
+}
+
+export function getMiddlewares() {
+  return entity.middlewares;
+}
+
+export function setMiddlewares(func: MiddlewareFunc) {
+  entity.middlewares.push(func);
+}
+
+export function clearMiddlewares() {
+  entity.middlewares = [];
 }

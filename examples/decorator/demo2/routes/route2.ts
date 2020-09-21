@@ -6,6 +6,7 @@ import {Get, Route, Prefix, Middleware, Req, Res} from "../deps.ts";
 @Prefix('/route2')
 class Route2 {
   @Middleware
+  // this middleware will only work for this Route
   async middle (req: Req, res: Res, next: Function) {
     console.log('route2 middle');
     await next();

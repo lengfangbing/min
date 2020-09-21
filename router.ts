@@ -59,7 +59,7 @@ export class Router {
     if (!us.length) throw new Error('router.add first argument path is invalid, use /path instead');
     let p: NewRoute | null = null;
     let pm: NewRoute['paramsNames'] = {};
-    us.forEach((value: string | { paramsName: string }, index: number) => {
+    us.forEach((value: string | { key: string,  paramsName: string }, index: number) => {
       if (typeof value === 'string') {
         if (p) {
           if (p.next) {
@@ -85,27 +85,27 @@ export class Router {
         }
       } else {
         if (p === null) {
-          if (fM['']) {
-            p = fM[''];
+          if (fM[value.key]) {
+            p = fM[value.key];
           } else {
-            fM[''] = this.#initRoute();
-            p = fM[''];
+            fM[value.key] = this.#initRoute();
+            p = fM[value.key];
           }
           pm[index] = value.paramsName;
         } else {
           if (p.next) {
-            if (p.next['']) {
-              p = p.next[''];
+            if (p.next[value.key]) {
+              p = p.next[value.key];
             } else {
-              p.next[''] = this.#initRoute();
-              p = p.next[''];
+              p.next[value.key] = this.#initRoute();
+              p = p.next[value.key];
             }
             pm[index] = value.paramsName;
           } else {
             p.next = {
-              '': this.#initRoute()
+              [value.key]: this.#initRoute()
             }
-            p = p.next[''];
+            p = p.next[value.key];
             pm[index] = value.paramsName;
           }
         }

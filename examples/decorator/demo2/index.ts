@@ -34,6 +34,9 @@ export class TestClass extends App {
     console.log('middle2 end');
   }
 
+  // in @StartApplication class middleware will work for global
+  // but in @Route class , it will only work for that Route
+
   @Get('/id/:id/info', [async (req: Req, res: Res, next: Function) => {
     console.log(`I am a middleware func in ${req.url}`);
     await next();

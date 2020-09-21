@@ -83,7 +83,7 @@ export function splitPath(path: string){
     const v = url.substring(0, i);
     let j = 0;
     if((j = v.indexOf(':')) >= 0){
-      res.push({paramsName: v.substring(j+1)});
+      res.push({key: '', paramsName: v.substring(j+1)});
     }else{
       res.push(`/${v}`);
     }
@@ -91,7 +91,7 @@ export function splitPath(path: string){
   }
   if(url.length){
     if((i = url.indexOf(':')) >= 0){
-      res.push({paramsName: url.substring(i+1)});
+      res.push({key: '', paramsName: url.substring(i+1)});
     }else{
       res.push(`/${url}`);
     }
