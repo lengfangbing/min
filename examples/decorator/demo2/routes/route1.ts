@@ -10,7 +10,10 @@ class Route1 {
     await next();
     console.log('route1 middle end');
   }
-  @Get('/test')
+  @Get('/test', [async (req: Req, res: Res, next: Function) => {
+    console.log('route1 middle for /test');
+    await next();
+  }])
   test(req: Req, res: Res) {
     res.body = {
       url: 'route1 test'

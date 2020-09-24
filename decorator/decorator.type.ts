@@ -1,7 +1,7 @@
 import {Middleware} from "./middleware.ts";
 import {DecorationApplication} from "./application.ts";
 import {Router} from "./router.ts";
-import {ListenOptions, ReqMethod, MethodFuncArgument} from "../model.ts";
+import {ListenOptions, ReqMethod, MiddlewareFunc, MethodFuncArgument} from "../model.ts";
 
 export declare type Entity = {
   app: DecorationApplication | null,
@@ -11,7 +11,7 @@ export declare type Entity = {
   routes: Array<{
     path: string;
     method: ReqMethod,
-    middleware: Function[],
+    middleware: MiddlewareFunc[],
     handler: Function,
   }>;
   middlewares: MethodFuncArgument;
