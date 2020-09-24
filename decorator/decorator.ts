@@ -32,7 +32,7 @@ const consumeRoutes: ClassDecorator = (target: Function) => {
   const router = getRouterInitial();
   const path = target.prototype.decorator_prefix_min || '';
   getRoutes().forEach(val => {
-    router[val.method](path + val.path, val.handler, val.middleware.concat(getMiddlewares()));
+    router[val.method](path + val.path, val.handler, getMiddlewares().concat(val.middleware));
   });
   clearMiddlewares();
   clearRoutes();

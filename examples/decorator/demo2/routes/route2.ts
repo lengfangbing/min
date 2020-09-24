@@ -12,7 +12,10 @@ class Route2 {
     await next();
     console.log('route2 middle end');
   }
-  @Get('/test')
+  @Get('/test', [async (req: Req, res: Res, next: Function) => {
+    console.log('route2 middle for /test');
+    await next();
+  }])
   test(req: Req, res: Res) {
     res.body = {
       prefix: '/route2'
