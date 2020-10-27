@@ -5,7 +5,6 @@ export {
   App,
   Middleware,
   ApplyMiddleware,
-  Query,
   Get,
   Post,
   Put,

@@ -9,8 +9,8 @@ export {
   Post,
   Put,
   Start,
-  assets,
-  cors,
   Req,
-  Res
+  Res,
+  assets,
+  cors
 } from 'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts';
