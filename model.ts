@@ -97,7 +97,8 @@ export interface Req {
   headers: Headers,
   request: ServerRequest,
   params: Record<string, any>,
-  cookies: Map<string, any>
+  cookies: Map<string, any>,
+  [key: string]: any
 }
 export interface Res {
   response: Response,

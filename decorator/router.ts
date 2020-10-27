@@ -1,4 +1,4 @@
-import {NewRoute, RouteValue, SingleRoute} from "../model.ts";
+import {NewRoute, RouteValue, SingleRoute} from "./model.ts";
 import {parseUrlQuery, splitPath, splitUrl} from "../utils/parse/url.ts";
 
 export class Router {
@@ -21,7 +21,8 @@ export class Router {
       next: null,
       handler: null,
       middleware: [],
-      paramsNames: {}
+      paramsNames: {},
+      exec: [],
     });
   }
 
@@ -135,7 +136,7 @@ export class Router {
       }
     }
     if(rV){
-      const {handler, middleware, paramsNames} = rV;
+      const {handler, middleware, paramsNames, exec} = rV;
       if(handler === null){
         return this.#forEachBackMap(_m);
       }else{
@@ -145,7 +146,8 @@ export class Router {
         return {
           handler,
           middleware,
-          paramsNames
+          paramsNames,
+          exec,
         };
       }
     }
@@ -161,7 +163,7 @@ export class Router {
     if(res === null){
       return null;
     }
-    const {paramsNames, middleware, handler} = res;
+    const {paramsNames, middleware, handler, exec} = res;
     const params: {[key: string]: string} = {};
     for (let i in paramsNames){
       params[paramsNames[i]] = us[+i].substring(1);
@@ -171,10 +173,10 @@ export class Router {
       query: query || {},
       params: params || {},
       middleware,
-      handler
+      handler,
+      exec,
     }
   }
-
 
   get(url: string, handler: Function, middleware: Function[]) {
     this.add("get", url, handler, middleware);
@@ -211,5 +213,4 @@ export class Router {
   patch(url: string, handler: Function, middleware: Function[]) {
     this.add("patch", url, handler, middleware);
   }
-
 }

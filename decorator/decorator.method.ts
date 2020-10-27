@@ -1,9 +1,40 @@
 import {MethodFuncArgument} from "../model.ts";
-import {setRoutes} from "./entity.ts";
+import {
+  setRoutes,
+  getSnapshotRoutes,
+  setSnapshotRoutes,
+  getParamsExecRoutes,
+  clearParamsExecRoutes,
+  setExecRoutes
+} from "./entity.ts";
+
+const commonMiddleware = (url: string, method: string, handler: Function) => {
+  // 增加路由快照
+  setSnapshotRoutes({
+    url,
+    method,
+    handler
+  });
+  // 消费params指令数组
+  const findItem = getParamsExecRoutes().filter(item => item.handler === handler);
+  if (findItem.length) {
+    findItem.forEach(val => {
+      // 找到了相同的route handler
+      const func = val.handler;
+      const snapshotRoutes = getSnapshotRoutes().find(item => item.handler === func);
+      if (snapshotRoutes) {
+        // 添加到新的数组里, 在Application和Route时去消费这个数组, 对应url, 找到后修改exec
+        setExecRoutes(url, method, val.exec);
+      }
+    });
+  }
+  // 清除params指令数组
+  clearParamsExecRoutes();
+}
 
 export const Get = (path: string, args?: MethodFuncArgument): MethodDecorator => {
-  console.log('get exec');
   return function (target, propertyKey, descriptor: any) {
+    commonMiddleware(path, 'get', descriptor.value);
     setRoutes({
       middleware: args || [],
       handler: descriptor.value,
@@ -16,6 +47,7 @@ export const Get = (path: string, args?: MethodFuncArgument): MethodDecorator =>
 
 export const Post = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
+    commonMiddleware(path, 'post', descriptor.value);
     setRoutes({
       middleware: args || [],
       handler: descriptor.value,
@@ -28,6 +60,7 @@ export const Post = (path: string, args?: MethodFuncArgument): MethodDecorator =
 
 export const Delete = (path: string, args: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
+    commonMiddleware(path, 'delete', descriptor.value);
     setRoutes({
       middleware: args || [],
       handler: descriptor.value,
@@ -40,6 +73,7 @@ export const Delete = (path: string, args: MethodFuncArgument): MethodDecorator 
 
 export const Put = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
+    commonMiddleware(path, 'put', descriptor.value);
     setRoutes({
       middleware: args || [],
       handler: descriptor.value,
@@ -52,6 +86,7 @@ export const Put = (path: string, args?: MethodFuncArgument): MethodDecorator =>
 
 export const Patch = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
+    commonMiddleware(path, 'patch', descriptor.value);
     setRoutes({
       middleware: args || [],
       handler: descriptor.value,
@@ -64,6 +99,7 @@ export const Patch = (path: string, args?: MethodFuncArgument): MethodDecorator 
 
 export const Options = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
+    commonMiddleware(path, 'options', descriptor.value);
     setRoutes({
       middleware: args || [],
       handler: descriptor.value,
@@ -76,6 +112,7 @@ export const Options = (path: string, args?: MethodFuncArgument): MethodDecorato
 
 export const Head = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
+    commonMiddleware(path, 'head', descriptor.value);
     setRoutes({
       middleware: args || [],
       handler: descriptor.value,
@@ -88,6 +125,7 @@ export const Head = (path: string, args?: MethodFuncArgument): MethodDecorator =
 
 export const Connect = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
+    commonMiddleware(path, 'connect', descriptor.value);
     setRoutes({
       middleware: args || [],
       handler: descriptor.value,
@@ -100,6 +138,7 @@ export const Connect = (path: string, args?: MethodFuncArgument): MethodDecorato
 
 export const Trace = (path: string, args?: MethodFuncArgument): MethodDecorator => {
   return function (target, propertyKey, descriptor: any) {
+    commonMiddleware(path, 'trace', descriptor.value);
     setRoutes({
       middleware: args || [],
       handler: descriptor.value,

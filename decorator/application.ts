@@ -13,8 +13,10 @@ import {
   Res,
   RouteHandlers,
   RoutesConfig,
-  RouteValue
 } from "../model.ts";
+import {
+  RouteValue
+} from './model.ts';
 import {colors, serve, serveTLS, Status} from "../deps.ts";
 import {parseAddress} from "../utils/parse/address.ts";
 import {cors} from "../cors.ts";
@@ -116,7 +118,13 @@ export class DecorationApplication {
     return this;
   }
 
-  #composeMiddle = (middleware: Function[], request: Req, response: Res, execFunc: Function | undefined) => {
+  #composeMiddle = (
+    middleware: Function[],
+    request: Req,
+    response: Res,
+    execFunc: Function | undefined,
+    exec: Array<string>
+  ) => {
     if (!Array.isArray(middleware)) throw new TypeError('Middleware must be an array!')
     return async function () {
       let index = -1
@@ -130,6 +138,22 @@ export class DecorationApplication {
           response.status = execFunc ? Status.OK : Status.NotFound
         }
         try {
+          // 表示这是处理函数了
+          if (index === middleware.length) {
+            // 以参数的顺序正序排列的数组
+            const args = [...exec].reverse();
+            if (args.length) {
+              const pArgs = args.map(value => {
+                let val: any = request;
+                const paramKey = value.split('.');
+                paramKey.forEach(value1 => {
+                  val = val[value1];
+                });
+                return val;
+              });
+              return fn && fn(...pArgs, response, request);
+            }
+          }
           return fn && fn(request, response, dispatch.bind(null, index + 1))
         } catch (err) {
           return Promise.reject(err)
@@ -145,13 +169,15 @@ export class DecorationApplication {
     let m: Function[] = [];
     _m.forEach((value: Function) => {
       m.push(value);
-    })
+    });
+    let exs: Array<string> = [];
     if(fv){
-      const { middleware, handler, params, query, url } = fv;
+      const { middleware, handler, params, query, url, exec } = fv;
       request.params = params;
       request.url = url;
       request.query = query;
       fn = handler;
+      exs = exec;
       middleware.forEach((value: Function) => {
         m.push(value);
       });
@@ -159,7 +185,7 @@ export class DecorationApplication {
     await this.request.parseBody(request);
     response.redirect = response.redirect.bind(globalThis, response);
     response.render = response.render.bind(globalThis, response);
-    const f = this.#composeMiddle(m, request, response, fn);
+    const f = this.#composeMiddle(m, request, response, fn, exs);
     await f.call(globalThis);
     response.send(request, response);
   }
