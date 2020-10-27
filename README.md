@@ -108,7 +108,8 @@ import {
   Req,
   Res,
   Start,
-  StartApplication
+  StartApplication,
+  Query
 } from "https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts";
 
 @StartApplication
@@ -122,11 +123,29 @@ export class TestClass extends App {
     console.log('middle1 end');
   }
 
-  @Middleware
-  async middle2(req: Req, res: Res, next: Function) {
-    console.log('middle2');
-    await next();
-    console.log('middle2 end');
+  @Get('/test_query_params')
+  async queryHandler(@Query('id') id: string, @Query('name') name: string, res: Res, req: Req) {
+    // @Query(pid?: string), if pid is string, it will
+    // return the params in req.query; if pid is undefined
+    // it will return req.query.
+    // if you use some ParameterDecorator like Query
+    // the handlers arguments will end with req
+    // and the res is behind the last ParameterDecorator 
+    console.log(id);
+    console.log(name);
+    console.log(req.query);
+    res.body = {
+      path: 'test2'
+    }
+  }
+  
+  @Get('/test_query')
+  async queryHandler2(@Query() query: { id: string; name: string; }, res: Res, req: Req) {
+    console.log(query);
+    console.log(req.url);
+    res.body = {
+      path: 'test3'
+    }
   }
 
   @Get('/test')
