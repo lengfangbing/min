@@ -8,9 +8,18 @@ export {
   Get,
   Post,
   Put,
-  Start,
+  Delete,
+  Patch,
+  Head,
+  Options,
+  Connect,
+  Trace,
+  Start
+} from './decorator.ts';
+
+export {
   Req,
   Res,
   assets,
   cors
-} from 'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts';
+} from '../mod.ts';

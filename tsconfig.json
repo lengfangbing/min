@@ -9,7 +9,10 @@
   ],
   "references": [
     {
-      "path": "./"
+      "path": "./examples/decorator/demo1/tsconfig.json"
+    },
+    {
+      "path": "./examples/decorator/demo2/tsconfig.json"
     }
   ]
 }
