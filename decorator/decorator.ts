@@ -8,6 +8,9 @@ import {
   getMiddlewares,
   setMiddlewares,
   clearMiddlewares,
+  setParamsExecRoutes,
+  getExecRoutes,
+  clearExecRoutes,
 } from "./entity.ts";
 import {App} from "./app.ts";
 import {DecorationApplication} from "./application.ts";
@@ -37,14 +40,30 @@ const consumeRoutes: ClassDecorator = (target: Function) => {
   clearRoutes();
 }
 
+const consumeExecRoutes = () => {
+  const router = getRouterInitial();
+  getExecRoutes().forEach(value => {
+    // 查找需要增加exec指令的路由
+    const { method, url, exec } = value;
+    const find = router.find(method, url);
+    if (find) {
+      // 如果找到了, 更改exec
+      find.exec.push(exec);
+    }
+  });
+  clearExecRoutes();
+}
+
 const StartApplication: ClassDecorator = target => {
   setApp(new DecorationApplication());
   consumeApplication(target);
+  consumeExecRoutes();
   return target;
 }
 
 const Route: ClassDecorator = target => {
   consumeRoutes(target);
+  consumeExecRoutes();
   return target;
 }
 
@@ -76,6 +95,18 @@ const Start = (server: ListenOptions): MethodDecorator => {
   }
 }
 
+const Query = (qid?: string): ParameterDecorator => {
+  const exec = qid ? `query.${qid}` : 'query';
+  return (target: any, propertyKey: string | symbol) => {
+    const func = Reflect.getOwnPropertyDescriptor(target, propertyKey)?.value as Function | undefined;
+    if (!func) {
+      throw Error('Query decorator can only be used as function parameter');
+    }
+    // 增加执行exec操作指令到params指令数组
+    setParamsExecRoutes(exec, func);
+  }
+}
+
 export {
   StartApplication,
   App,
@@ -84,6 +115,7 @@ export {
   Route,
   Middleware,
   ApplyMiddleware,
+  Query,
 };
 
 export {

@@ -10,12 +10,24 @@ const defaultServer = {
 };
 
 const entity: Entity = {
+  // application
   app: null,
+  // router
   router: null,
+  // server config
   server: defaultServer,
+  // middleware
   middleware: null,
+  // 可消费数组
   routes: [],
+  // 可消费中间件
   middlewares: [],
+  // 路由快照
+  snapshotRoutes: [],
+  // 每个ParameterDecorator可消费数组
+  paramsExecRoutes: [],
+  // 每次Application和Route可消费数组, 用来增加Router的handler的参数exec执行指令
+  execRoutes: [],
 };
 
 export function getAppInitial(): DecorationApplication {
@@ -81,4 +93,47 @@ export function setMiddlewares(func: MiddlewareFunc) {
 
 export function clearMiddlewares() {
   entity.middlewares = [];
+}
+
+export function getSnapshotRoutes() {
+  return entity.snapshotRoutes;
+}
+
+export function setSnapshotRoutes(item: {
+  url: string;
+  method: string;
+  handler: Function,
+}) {
+  entity.snapshotRoutes.push(item);
+}
+
+export function getParamsExecRoutes() {
+  return entity.paramsExecRoutes;
+}
+
+export function setParamsExecRoutes(exec: string, handler: Function) {
+  entity.paramsExecRoutes.push({
+    exec,
+    handler,
+  });
+}
+
+export function clearParamsExecRoutes() {
+  entity.paramsExecRoutes = [];
+}
+
+export function getExecRoutes() {
+  return entity.execRoutes;
+}
+
+export function setExecRoutes(url: string, method: string, exec: string) {
+  entity.execRoutes.push({
+    url,
+    method,
+    exec,
+  });
+}
+
+export function clearExecRoutes() {
+  entity.execRoutes = [];
 }
