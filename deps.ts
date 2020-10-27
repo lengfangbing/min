@@ -4,24 +4,24 @@ export {
   Server,
   ServerRequest,
   serveTLS
-} from "https://deno.land/std@0.54.0/http/server.ts";
+} from "https://deno.land/std@0.74.0/http/server.ts";
 export {
   serveFile
-} from "https://deno.land/std@0.54.0/http/file_server.ts";
+} from "https://deno.land/std@0.74.0/http/file_server.ts";
 export {
   encode,
   decode,
-} from "https://deno.land/std@0.54.0/encoding/utf8.ts";
+} from "https://deno.land/std@0.74.0/encoding/utf8.ts";
 export {
   decode as urlDecode,
   encode as urlEncode,
   unescape,
   escape
-} from "https://deno.land/std@0.54.0/node/querystring.ts";
+} from "https://deno.land/std@0.74.0/node/querystring.ts";
 export {
   MultipartReader,
   FormFile
-} from "https://deno.land/std@0.54.0/mime/multipart.ts";
+} from "https://deno.land/std@0.74.0/mime/multipart.ts";
 export {
   basename,
   extname,
@@ -31,11 +31,11 @@ export {
   parse,
   resolve,
   sep,
-} from "https://deno.land/std@0.54.0/path/mod.ts";
+} from "https://deno.land/std@0.74.0/path/mod.ts";
 export {
   Status,
   STATUS_TEXT
-} from "https://deno.land/std@0.54.0/http/http_status.ts";
+} from "https://deno.land/std@0.74.0/http/http_status.ts";
 export {
   lookup,
   charset,
