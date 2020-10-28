@@ -1,12 +1,9 @@
 {
   "compilerOptions": {
-    "sourceMap": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "isolatedModules": false
   },
-  "exclude": [
-    "node_modules"
-  ],
   "references": [
     {
       "path": "./examples/decorator/demo1/tsconfig.json"

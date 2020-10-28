@@ -1,15 +1,7 @@
 {
   "compilerOptions": {
-    "sourceMap": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  },
-  "exclude": [
-    "node_modules"
-  ],
-  "references": [
-    {
-      "path": "./"
-    }
-  ]
+    "emitDecoratorMetadata": true,
+    "isolatedModules": false
+  }
 }
