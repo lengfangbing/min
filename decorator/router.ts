@@ -46,7 +46,7 @@ export class Router {
     const us = splitPath(url);
     if (!us.length) throw new Error('router path is invalid, use /path/... instead');
     let p: NewRoute | null = null;
-    let pm: NewRoute['paramsNames'] = {};
+    const pm: NewRoute['paramsNames'] = {};
     us.forEach((value: string | { paramsName: string }, index: number) => {
       if (typeof value === 'string') {
         if (p) {
@@ -110,12 +110,12 @@ export class Router {
   }
 
   #findLoop = (map: Record<string, NewRoute | null>, urls: string[]): SingleRoute | null => {
-    let _m: Array<() => SingleRoute | null> = [];
+    const _m: Array<() => SingleRoute | null> = [];
     let rV: NewRoute | null = null;
     let nF: boolean = false;
     for(let i = 0; i < urls.length; i++) {
       const url = urls[i];
-      let nN: any = rV ? rV.next : map;
+      const nN: any = rV ? rV.next : map;
       if(nN === null){
         return this.#forEachBackMap(_m);
       }
@@ -165,7 +165,7 @@ export class Router {
     }
     const {paramsNames, middleware, handler, exec} = res;
     const params: {[key: string]: string} = {};
-    for (let i in paramsNames){
+    for (const i in paramsNames){
       params[paramsNames[i]] = us[+i].substring(1);
     }
     return {

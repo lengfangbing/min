@@ -62,7 +62,7 @@ export class Router {
 
   #findLoop = (map: Record<string, NewRoute | null>, urls: string[]): SingleRoute | null => {
     // 回溯查找的数组
-    let _map: Array<() => SingleRoute | null> = [];
+    const _map: Array<() => SingleRoute | null> = [];
     // 当前查找到的静态处理Route
     let routeVal: NewRoute | null = null;
     // 是否需要回溯
@@ -70,7 +70,7 @@ export class Router {
     for(let i = 0; i < urls.length; i++) {
       const url = urls[i];
       // 下个节点对象
-      let nextNode: any = routeVal ? routeVal.next : map;
+      const nextNode: any = routeVal ? routeVal.next : map;
       if(nextNode === null){
         return this.#forEachBackMap(_map);
       }
@@ -121,7 +121,7 @@ export class Router {
     }
     const {paramsNames, middleware, handler} = res;
     const params: {[key: string]: string} = {};
-    for (let i in paramsNames){
+    for (const i in paramsNames){
       params[paramsNames[i]] = urls[+i].substring(1);
     }
     return {
@@ -137,9 +137,9 @@ export class Router {
     const funcMap = this.#tree[method];
     const urls = splitPath(url);
     if (!urls.length) throw new Error('router.add first argument path is invalid, use /path instead');
+    const params: NewRoute['paramsNames'] = {};
     // p理解为一个查找路由这个数据结构的指针
     let p: NewRoute | null = null;
-    let params: NewRoute['paramsNames'] = {};
     urls.forEach((value: string | { key: string,  paramsName: string }, index: number) => {
       // 静态路由
       if (typeof value === 'string') {

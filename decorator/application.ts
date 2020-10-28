@@ -163,10 +163,10 @@ export class DecorationApplication {
   }
 
   #handleRequest = async (request: Req, response: Res) => {
-    let fv: RouteValue | null = getRouterInitial().find(request.method, request.url);
-    let fn: Function | undefined = undefined;
+    const fv: RouteValue | null = getRouterInitial().find(request.method, request.url);
     const _m = getMiddlewareInitial().getMiddle();
-    let m: Function[] = [];
+    const m: Function[] = [];
+    let fn: Function | undefined = undefined;
     _m.forEach((value: Function) => {
       m.push(value);
     });
@@ -212,7 +212,7 @@ export class DecorationApplication {
     try{
       const Server = isTls ? serveTLS(server as any) : serve(server);
       console.log(colors.white(`server is listening ${protocol}://${server.hostname}:${server.port} `))
-      for await (let request of Server){
+      for await (const request of Server){
         const req: Req = Request.createRequest({
           url: request.url,
           method: request.method.toLowerCase() as ReqMethod,

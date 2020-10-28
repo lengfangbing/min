@@ -11,7 +11,7 @@ declare global{
 }
 Map.prototype.toObj = function () {
   const r: Record<string, any> = {};
-  for(let [k, v] of this.entries()){
+  for(const [k, v] of this.entries()){
     r[k.trim()] = v;
   }
   return r;
@@ -112,8 +112,8 @@ export function parseQsToMap (url: string){
 }
 export function parseResponseCookie(options?: Record<string, unknown>){
   if (!options) return '';
-  let res = [];
-  for (let i in options) {
+  const res = [];
+  for (const i in options) {
     if(options.hasOwnProperty(i)){
       if (typeof options[i] === 'boolean'){
         res.push(i);

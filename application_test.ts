@@ -177,7 +177,7 @@ export class Application {
 
   #handleRequest = async (request: Req, response: Res) => {
     const {url, method} = request;
-    let fv: RouteValue | null = this.#router.find(method, url);
+    const fv: RouteValue | null = this.#router.find(method, url);
     let fn: Function | undefined = undefined;
     const _m = this.#middleware.getMiddle();
     let m = [..._m];
@@ -219,7 +219,7 @@ export class Application {
     try {
       const Server = isTls ? serveTLS(server as any) : serve(server);
       console.log(colors.white(`server is listening ${protocol}://${server.hostname}:${server.port} `))
-      for await (let request of Server) {
+      for await (const request of Server) {
         const req: Req = Request.createRequest({
           url: request.url,
           method: request.method.toLowerCase() as ReqMethod,
