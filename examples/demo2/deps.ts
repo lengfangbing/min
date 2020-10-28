@@ -1,8 +1,8 @@
 export {
   Application,
+  HandlerFunc,
+  MiddlewareFunc,
+  MinConfig,
   Req,
   Res,
-  MinConfig,
-  HandlerFunc,
-  MiddlewareFunc
-} from 'https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts';
+} from "https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts";

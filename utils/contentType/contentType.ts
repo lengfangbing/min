@@ -1,28 +1,26 @@
-import {
-  is
-} from "../../deps.ts";
+import { is } from "../../deps.ts";
 
-export function getRequestType(contentType: string){
+export function getRequestType(contentType: string) {
   const typeRes = {
     isText: false,
     isUrlencoded: false,
     isJson: false,
-    isFormData: false
-  }
+    isFormData: false,
+  };
   s: {
-    if(is(contentType, ['json'])){
+    if (is(contentType, ["json"])) {
       typeRes.isJson = true;
       break s;
     }
-    if(is(contentType, ['urlencoded'])){
+    if (is(contentType, ["urlencoded"])) {
       typeRes.isUrlencoded = true;
       break s;
     }
-    if(is(contentType, ['multipart'])){
+    if (is(contentType, ["multipart"])) {
       typeRes.isFormData = true;
       break s;
     }
-    if(is(contentType, ['text'])){
+    if (is(contentType, ["text"])) {
       typeRes.isText = true;
       break s;
     }

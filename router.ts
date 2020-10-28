@@ -1,21 +1,11 @@
-import {
-  parseUrlQuery,
-  splitPath,
-  splitUrl,
-} from "./utils/parse/url.ts";
-import {
-  Middleware
-} from "./middleware.ts";
-import {
-  NewRoute,
-  RouteValue,
-  SingleRoute
-} from './model.ts';
+import { parseUrlQuery, splitPath, splitUrl } from "./utils/parse/url.ts";
+import { Middleware } from "./middleware.ts";
+import { NewRoute, RouteValue, SingleRoute } from "./model.ts";
 
 export class Router {
   #tree: Record<string, Record<string, NewRoute>>;
   #initRoute: () => NewRoute;
-  middleware: Middleware
+  middleware: Middleware;
 
   constructor() {
     this.#tree = {
@@ -34,19 +24,21 @@ export class Router {
       next: null,
       handler: null,
       middleware: [],
-      paramsNames: {}
+      paramsNames: {},
     });
   }
 
-  #forEachBackMap = (map: Array<() => SingleRoute | null>): SingleRoute | null => {
-    for(let i = 0; i < map.length; i++){
+  #forEachBackMap = (
+    map: Array<() => SingleRoute | null>,
+  ): SingleRoute | null => {
+    for (let i = 0; i < map.length; i++) {
       const res = map[i]();
-      if(res){
+      if (res) {
         return res;
       }
     }
     return null;
-  }
+  };
 
   add(
     method: string,
@@ -56,63 +48,69 @@ export class Router {
   ) {
     const fM = this.#tree[method];
     const us = splitPath(url);
-    if (!us.length) throw new Error('router.add first argument path is invalid, use /path instead');
-    const pm: NewRoute['paramsNames'] = {};
+    if (!us.length) {
+      throw new Error(
+        "router.add first argument path is invalid, use /path instead",
+      );
+    }
+    const pm: NewRoute["paramsNames"] = {};
     let p: NewRoute | null = null;
-    us.forEach((value: string | { key: string,  paramsName: string }, index: number) => {
-      if (typeof value === 'string') {
-        if (p) {
-          if (p.next) {
-            if (p.next[value]) {
-              p = p.next[value];
+    us.forEach(
+      (value: string | { key: string; paramsName: string }, index: number) => {
+        if (typeof value === "string") {
+          if (p) {
+            if (p.next) {
+              if (p.next[value]) {
+                p = p.next[value];
+              } else {
+                p.next[value] = this.#initRoute();
+                p = p.next[value];
+              }
             } else {
-              p.next[value] = this.#initRoute();
+              p.next = {
+                [value]: this.#initRoute(),
+              };
               p = p.next[value];
             }
           } else {
-            p.next = {
-              [value]: this.#initRoute()
-            };
-            p = p.next[value];
-          }
-        } else {
-          if (fM[value]) {
-            p = fM[value];
-          } else {
-            fM[value] = this.#initRoute();
-            p = fM[value];
-          }
-        }
-      } else {
-        if (p === null) {
-          if (fM[value.key]) {
-            p = fM[value.key];
-          } else {
-            fM[value.key] = this.#initRoute();
-            p = fM[value.key];
-          }
-          pm[index] = value.paramsName;
-        } else {
-          if (p.next) {
-            if (p.next[value.key]) {
-              p = p.next[value.key];
+            if (fM[value]) {
+              p = fM[value];
             } else {
-              p.next[value.key] = this.#initRoute();
-              p = p.next[value.key];
+              fM[value] = this.#initRoute();
+              p = fM[value];
+            }
+          }
+        } else {
+          if (p === null) {
+            if (fM[value.key]) {
+              p = fM[value.key];
+            } else {
+              fM[value.key] = this.#initRoute();
+              p = fM[value.key];
             }
             pm[index] = value.paramsName;
           } else {
-            p.next = {
-              [value.key]: this.#initRoute()
+            if (p.next) {
+              if (p.next[value.key]) {
+                p = p.next[value.key];
+              } else {
+                p.next[value.key] = this.#initRoute();
+                p = p.next[value.key];
+              }
+              pm[index] = value.paramsName;
+            } else {
+              p.next = {
+                [value.key]: this.#initRoute(),
+              };
+              p = p.next[value.key];
+              pm[index] = value.paramsName;
             }
-            p = p.next[value.key];
-            pm[index] = value.paramsName;
           }
         }
-      }
-    });
+      },
+    );
     if (p === null) {
-      throw(`add route into Router got error during: ${url} - ${method}\n`);
+      throw (`add route into Router got error during: ${url} - ${method}\n`);
     } else {
       p = p as NewRoute;
       p.middleware = middleware;
@@ -121,62 +119,65 @@ export class Router {
     }
   }
 
-  #findLoop = (map: Record<string, NewRoute | null>, urls: string[]): SingleRoute | null => {
+  #findLoop = (
+    map: Record<string, NewRoute | null>,
+    urls: string[],
+  ): SingleRoute | null => {
     const _m: Array<() => SingleRoute | null> = [];
     let rV: NewRoute | null = null;
     let nF: boolean = false;
-    for(let i = 0; i < urls.length; i++) {
+    for (let i = 0; i < urls.length; i++) {
       const url = urls[i];
       const nN: any = rV ? rV.next : map;
-      if(nN === null){
+      if (nN === null) {
         return this.#forEachBackMap(_m);
       }
       const sV = nN[url];
-      const dV = nN[''];
-      if(sV){
+      const dV = nN[""];
+      if (sV) {
         rV = sV;
-        if(dV){
-          _m.push(this.#findLoop.bind(this, {'': dV}, urls.slice(i)));
+        if (dV) {
+          _m.push(this.#findLoop.bind(this, { "": dV }, urls.slice(i)));
         }
-      }else{
-        if(dV){
+      } else {
+        if (dV) {
           rV = dV;
-        }else{
+        } else {
           nF = true;
           break;
         }
       }
     }
-    if(rV){
-      const {handler, middleware, paramsNames} = rV;
-      if(handler === null){
+    if (rV) {
+      const { handler, middleware, paramsNames } = rV;
+      if (handler === null) {
         return this.#forEachBackMap(_m);
-      }else{
-        if(nF){
+      } else {
+        if (nF) {
           return this.#forEachBackMap(_m);
         }
         return {
           handler,
           middleware,
-          paramsNames
+          paramsNames,
         };
       }
     }
     return null;
-  }
+  };
 
   find(method: string, url: string): RouteValue | null {
-    const {url: u, query} = parseUrlQuery(url);
-    url = u || '/';
+    const { url: u, query } = parseUrlQuery(url);
+    url = u || "/";
     const fM = this.#tree[method];
     const us = splitUrl(url) as string[];
     const res = this.#findLoop(fM, us);
-    if(res === null){
+    if (res === null) {
       return null;
     }
-    const {paramsNames, middleware, handler} = res;
-    const params: {[key: string]: string} = {};
-    for (const i in paramsNames){
+    const { paramsNames, middleware, handler } = res;
+    const params: { [key: string]: string } = {};
+    for (const i in paramsNames) {
       params[paramsNames[i]] = us[+i].substring(1);
     }
     return {
@@ -184,10 +185,9 @@ export class Router {
       query: query || {},
       params: params || {},
       middleware,
-      handler
-    }
+      handler,
+    };
   }
-
 
   get(url: string, handler: Function, middleware: Function[]) {
     this.add("get", url, handler, middleware);
@@ -224,5 +224,4 @@ export class Router {
   patch(url: string, handler: Function, middleware: Function[]) {
     this.add("patch", url, handler, middleware);
   }
-
 }
