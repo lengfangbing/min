@@ -258,8 +258,9 @@ await app.listen('http://127.0.0.1:8000');
 ```
 # TODO
 * [x] add Query and Param decorator
-* [ ] make a doc for min (it's a private repository, will open it when finished)
 * [ ] add global error resolve
+* [ ] add cli for create api or web app
+* [ ] make a doc for min (it's a private repository, will open it when finished. This would take a few months)
 
 ### **You can find more demos in ***examples*** directory .<nr>**
 **If you are interested in min.config.ts, just look at demo2**
