@@ -1,25 +1,25 @@
-import {Get, Route, Prefix, Middleware, Req, Res} from "../deps.ts";
+import { Get, Middleware, Prefix, Req, Res, Route } from "../deps.ts";
 
 // to add a new Route in entity
 @Route
 // to add a prefix for this class's restful api handler
-@Prefix('/route2')
+@Prefix("/route2")
 class Route2 {
   @Middleware
   // this middleware will only work for this Route
-  async middle (req: Req, res: Res, next: Function) {
-    console.log('route2 middle');
+  async middle(req: Req, res: Res, next: Function) {
+    console.log("route2 middle");
     await next();
-    console.log('route2 middle end');
+    console.log("route2 middle end");
   }
-  @Get('/test', [async (req: Req, res: Res, next: Function) => {
-    console.log('route2 middle for /test');
+  @Get("/test", [async (req: Req, res: Res, next: Function) => {
+    console.log("route2 middle for /test");
     await next();
   }])
   test(req: Req, res: Res) {
     res.body = {
-      prefix: '/route2'
-    }
+      prefix: "/route2",
+    };
   }
 }
 

@@ -1,12 +1,12 @@
-import {Entity} from "./decorator.type.ts";
-import {Middleware} from "./middleware.ts";
-import {Router} from "./router.ts";
-import {DecorationApplication} from "./application.ts";
-import {ListenOptions, MiddlewareFunc} from "../model.ts";
+import { Entity } from "./decorator.type.ts";
+import { Middleware } from "./middleware.ts";
+import { Router } from "./router.ts";
+import { DecorationApplication } from "./application.ts";
+import { ListenOptions, MiddlewareFunc } from "../model.ts";
 
 const defaultServer = {
   port: 8000,
-  hostname: '127.0.0.1'
+  hostname: "127.0.0.1",
 };
 
 const entity: Entity = {
@@ -75,7 +75,7 @@ export function getRoutes() {
   return entity.routes;
 }
 
-export function setRoutes(routes: Entity['routes'][number]) {
+export function setRoutes(routes: Entity["routes"][number]) {
   entity.routes.push(routes);
 }
 
@@ -102,7 +102,7 @@ export function getSnapshotRoutes() {
 export function setSnapshotRoutes(item: {
   url: string;
   method: string;
-  handler: Function,
+  handler: Function;
 }) {
   entity.snapshotRoutes.push(item);
 }

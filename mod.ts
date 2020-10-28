@@ -1,51 +1,33 @@
 export {
-  StartApplication,
-  Route,
-  Prefix,
   App,
-  Middleware,
   ApplyMiddleware,
-  Query,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Patch,
-  Head,
-  Options,
   Connect,
+  Delete,
+  Get,
+  Head,
+  Middleware,
+  Options,
+  Patch,
+  Post,
+  Prefix,
+  Put,
+  Query,
+  Route,
+  Start,
+  StartApplication,
   Trace,
-  Start
-} from './decorator/decorator.ts';
+} from "./decorator/decorator.ts";
 
-export {
-  Application
-} from './application.ts';
+export { Application } from "./application.ts";
 
-export {
-  assets
-} from './assets.ts';
+export { assets } from "./assets.ts";
 
-export {
-  cors
-} from './cors.ts';
+export { cors } from "./cors.ts";
 
-export {
-  MinConfig,
-  Req,
-  Res,
-  MiddlewareFunc,
-  HandlerFunc
-} from './model.ts';
+export { HandlerFunc, MiddlewareFunc, MinConfig, Req, Res } from "./model.ts";
 
-export{
-  Request
-} from './request.ts';
+export { Request } from "./request.ts";
 
-export{
-  Response
-} from './response.ts';
+export { Response } from "./response.ts";
 
-export{
-  Router
-} from './router.ts';
+export { Router } from "./router.ts";

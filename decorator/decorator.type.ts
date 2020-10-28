@@ -1,7 +1,12 @@
-import {Middleware} from "./middleware.ts";
-import {DecorationApplication} from "./application.ts";
-import {Router} from "./router.ts";
-import {ListenOptions, ReqMethod, MiddlewareFunc, MethodFuncArgument} from "../model.ts";
+import { Middleware } from "./middleware.ts";
+import { DecorationApplication } from "./application.ts";
+import { Router } from "./router.ts";
+import {
+  ListenOptions,
+  MethodFuncArgument,
+  MiddlewareFunc,
+  ReqMethod,
+} from "../model.ts";
 
 export declare type ParamsExecRouteItem = {
   exec: string;

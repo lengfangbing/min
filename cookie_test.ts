@@ -1,30 +1,26 @@
-import {
-  parseResponseCookie
-} from "./utils/test/url_test.ts";
-import {
-  assertEquals
-} from "https://deno.land/std/testing/asserts.ts";
+import { parseResponseCookie } from "./utils/test/url_test.ts";
+import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 export class Cookie {
-  #cookie: string[]
+  #cookie: string[];
 
   constructor() {
-    this.#cookie = []
+    this.#cookie = [];
   }
 
-  append(name: string, value: string, options?: Record<string, unknown>){
+  append(name: string, value: string, options?: Record<string, unknown>) {
     let ops = parseResponseCookie(options);
-    ops = ops ? ';' + ops : '';
-    this.#cookie.push(`${name}=${value}${ops}`)
+    ops = ops ? ";" + ops : "";
+    this.#cookie.push(`${name}=${value}${ops}`);
   }
 
-  getCookies(){
+  getCookies() {
     return this.#cookie;
   }
 }
 
 const cookie = new Cookie();
-cookie.append('name', 'fangbing', {
-  domain: '.foo.com',
-  secure: true
+cookie.append("name", "fangbing", {
+  domain: ".foo.com",
+  secure: true,
 });
-assertEquals('name=fangbing;domain=.foo.com;secure', cookie.getCookies()[0]);
+assertEquals("name=fangbing;domain=.foo.com;secure", cookie.getCookies()[0]);

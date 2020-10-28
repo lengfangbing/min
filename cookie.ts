@@ -1,21 +1,19 @@
-import {
-  parseResponseCookie
-} from "./utils/parse/url.ts";
+import { parseResponseCookie } from "./utils/parse/url.ts";
 
 export class Cookie {
-  #cookie: string[]
+  #cookie: string[];
 
   constructor() {
-    this.#cookie = []
+    this.#cookie = [];
   }
 
-  append(name: string, value: string, options?: Record<string, unknown>){
+  append(name: string, value: string, options?: Record<string, unknown>) {
     let ops = parseResponseCookie(options);
-    ops = ops ? ';' + ops : '';
-    this.#cookie.push(`${name}=${value}${ops}`)
+    ops = ops ? ";" + ops : "";
+    this.#cookie.push(`${name}=${value}${ops}`);
   }
 
-  getCookies(){
+  getCookies() {
     return this.#cookie;
   }
 }

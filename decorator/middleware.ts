@@ -1,12 +1,11 @@
-export class Middleware{
+export class Middleware {
   static middle: Function[] = [];
 
-  push(func: Function){
+  push(func: Function) {
     Middleware.middle.push(func);
   }
 
-  getMiddle(){
+  getMiddle() {
     return Middleware.middle;
   }
-
 }
