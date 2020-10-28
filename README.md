@@ -5,7 +5,7 @@
 [![tag](https://img.shields.io/github/tag/lengfangbing/min.svg)](https://github.com/lengfangbing/min)
 [![license](https://img.shields.io/github/license/lengfangbing/min.svg)](https://github.com/lengfangbing/min)
 [![tag](https://img.shields.io/badge/deno->=1.0.0-green.svg)](https://github.com/denoland/deno)
-[![tag](https://img.shields.io/badge/std-0.65.0-green.svg)](https://github.com/denoland/deno)
+[![tag](https://img.shields.io/badge/std-0.75.0-green.svg)](https://github.com/denoland/deno)
 ## <strong>it supports decorator now! you could find demos in examples directory~</strong>
 ## introduction
 A framework for Deno's http server, combine Koa's middleware and Express's internal feature. If you are used to using Koa or Express, it'll be easy for you~<br/>
@@ -109,8 +109,9 @@ import {
   Res,
   Start,
   StartApplication,
-  Query
-} from "https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts";
+  Query,
+  Param
+} from "https://raw.githubusercontent.com/lengfangbing/min/master/decorator/mod.ts";
 
 @StartApplication
 export class TestClass extends App {
@@ -123,17 +124,29 @@ export class TestClass extends App {
     console.log('middle1 end');
   }
 
-  @Get('/test_query_params')
-  async queryHandler(@Query('id') id: string, @Query('name') name: string, res: Res, req: Req) {
+  @Get('/test_query_params/:age')
+  async queryHandler(
+    @Query('id') id: string,
+    @Query('name') name: string,
+    @Param('age') age: string,
+    @Query() query: { id: string; name: string },
+    @Param() params: { age: string },
+    res: Res,
+    req: Req
+  ) {
     // @Query(pid?: string), if pid is string, it will
     // return the params in req.query; if pid is undefined
     // it will return req.query.
     // if you use some ParameterDecorator like Query
     // the handlers arguments will end with req
     // and the res is behind the last ParameterDecorator 
+    
+    // The same between @Param and @Query
     console.log(id);
     console.log(name);
-    console.log(req.query);
+    console.log(age);
+    console.log(query);
+    console.log(params);
     res.body = {
       path: 'test2'
     }
@@ -246,6 +259,7 @@ await app.listen('http://127.0.0.1:8000');
 # TODO
 * [ ] add Query and Param decorator
 * [ ] make a doc for min (it's a private repository, will open it when finished)
+* [ ] add global error resolve
 
 ### **You can find more demos in ***examples*** directory .<nr>**
 **If you are interested in min.config.ts, just look at demo2**

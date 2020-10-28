@@ -1,8 +1,8 @@
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
-import { colors, serve, serveTLS, Status } from "./deps.ts";
+import { colors, serve, serveTLS, Status } from "../../deps.ts";
 import { Router, RouteValue } from "./router_test.ts";
-import { Middleware } from "./middleware.ts";
-import { parseAddress } from "./utils/parse/address.ts";
+import { Middleware } from "../../middleware.ts";
+import { parseAddress } from "../parse/address.ts";
 import {
   AppConfig,
   HandlerFunc,
@@ -14,11 +14,11 @@ import {
   Res,
   RouteHandlers,
   RoutesConfig,
-} from "./model.ts";
-import { cors } from "./cors.ts";
-import { assets } from "./assets.ts";
-import { Request } from "./request.ts";
-import { Response } from "./response.ts";
+} from "../../model.ts";
+import { cors } from "../../cors.ts";
+import { assets } from "../../assets.ts";
+import { Request } from "../../request.ts";
+import { Response } from "../../response.ts";
 
 const appConfig: AppConfig = {
   server: {

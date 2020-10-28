@@ -7,6 +7,7 @@ export {
   Head,
   Middleware,
   Options,
+  Param,
   Patch,
   Post,
   Prefix,

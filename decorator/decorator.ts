@@ -117,10 +117,25 @@ const Query = (qid?: string): ParameterDecorator => {
   };
 };
 
+const Param = (pid?: string): ParameterDecorator => {
+  const exec = pid ? `params.${pid}` : "params";
+  return (target: any, propertyKey: string | symbol) => {
+    const func = Reflect.getOwnPropertyDescriptor(target, propertyKey)?.value as
+      | Function
+      | undefined;
+    if (!func) {
+      throw Error("Query decorator can only be used as function parameter");
+    }
+    // 增加执行exec操作指令到params指令数组
+    setParamsExecRoutes(exec, func);
+  };
+};
+
 export {
   App,
   ApplyMiddleware,
   Middleware,
+  Param,
   Prefix,
   Query,
   Route,
