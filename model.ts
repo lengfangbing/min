@@ -130,7 +130,7 @@ export interface MinConfig {
 
 export type ErrorMessage = {
   path: string;
-  req: Req,
+  req: Req;
   error: string;
   position: string;
-}
+};

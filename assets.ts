@@ -2,7 +2,7 @@ import { contentType, extname, join, lookup, Status } from "./deps.ts";
 import { parseExtname } from "./utils/parse/url.ts";
 import { decoder } from "./request.ts";
 import { MiddlewareFunc } from "./model.ts";
-import {getErrorMessage} from "./utils/message/error.ts";
+import { getErrorMessage } from "./utils/message/error.ts";
 
 export function assets(
   options: string | Record<string, any> = "",
@@ -34,7 +34,7 @@ export function assets(
           await next();
         }
       } catch (e) {
-        console.log(getErrorMessage(request, 'assets middleware', e));
+        console.log(getErrorMessage(request, "assets middleware", e));
         if (opts.onerror) {
           opts.onerror(e);
         } else {
