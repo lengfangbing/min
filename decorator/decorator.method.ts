@@ -8,13 +8,7 @@ import {
   setSnapshotRoutes,
 } from "./entity.ts";
 
-const commonMiddleware = (url: string, method: string, handler: Function) => {
-  // 增加路由快照
-  setSnapshotRoutes({
-    url,
-    method,
-    handler,
-  });
+const consumeParamsExec = (url: string, method: string, handler: Function) => {
   // 消费params指令数组
   const findItem = getParamsExecRoutes().filter((item) =>
     item.handler === handler
@@ -34,6 +28,18 @@ const commonMiddleware = (url: string, method: string, handler: Function) => {
   }
   // 清除params指令数组
   clearParamsExecRoutes();
+};
+
+// const consume
+
+const commonMiddleware = (url: string, method: string, handler: Function) => {
+  // 增加路由快照
+  setSnapshotRoutes({
+    url,
+    method,
+    handler,
+  });
+  consumeParamsExec(url, method, handler);
 };
 
 export const Get = (

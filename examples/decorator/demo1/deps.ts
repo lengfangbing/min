@@ -5,6 +5,7 @@ export {
   cors,
   Get,
   Middleware,
+  Param,
   Query,
   Req,
   Res,

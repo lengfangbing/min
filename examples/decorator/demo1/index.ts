@@ -5,6 +5,7 @@ import {
   cors,
   Get,
   Middleware,
+  Param,
   Query,
   Req,
   Res,
@@ -22,15 +23,17 @@ export class TestClass extends App {
     console.log("middle1 end");
   }
 
-  @Get("/test2")
+  @Get("/test2/:params")
   async queryHandler(
     @Query("id") id: string,
     @Query("name") name: string,
+    @Param("params") params: string,
     res: Res,
     req: Req,
   ) {
     console.log(id);
     console.log(name);
+    console.log(params);
     console.log(req.query);
     res.body = {
       path: "test2",
