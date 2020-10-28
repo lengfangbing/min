@@ -42,6 +42,7 @@ export interface RouteHandlers {
   middleware?: Function[];
   handler: HandlerFunc;
 }
+
 export interface RouteValue {
   query: Record<string, string>;
   url: string;
@@ -107,6 +108,7 @@ export interface Req {
   cookies: Map<string, any>;
   [key: string]: any;
 }
+
 export interface Res {
   response: Response;
   body: any | null;
@@ -118,9 +120,17 @@ export interface Res {
   send: Function;
   cookies: Cookie;
 }
+
 export interface MinConfig {
   server: ListenOptions;
   routes: RoutesConfig[];
   cors?: CorsOptions;
   assets?: string | Record<string, any>;
+}
+
+export type ErrorMessage = {
+  path: string;
+  req: Req,
+  error: string;
+  position: string;
 }

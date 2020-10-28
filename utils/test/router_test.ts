@@ -1,4 +1,4 @@
-import { parseUrlQuery, splitPath, splitUrl } from "./utils/test/url_test.ts";
+import { parseUrlQuery, splitPath, splitUrl } from "./url_test.ts";
 
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 
