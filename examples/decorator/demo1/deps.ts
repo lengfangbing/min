@@ -11,6 +11,5 @@ export {
   Route,
   Start,
   StartApplication,
-// } from "https://raw.githubusercontent.com/lengfangbing/min/master/decorator/mod.ts";
+} from "https://raw.githubusercontent.com/lengfangbing/min/master/decorator/mod.ts";
 // the same to https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts.
-} from '../../../decorator/mod.ts';
