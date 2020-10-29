@@ -1,7 +1,9 @@
-export class Middleware {
-  static middle: Function[] = [];
+import { MethodFuncArgument, MiddlewareFunc } from "./model.ts";
 
-  push(func: Function) {
+export class Middleware {
+  static middle: MethodFuncArgument = [];
+
+  push(func: MiddlewareFunc) {
     Middleware.middle.push(func);
   }
 

@@ -2,6 +2,7 @@ import { Middleware } from "./middleware.ts";
 import { DecorationApplication } from "./application.ts";
 import { Router } from "./router.ts";
 import {
+  HandlerFunc,
   ListenOptions,
   MethodFuncArgument,
   MiddlewareFunc,
@@ -10,7 +11,7 @@ import {
 
 export declare type ParamsExecRouteItem = {
   exec: string;
-  handler: Function;
+  handler: HandlerFunc;
 };
 
 export declare type ExecRouteItem = {
@@ -27,12 +28,12 @@ export declare type Entity = {
   routes: Array<{
     path: string;
     method: ReqMethod;
-    middleware: MiddlewareFunc[];
-    handler: Function;
+    middleware: MethodFuncArgument;
+    handler: HandlerFunc;
   }>;
   middlewares: MethodFuncArgument;
   snapshotRoutes: Array<{
-    handler: Function;
+    handler: HandlerFunc;
     url: string;
     method: string;
   }>;

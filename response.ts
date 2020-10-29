@@ -31,7 +31,7 @@ export class Response {
     } catch (e) {
       console.log(e);
       res.status = Status.InternalServerError;
-      res.body = STATUS_TEXT.get(Status.InternalServerError);
+      res.body = STATUS_TEXT.get(Status.InternalServerError) as string;
     }
   }
 

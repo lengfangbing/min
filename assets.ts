@@ -1,21 +1,27 @@
 import { contentType, extname, join, lookup, Status } from "./deps.ts";
 import { parseExtname } from "./utils/parse/url.ts";
 import { decoder } from "./request.ts";
-import { MiddlewareFunc } from "./model.ts";
+import { AssetsArgument, AssetsOptions, MiddlewareFunc } from "./model.ts";
 import { getErrorMessage } from "./utils/message/error.ts";
 
 export function assets(
-  options: string | Record<string, any> = "",
+  options: AssetsArgument = "",
 ): MiddlewareFunc {
-  let opts: Record<string, any>;
+  let opts: AssetsOptions;
   if (typeof options === "string") {
     opts = {
       path: options,
+      onerror(e) {
+        console.log(e);
+      },
     };
   } else {
-    opts = options;
+    opts = {
+      ...options,
+      path: options.path,
+    };
   }
-  const path = join(Deno.cwd(), opts.path);
+  const path = join(Deno.cwd(), opts.path as string);
   return async function (request, response, next) {
     // 静态资源
     const { extName, url } = parseExtname(request.url);

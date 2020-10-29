@@ -1,6 +1,7 @@
 export {
   App,
   ApplyMiddleware,
+  Body,
   Connect,
   Delete,
   Get,
@@ -19,4 +20,6 @@ export {
   Trace,
 } from "./decorator.ts";
 
-export { assets, cors, Req, Res } from "../mod.ts";
+export { assets, cors } from "../mod.ts";
+
+export type { NextFunc, Req, Res } from "../mod.ts";

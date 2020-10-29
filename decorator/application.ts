@@ -2,6 +2,7 @@ import { getMiddlewareInitial, getRouterInitial } from "./entity.ts";
 import { Request } from "../request.ts";
 import { Response } from "../response.ts";
 import {
+  HandlerFunc,
   ListenOptions,
   MethodFuncArgument,
   MiddlewareFunc,
@@ -12,7 +13,7 @@ import {
   RoutesConfig,
 } from "../model.ts";
 import { RouteValue } from "./model.ts";
-import { colors, serve, serveTLS, Status } from "../deps.ts";
+import { colors, HTTPSOptions, serve, serveTLS, Status } from "../deps.ts";
 import { parseAddress } from "../utils/parse/address.ts";
 import { cors } from "../cors.ts";
 import { assets } from "../assets.ts";
@@ -39,7 +40,7 @@ export class DecorationApplication {
     return this;
   }
 
-  #setRoutes = async (routes: RoutesConfig[]) => {
+  #setRoutes = async (routes: Array<RoutesConfig>) => {
     for (let i = 0; i < routes.length; i++) {
       const value = routes[i];
       const method: ReqMethod = value.method.toLowerCase() as ReqMethod;
@@ -49,7 +50,7 @@ export class DecorationApplication {
     }
   };
 
-  #parseHandler = (handlers: any[]): RouteHandlers => {
+  #parseHandler = (handlers: MethodFuncArgument): RouteHandlers => {
     if (handlers.length < 1) {
       throw new Error("router has no match url or handler function");
     }
@@ -118,10 +119,10 @@ export class DecorationApplication {
   }
 
   #composeMiddle = (
-    middleware: Function[],
+    middleware: MethodFuncArgument,
     request: Req,
     response: Res,
-    execFunc: Function | undefined,
+    execFunc: HandlerFunc | undefined,
     exec: Array<string>,
   ) => {
     if (!Array.isArray(middleware)) {
@@ -130,12 +131,14 @@ export class DecorationApplication {
     return async function () {
       let index = -1;
       return dispatch(0);
-      async function dispatch(i: number): Promise<any> {
+      async function dispatch(i: number): Promise<unknown> {
         if (i <= index) {
           return Promise.reject(new Error("next() called multiple times"));
         }
         index = i;
-        let fn: Function | undefined = middleware[i];
+        // deno-lint-ignore no-explicit-any
+        let fn: ((...func: Array<any>) => Promise<void> | void) | undefined =
+          middleware[i];
         if (i === middleware.length) {
           fn = execFunc;
           response.status = execFunc ? Status.OK : Status.NotFound;
@@ -147,6 +150,8 @@ export class DecorationApplication {
             const args = [...exec].reverse();
             if (args.length) {
               const pArgs = args.map((value) => {
+                // 完成反射需要动态获取类型不定的值
+                // deno-lint-ignore no-explicit-any
                 let val: any = request;
                 const paramKey = value.split(".");
                 paramKey.forEach((value1) => {
@@ -171,9 +176,9 @@ export class DecorationApplication {
       request.url,
     );
     const _m = getMiddlewareInitial().getMiddle();
-    const m: Function[] = [];
-    let fn: Function | undefined = undefined;
-    _m.forEach((value: Function) => {
+    const m: MethodFuncArgument = [];
+    let fn: HandlerFunc | undefined = undefined;
+    _m.forEach((value: MiddlewareFunc) => {
       m.push(value);
     });
     let exs: Array<string> = [];
@@ -184,18 +189,25 @@ export class DecorationApplication {
       request.query = query;
       fn = handler;
       exs = exec;
-      middleware.forEach((value: Function) => {
+      middleware.forEach((value: MiddlewareFunc) => {
         m.push(value);
       });
     }
     await this.request.parseBody(request);
+    // 注入参数只能ignore了
+    // deno-lint-ignore ban-ts-comment
+    // @ts-ignore
     response.redirect = response.redirect.bind(globalThis, response);
+    // deno-lint-ignore ban-ts-comment
+    // @ts-ignore
     response.render = response.render.bind(globalThis, response);
     const f = this.#composeMiddle(m, request, response, fn, exs);
     await f.call(globalThis);
     response.send(request, response);
   };
 
+  // 后续补充配置项
+  // deno-lint-ignore no-explicit-any
   #readConfig = async (config: any) => {
     // config.constructor === undefined => config = await import('./min.config.ts')
     config = config.constructor ? config : config.default;
@@ -217,7 +229,7 @@ export class DecorationApplication {
     const isTls = server.secure;
     const protocol = isTls ? "https" : "http";
     try {
-      const Server = isTls ? serveTLS(server as any) : serve(server);
+      const Server = isTls ? serveTLS(server as HTTPSOptions) : serve(server);
       console.log(
         colors.white(
           `server is listening ${protocol}://${server.hostname}:${server.port} `,
@@ -230,8 +242,10 @@ export class DecorationApplication {
           headers: request.headers,
           request,
         });
+        // deno-lint-ignore ban-ts-comment
+        // @ts-ignore
         const res: Res = Response.createResponse();
-        await this.#handleRequest(req, res);
+        this.#handleRequest(req, res);
       }
     } catch (e) {
       console.error(e);
@@ -244,11 +258,13 @@ export class DecorationApplication {
     } else {
       appConfig.server = config as ListenOptions;
     }
-    await this.#listen();
+    this.#listen();
   }
 
+  // 配置文件后续再补充类型
+  // deno-lint-ignore no-explicit-any
   async start(config: any) {
     await this.#readConfig(config);
-    await this.#listen();
+    this.#listen();
   }
 }

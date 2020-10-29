@@ -7,11 +7,10 @@ import {
   Middleware,
   Post,
   Put,
-  Req,
-  Res,
   Start,
   StartApplication,
 } from "./deps.ts";
+import type { NextFunc, Req, Res } from "./deps.ts";
 
 // will emit a http server in entity
 @StartApplication
@@ -20,14 +19,14 @@ export class TestClass extends App {
   @ApplyMiddleware([assets("/examples/decorator/demo2/static"), cors()])
   // use own middleware
   @Middleware
-  async middle1(req: Req, res: Res, next: Function) {
+  async middle1(req: Req, res: Res, next: NextFunc) {
     console.log("middle1");
     await next();
     console.log("middle1 end");
   }
 
   @Middleware
-  async middle2(req: Req, res: Res, next: Function) {
+  async middle2(req: Req, res: Res, next: NextFunc) {
     console.log("middle2");
     await next();
     console.log("middle2 end");
@@ -36,7 +35,7 @@ export class TestClass extends App {
   // in @StartApplication class middleware will work for global
   // but in @Route class , it will only work for that Route
 
-  @Get("/id/:id/info", [async (req: Req, res: Res, next: Function) => {
+  @Get("/id/:id/info", [async (req: Req, res: Res, next: NextFunc) => {
     console.log(`I am a middleware func in ${req.url}`);
     await next();
   }])
@@ -56,7 +55,7 @@ export class TestClass extends App {
     };
   }
 
-  @Post("/login", [async (req: Req, res: Res, next: Function) => {
+  @Post("/login", [async (req: Req, res: Res, next: NextFunc) => {
     console.log("I will execute in post request with url /login");
     await next();
   }])

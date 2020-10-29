@@ -1,4 +1,5 @@
-import { Get, Middleware, Prefix, Req, Res, Route } from "../deps.ts";
+import { Get, Middleware, Prefix, Route } from "../deps.ts";
+import type { NextFunc, Req, Res } from "../deps.ts";
 
 // to add a new Route in entity
 @Route
@@ -7,12 +8,12 @@ import { Get, Middleware, Prefix, Req, Res, Route } from "../deps.ts";
 class Route2 {
   @Middleware
   // this middleware will only work for this Route
-  async middle(req: Req, res: Res, next: Function) {
+  async middle(req: Req, res: Res, next: NextFunc) {
     console.log("route2 middle");
     await next();
     console.log("route2 middle end");
   }
-  @Get("/test", [async (req: Req, res: Res, next: Function) => {
+  @Get("/test", [async (req: Req, res: Res, next: NextFunc) => {
     console.log("route2 middle for /test");
     await next();
   }])

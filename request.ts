@@ -5,17 +5,16 @@ import { parseFormData } from "./utils/parse/body.ts";
 import { getRequestType } from "./utils/contentType/contentType.ts";
 
 export const decoder = new TextDecoder();
+
 export class Request {
-  static createRequest(config: any) {
+  static createRequest(
+    config: Pick<Req, "headers" | "method" | "url" | "request">,
+  ): Req {
     return {
-      query: null,
-      params: null,
-      body: null,
-      request: new ServerRequest(),
-      url: "",
-      method: "get" as ReqMethod,
-      headers: config.request.headers,
-      cookies: parseQsToMap(config.request.headers.get("cookie")),
+      query: {},
+      params: {},
+      body: { type: "", value: "" },
+      cookies: parseQsToMap(config.request.headers.get("cookie") || ""),
       ...config,
     };
   }
@@ -65,7 +64,6 @@ export class Request {
       }
       body["type"] = type;
       body["value"] = _body;
-      Object.assign(body, { value: _body }, { type });
     } else {
       body = {
         type: "",

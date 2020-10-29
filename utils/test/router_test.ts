@@ -1,25 +1,26 @@
 import { parseUrlQuery, splitPath, splitUrl } from "./url_test.ts";
 
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
+import { HandlerFunc, MethodFuncArgument } from "../../model.ts";
 
 export interface RouteValue {
   query: Record<string, string>;
   url: string;
   params: Record<string, string>;
-  handler: Function;
-  middleware: Function[];
+  handler: HandlerFunc;
+  middleware: MethodFuncArgument;
 }
 
 export interface SingleRoute {
-  middleware: Function[];
-  handler: Function;
+  middleware: MethodFuncArgument;
+  handler: HandlerFunc;
   paramsNames: Record<string, string>;
 }
 
 export interface NewRoute {
   next: Record<string, NewRoute> | null;
-  middleware: Function[];
-  handler: Function | null;
+  middleware: MethodFuncArgument;
+  handler: HandlerFunc | null;
   paramsNames: Record<string, string>;
 }
 
@@ -69,12 +70,14 @@ export class Router {
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i];
       // 下个节点对象
-      const nextNode: any = routeVal ? routeVal.next : map;
+      const nextNode: Record<string, NewRoute | null> | null = routeVal
+        ? routeVal.next
+        : map;
       if (nextNode === null) {
         return this.#forEachBackMap(_map);
       }
-      const stVal = nextNode[url];
-      const dyVal = nextNode[""];
+      const stVal: NewRoute | null = nextNode[url];
+      const dyVal: NewRoute | null = nextNode[""];
       // 静态匹配
       if (stVal) {
         routeVal = stVal;
@@ -135,8 +138,8 @@ export class Router {
   add(
     method: string,
     url: string,
-    handler: Function,
-    middleware: Function[] = [],
+    handler: HandlerFunc,
+    middleware: MethodFuncArgument = [],
   ) {
     const funcMap = this.#tree[method];
     const urls = splitPath(url);
@@ -226,7 +229,7 @@ const path2 = "/name/:da/:tt/ga";
 const url = "/name/2016207235/v1/detail";
 
 // test time used, remember with --allow-hrtime
-function timeTest(func: Function) {
+function timeTest(func: () => RouteValue | null) {
   const time1 = performance.now();
   func.call(null);
   const time2 = performance.now();

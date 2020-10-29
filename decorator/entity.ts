@@ -2,7 +2,7 @@ import { Entity } from "./decorator.type.ts";
 import { Middleware } from "./middleware.ts";
 import { Router } from "./router.ts";
 import { DecorationApplication } from "./application.ts";
-import { ListenOptions, MiddlewareFunc } from "../model.ts";
+import { HandlerFunc, ListenOptions, MiddlewareFunc } from "../model.ts";
 
 const defaultServer = {
   port: 8000,
@@ -37,7 +37,7 @@ export function getAppInitial(): DecorationApplication {
   return entity.app as DecorationApplication;
 }
 
-export function setApp(app: any) {
+export function setApp(app: DecorationApplication) {
   entity.app = app;
 }
 
@@ -48,7 +48,7 @@ export function getRouterInitial(): Router {
   return entity.router as Router;
 }
 
-export function setRouter(router: any) {
+export function setRouter(router: Router) {
   entity.router = router;
 }
 
@@ -102,7 +102,7 @@ export function getSnapshotRoutes() {
 export function setSnapshotRoutes(item: {
   url: string;
   method: string;
-  handler: Function;
+  handler: HandlerFunc;
 }) {
   entity.snapshotRoutes.push(item);
 }
@@ -111,7 +111,7 @@ export function getParamsExecRoutes() {
   return entity.paramsExecRoutes;
 }
 
-export function setParamsExecRoutes(exec: string, handler: Function) {
+export function setParamsExecRoutes(exec: string, handler: HandlerFunc) {
   entity.paramsExecRoutes.push({
     exec,
     handler,

@@ -14,16 +14,18 @@ export type ReqMethod =
 
 export type ReqBody = {
   type: string;
-  value: any;
+  value: string | number | Record<string, string | number | Uint8Array>;
 };
 
-export type HandlerFunc = (req: Req, res: Res) => Promise<unknown> | unknown;
+export type HandlerFunc = (req: Req, res: Res) => Promise<void> | void;
+
+export type NextFunc = () => Promise<void>;
 
 export type MiddlewareFunc = (
   req: Req,
   res: Res,
-  next: Function,
-) => Promise<unknown> | unknown;
+  next: NextFunc,
+) => Promise<void> | void;
 
 export type MethodFuncArgument = Array<MiddlewareFunc>;
 
@@ -35,11 +37,11 @@ export interface RoutesConfig {
   url: string;
   method: string;
   func: HandlerFunc;
-  middleware?: MiddlewareFunc[];
+  middleware?: MethodFuncArgument;
 }
 
 export interface RouteHandlers {
-  middleware?: Function[];
+  middleware?: Array<MiddlewareFunc>;
   handler: HandlerFunc;
 }
 
@@ -47,30 +49,30 @@ export interface RouteValue {
   query: Record<string, string>;
   url: string;
   params: Record<string, string>;
-  handler: Function;
-  middleware: Function[];
+  handler: HandlerFunc;
+  middleware: Array<MiddlewareFunc>;
 }
 
 export interface SingleRoute {
-  middleware: Function[];
-  handler: Function;
+  middleware: Array<MiddlewareFunc>;
+  handler: HandlerFunc;
   paramsNames: Record<string, string>;
 }
 
 export interface NewRoute {
   next: Record<string, NewRoute> | null;
-  middleware: Function[];
-  handler: Function | null;
+  middleware: Array<MiddlewareFunc>;
+  handler: HandlerFunc | null;
   paramsNames: Record<string, string>;
 }
 
 export interface CorsOptions {
-  allowMethods?: string[];
-  allowHeaders?: string[];
-  origin?: string | Function;
+  allowMethods?: Array<string>;
+  allowHeaders?: Array<string>;
+  origin?: string | ((req: Req) => Promise<string>);
   allowCredentials?: boolean;
   maxAge?: number;
-  exposeHeaders?: string[];
+  exposeHeaders?: Array<string>;
 }
 
 export interface ListenOptions {
@@ -84,48 +86,52 @@ export interface ListenOptions {
 
 export interface RealUrl {
   url: string;
-  query?: { [key: string]: any } | null;
+  query?: Record<string, string> | null;
   prefix?: string;
   params?: string | null;
   paramsName?: string;
   extName?: string;
 }
 
-export interface AssetsOptions {
-}
+export type AssetsOptions = {
+  // developing
+  path: string;
+  onerror: (e: Error) => void;
+};
+
+export type AssetsArgument = string | AssetsOptions;
 
 export interface Req {
-  query: Record<string, any>;
-  body: {
-    type: string;
-    value: any;
-  };
+  query: Record<string, string>;
+  body: ReqBody;
   url: string;
   method: ReqMethod;
   headers: Headers;
   request: ServerRequest;
-  params: Record<string, any>;
-  cookies: Map<string, any>;
-  [key: string]: any;
+  params: Record<string, string>;
+  cookies: Map<string, string | boolean>;
+  [key: string]: unknown;
 }
 
 export interface Res {
   response: Response;
-  body: any | null;
+  // 返回值类型可以是任意的
+  // deno-lint-ignore no-explicit-any
+  body: any;
   headers: Headers;
   status: number;
   done: boolean;
-  redirect: Function;
-  render: Function;
-  send: Function;
+  redirect: (url: string) => void;
+  render: (path: string) => Promise<void>;
+  send: (req: Req, res: Res) => void;
   cookies: Cookie;
 }
 
 export interface MinConfig {
   server: ListenOptions;
-  routes: RoutesConfig[];
+  routes: Array<RoutesConfig>;
   cors?: CorsOptions;
-  assets?: string | Record<string, any>;
+  assets?: string | Record<string, string | number | boolean>;
 }
 
 export type ErrorMessage = {

@@ -1,14 +1,19 @@
-import { MethodFuncArgument } from "../model.ts";
+import { HandlerFunc, MethodFuncArgument, MiddlewareFunc } from "../model.ts";
 import {
   clearParamsExecRoutes,
   getParamsExecRoutes,
   getSnapshotRoutes,
   setExecRoutes,
+  setMiddlewares,
   setRoutes,
   setSnapshotRoutes,
 } from "./entity.ts";
 
-const consumeParamsExec = (url: string, method: string, handler: Function) => {
+const consumeParamsExec = (
+  url: string,
+  method: string,
+  handler: HandlerFunc,
+) => {
   // 消费params指令数组
   const findItem = getParamsExecRoutes().filter((item) =>
     item.handler === handler
@@ -32,7 +37,11 @@ const consumeParamsExec = (url: string, method: string, handler: Function) => {
 
 // const consume
 
-const commonMiddleware = (url: string, method: string, handler: Function) => {
+const commonMiddleware = (
+  url: string,
+  method: string,
+  handler: HandlerFunc,
+) => {
   // 增加路由快照
   setSnapshotRoutes({
     url,
@@ -46,14 +55,25 @@ export const Get = (
   path: string,
   args?: MethodFuncArgument,
 ): MethodDecorator => {
-  return function (target, propertyKey, descriptor: any) {
-    commonMiddleware(path, "get", descriptor.value);
-    setRoutes({
-      middleware: args || [],
-      handler: descriptor.value,
-      path,
-      method: "get",
-    });
+  return function <T>(
+    target: unknown,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<T>,
+  ) {
+    const isFunction = (func: unknown): func is HandlerFunc => {
+      return typeof func === "function";
+    };
+    if (isFunction(descriptor.value)) {
+      commonMiddleware(path, "get", descriptor.value);
+      setRoutes({
+        middleware: args || [],
+        handler: descriptor.value,
+        path,
+        method: "get",
+      });
+    } else {
+      throw Error(`${descriptor.value} is not a Function`);
+    }
     return descriptor;
   };
 };
@@ -62,14 +82,25 @@ export const Post = (
   path: string,
   args?: MethodFuncArgument,
 ): MethodDecorator => {
-  return function (target, propertyKey, descriptor: any) {
-    commonMiddleware(path, "post", descriptor.value);
-    setRoutes({
-      middleware: args || [],
-      handler: descriptor.value,
-      path,
-      method: "post",
-    });
+  return function <T>(
+    target: unknown,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<T>,
+  ) {
+    const isFunction = (func: unknown): func is HandlerFunc => {
+      return typeof func === "function";
+    };
+    if (isFunction(descriptor.value)) {
+      commonMiddleware(path, "post", descriptor.value);
+      setRoutes({
+        middleware: args || [],
+        handler: descriptor.value,
+        path,
+        method: "post",
+      });
+    } else {
+      throw Error(`${descriptor.value} is not a Function`);
+    }
     return descriptor;
   };
 };
@@ -78,14 +109,25 @@ export const Delete = (
   path: string,
   args: MethodFuncArgument,
 ): MethodDecorator => {
-  return function (target, propertyKey, descriptor: any) {
-    commonMiddleware(path, "delete", descriptor.value);
-    setRoutes({
-      middleware: args || [],
-      handler: descriptor.value,
-      path,
-      method: "delete",
-    });
+  return function <T>(
+    target: unknown,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<T>,
+  ) {
+    const isFunction = (func: unknown): func is HandlerFunc => {
+      return typeof func === "function";
+    };
+    if (isFunction(descriptor.value)) {
+      commonMiddleware(path, "delete", descriptor.value);
+      setRoutes({
+        middleware: args || [],
+        handler: descriptor.value,
+        path,
+        method: "delete",
+      });
+    } else {
+      throw Error(`${descriptor.value} is not a Function`);
+    }
     return descriptor;
   };
 };
@@ -94,14 +136,25 @@ export const Put = (
   path: string,
   args?: MethodFuncArgument,
 ): MethodDecorator => {
-  return function (target, propertyKey, descriptor: any) {
-    commonMiddleware(path, "put", descriptor.value);
-    setRoutes({
-      middleware: args || [],
-      handler: descriptor.value,
-      path,
-      method: "put",
-    });
+  return function <T>(
+    target: unknown,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<T>,
+  ) {
+    const isFunction = (func: unknown): func is HandlerFunc => {
+      return typeof func === "function";
+    };
+    if (isFunction(descriptor.value)) {
+      commonMiddleware(path, "put", descriptor.value);
+      setRoutes({
+        middleware: args || [],
+        handler: descriptor.value,
+        path,
+        method: "put",
+      });
+    } else {
+      throw Error(`${descriptor.value} is not a Function`);
+    }
     return descriptor;
   };
 };
@@ -110,14 +163,25 @@ export const Patch = (
   path: string,
   args?: MethodFuncArgument,
 ): MethodDecorator => {
-  return function (target, propertyKey, descriptor: any) {
-    commonMiddleware(path, "patch", descriptor.value);
-    setRoutes({
-      middleware: args || [],
-      handler: descriptor.value,
-      path,
-      method: "patch",
-    });
+  return function <T>(
+    target: unknown,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<T>,
+  ) {
+    const isFunction = (func: unknown): func is HandlerFunc => {
+      return typeof func === "function";
+    };
+    if (isFunction(descriptor.value)) {
+      commonMiddleware(path, "patch", descriptor.value);
+      setRoutes({
+        middleware: args || [],
+        handler: descriptor.value,
+        path,
+        method: "patch",
+      });
+    } else {
+      throw Error(`${descriptor.value} is not a Function`);
+    }
     return descriptor;
   };
 };
@@ -126,14 +190,25 @@ export const Options = (
   path: string,
   args?: MethodFuncArgument,
 ): MethodDecorator => {
-  return function (target, propertyKey, descriptor: any) {
-    commonMiddleware(path, "options", descriptor.value);
-    setRoutes({
-      middleware: args || [],
-      handler: descriptor.value,
-      path,
-      method: "options",
-    });
+  return function <T>(
+    target: unknown,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<T>,
+  ) {
+    const isFunction = (func: unknown): func is HandlerFunc => {
+      return typeof func === "function";
+    };
+    if (isFunction(descriptor.value)) {
+      commonMiddleware(path, "options", descriptor.value);
+      setRoutes({
+        middleware: args || [],
+        handler: descriptor.value,
+        path,
+        method: "options",
+      });
+    } else {
+      throw Error(`${descriptor.value} is not a Function`);
+    }
     return descriptor;
   };
 };
@@ -142,14 +217,25 @@ export const Head = (
   path: string,
   args?: MethodFuncArgument,
 ): MethodDecorator => {
-  return function (target, propertyKey, descriptor: any) {
-    commonMiddleware(path, "head", descriptor.value);
-    setRoutes({
-      middleware: args || [],
-      handler: descriptor.value,
-      path,
-      method: "head",
-    });
+  return function <T>(
+    target: unknown,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<T>,
+  ) {
+    const isFunction = (func: unknown): func is HandlerFunc => {
+      return typeof func === "function";
+    };
+    if (isFunction(descriptor.value)) {
+      commonMiddleware(path, "head", descriptor.value);
+      setRoutes({
+        middleware: args || [],
+        handler: descriptor.value,
+        path,
+        method: "head",
+      });
+    } else {
+      throw Error(`${descriptor.value} is not a Function`);
+    }
     return descriptor;
   };
 };
@@ -158,14 +244,25 @@ export const Connect = (
   path: string,
   args?: MethodFuncArgument,
 ): MethodDecorator => {
-  return function (target, propertyKey, descriptor: any) {
-    commonMiddleware(path, "connect", descriptor.value);
-    setRoutes({
-      middleware: args || [],
-      handler: descriptor.value,
-      path,
-      method: "connect",
-    });
+  return function <T>(
+    target: unknown,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<T>,
+  ) {
+    const isFunction = (func: unknown): func is HandlerFunc => {
+      return typeof func === "function";
+    };
+    if (isFunction(descriptor.value)) {
+      commonMiddleware(path, "connect", descriptor.value);
+      setRoutes({
+        middleware: args || [],
+        handler: descriptor.value,
+        path,
+        method: "connect",
+      });
+    } else {
+      throw Error(`${descriptor.value} is not a Function`);
+    }
     return descriptor;
   };
 };
@@ -174,14 +271,25 @@ export const Trace = (
   path: string,
   args?: MethodFuncArgument,
 ): MethodDecorator => {
-  return function (target, propertyKey, descriptor: any) {
-    commonMiddleware(path, "trace", descriptor.value);
-    setRoutes({
-      middleware: args || [],
-      handler: descriptor.value,
-      path,
-      method: "trace",
-    });
+  return function <T>(
+    target: unknown,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<T>,
+  ) {
+    const isFunction = (func: unknown): func is HandlerFunc => {
+      return typeof func === "function";
+    };
+    if (isFunction(descriptor.value)) {
+      commonMiddleware(path, "trace", descriptor.value);
+      setRoutes({
+        middleware: args || [],
+        handler: descriptor.value,
+        path,
+        method: "trace",
+      });
+    } else {
+      throw Error(`${descriptor.value} is not a Function`);
+    }
     return descriptor;
   };
 };
