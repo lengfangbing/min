@@ -1,14 +1,19 @@
-import {HandlerFunc, MethodFuncArgument, MiddlewareFunc} from "../model.ts";
+import { HandlerFunc, MethodFuncArgument, MiddlewareFunc } from "../model.ts";
 import {
   clearParamsExecRoutes,
   getParamsExecRoutes,
   getSnapshotRoutes,
-  setExecRoutes, setMiddlewares,
+  setExecRoutes,
+  setMiddlewares,
   setRoutes,
   setSnapshotRoutes,
 } from "./entity.ts";
 
-const consumeParamsExec = (url: string, method: string, handler: HandlerFunc) => {
+const consumeParamsExec = (
+  url: string,
+  method: string,
+  handler: HandlerFunc,
+) => {
   // 消费params指令数组
   const findItem = getParamsExecRoutes().filter((item) =>
     item.handler === handler
@@ -32,7 +37,11 @@ const consumeParamsExec = (url: string, method: string, handler: HandlerFunc) =>
 
 // const consume
 
-const commonMiddleware = (url: string, method: string, handler: HandlerFunc) => {
+const commonMiddleware = (
+  url: string,
+  method: string,
+  handler: HandlerFunc,
+) => {
   // 增加路由快照
   setSnapshotRoutes({
     url,
@@ -49,10 +58,10 @@ export const Get = (
   return function <T>(
     target: unknown,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const isFunction = (func: unknown): func is HandlerFunc => {
-      return typeof func === 'function';
+      return typeof func === "function";
     };
     if (isFunction(descriptor.value)) {
       commonMiddleware(path, "get", descriptor.value);
@@ -76,10 +85,10 @@ export const Post = (
   return function <T>(
     target: unknown,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const isFunction = (func: unknown): func is HandlerFunc => {
-      return typeof func === 'function';
+      return typeof func === "function";
     };
     if (isFunction(descriptor.value)) {
       commonMiddleware(path, "post", descriptor.value);
@@ -103,10 +112,10 @@ export const Delete = (
   return function <T>(
     target: unknown,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const isFunction = (func: unknown): func is HandlerFunc => {
-      return typeof func === 'function';
+      return typeof func === "function";
     };
     if (isFunction(descriptor.value)) {
       commonMiddleware(path, "delete", descriptor.value);
@@ -130,10 +139,10 @@ export const Put = (
   return function <T>(
     target: unknown,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const isFunction = (func: unknown): func is HandlerFunc => {
-      return typeof func === 'function';
+      return typeof func === "function";
     };
     if (isFunction(descriptor.value)) {
       commonMiddleware(path, "put", descriptor.value);
@@ -157,10 +166,10 @@ export const Patch = (
   return function <T>(
     target: unknown,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const isFunction = (func: unknown): func is HandlerFunc => {
-      return typeof func === 'function';
+      return typeof func === "function";
     };
     if (isFunction(descriptor.value)) {
       commonMiddleware(path, "patch", descriptor.value);
@@ -184,10 +193,10 @@ export const Options = (
   return function <T>(
     target: unknown,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const isFunction = (func: unknown): func is HandlerFunc => {
-      return typeof func === 'function';
+      return typeof func === "function";
     };
     if (isFunction(descriptor.value)) {
       commonMiddleware(path, "options", descriptor.value);
@@ -211,10 +220,10 @@ export const Head = (
   return function <T>(
     target: unknown,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const isFunction = (func: unknown): func is HandlerFunc => {
-      return typeof func === 'function';
+      return typeof func === "function";
     };
     if (isFunction(descriptor.value)) {
       commonMiddleware(path, "head", descriptor.value);
@@ -238,10 +247,10 @@ export const Connect = (
   return function <T>(
     target: unknown,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const isFunction = (func: unknown): func is HandlerFunc => {
-      return typeof func === 'function';
+      return typeof func === "function";
     };
     if (isFunction(descriptor.value)) {
       commonMiddleware(path, "connect", descriptor.value);
@@ -265,10 +274,10 @@ export const Trace = (
   return function <T>(
     target: unknown,
     propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<T>,
   ) {
     const isFunction = (func: unknown): func is HandlerFunc => {
-      return typeof func === 'function';
+      return typeof func === "function";
     };
     if (isFunction(descriptor.value)) {
       commonMiddleware(path, "trace", descriptor.value);

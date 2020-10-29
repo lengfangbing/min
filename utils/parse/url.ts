@@ -18,7 +18,7 @@ export function parseUrlQuery(url: string): RealUrl {
   if (s >= 0) {
     const q = url.substring(s + 1);
     url = url.substring(0, s);
-    query = urlDecode(q) as {[key: string]: string};
+    query = urlDecode(q) as { [key: string]: string };
   }
   if (url.endsWith("/")) {
     url = url.substring(0, url.length - 1) || "/";

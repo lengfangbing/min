@@ -1,5 +1,5 @@
 import { Application, MiddlewareFunc, Req, Res } from "./deps.ts";
-import {NextFunc} from "../../model.ts";
+import { NextFunc } from "../../model.ts";
 
 const app = new Application();
 

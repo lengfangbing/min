@@ -14,7 +14,7 @@ import {
 } from "./entity.ts";
 import { App } from "./app.ts";
 import { DecorationApplication } from "./application.ts";
-import {ListenOptions, MethodFuncArgument, MiddlewareFunc} from "../model.ts";
+import { ListenOptions, MethodFuncArgument, MiddlewareFunc } from "../model.ts";
 
 // deno-lint-ignore ban-types
 const consumeApplication: ClassDecorator = (target: Function) => {
@@ -86,7 +86,7 @@ const Middleware: MethodDecorator = <T>(
   descriptor: TypedPropertyDescriptor<T>,
 ) => {
   const isFunction = (func: unknown): func is MiddlewareFunc => {
-    return typeof func === 'function';
+    return typeof func === "function";
   };
   if (isFunction(descriptor.value)) {
     setMiddlewares(descriptor.value);

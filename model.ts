@@ -97,7 +97,7 @@ export type AssetsOptions = {
   // developing
   path: string;
   onerror: (e: Error) => void;
-}
+};
 
 export type AssetsArgument = string | AssetsOptions;
 

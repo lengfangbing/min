@@ -35,12 +35,12 @@ export async function parseFormData(
       const decoder = new TextDecoder();
       for (const [key, value] of form.entries()) {
         const newValue: string | FormFile | FormFile[] | undefined | {
-          value: string
-        } = value || { value: '' };
+          value: string;
+        } = value || { value: "" };
         const val = <FormFile> value;
         if (val.content) {
           (newValue as {
-            value: string
+            value: string;
           }).value = decoder.decode(val.content);
         }
         res[key] = <string | FormFile> value;

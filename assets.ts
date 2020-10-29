@@ -1,7 +1,7 @@
 import { contentType, extname, join, lookup, Status } from "./deps.ts";
 import { parseExtname } from "./utils/parse/url.ts";
 import { decoder } from "./request.ts";
-import {AssetsOptions, AssetsArgument, MiddlewareFunc} from "./model.ts";
+import { AssetsArgument, AssetsOptions, MiddlewareFunc } from "./model.ts";
 import { getErrorMessage } from "./utils/message/error.ts";
 
 export function assets(
@@ -18,7 +18,7 @@ export function assets(
   } else {
     opts = {
       ...options,
-      path: options.path
+      path: options.path,
     };
   }
   const path = join(Deno.cwd(), opts.path as string);

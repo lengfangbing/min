@@ -5,8 +5,8 @@ export {
   serveTLS,
 } from "https://deno.land/std@0.75.0/http/server.ts";
 export type {
-  Response,
   HTTPSOptions,
+  Response,
 } from "https://deno.land/std@0.75.0/http/server.ts";
 export { serveFile } from "https://deno.land/std@0.75.0/http/file_server.ts";
 export { decode, encode } from "https://deno.land/std@0.75.0/encoding/utf8.ts";

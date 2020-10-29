@@ -7,13 +7,14 @@ import { getRequestType } from "./utils/contentType/contentType.ts";
 export const decoder = new TextDecoder();
 
 export class Request {
-  static createRequest(config: Pick<Req, 'headers' | 'method' | 'url' | 'request'>): Req {
+  static createRequest(
+    config: Pick<Req, "headers" | "method" | "url" | "request">,
+  ): Req {
     return {
       query: {},
       params: {},
-      body: {type: '',
-      value: ''},
-      cookies: parseQsToMap(config.request.headers.get("cookie") || ''),
+      body: { type: "", value: "" },
+      cookies: parseQsToMap(config.request.headers.get("cookie") || ""),
       ...config,
     };
   }

@@ -2,7 +2,7 @@ import { Entity } from "./decorator.type.ts";
 import { Middleware } from "./middleware.ts";
 import { Router } from "./router.ts";
 import { DecorationApplication } from "./application.ts";
-import {HandlerFunc, ListenOptions, MiddlewareFunc} from "../model.ts";
+import { HandlerFunc, ListenOptions, MiddlewareFunc } from "../model.ts";
 
 const defaultServer = {
   port: 8000,

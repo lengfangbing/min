@@ -1,7 +1,7 @@
 import { parseUrlQuery, splitPath, splitUrl } from "./url_test.ts";
 
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
-import {HandlerFunc, MethodFuncArgument} from "../../model.ts";
+import { HandlerFunc, MethodFuncArgument } from "../../model.ts";
 
 export interface RouteValue {
   query: Record<string, string>;
@@ -70,7 +70,9 @@ export class Router {
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i];
       // 下个节点对象
-      const nextNode: Record<string, NewRoute | null> | null = routeVal ? routeVal.next : map;
+      const nextNode: Record<string, NewRoute | null> | null = routeVal
+        ? routeVal.next
+        : map;
       if (nextNode === null) {
         return this.#forEachBackMap(_map);
       }

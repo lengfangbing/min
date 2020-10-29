@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
-import {colors, HTTPSOptions, serve, serveTLS, Status} from "../../deps.ts";
+import { colors, HTTPSOptions, serve, serveTLS, Status } from "../../deps.ts";
 import { Router, RouteValue } from "./router_test.ts";
 import { Middleware } from "../../middleware.ts";
 import { parseAddress } from "../parse/address.ts";
@@ -8,7 +8,8 @@ import {
   HandlerFunc,
   ListenOptions,
   MethodFuncArgument,
-  MiddlewareFunc, NextFunc,
+  MiddlewareFunc,
+  NextFunc,
   Req,
   ReqMethod,
   Res,
@@ -156,7 +157,11 @@ export class Application {
         }
         try {
           if (fn) {
-            return fn(request, response, dispatch.bind(null, index + 1) as NextFunc);
+            return fn(
+              request,
+              response,
+              dispatch.bind(null, index + 1) as NextFunc,
+            );
           }
           return fn;
         } catch (err) {

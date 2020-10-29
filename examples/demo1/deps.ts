@@ -4,5 +4,4 @@ export {
   MiddlewareFunc,
   Req,
   Res,
-// } from "https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts";
-} from '../../mod.ts';
+} from "https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts";

@@ -10,11 +10,7 @@ import {
   Start,
   StartApplication,
 } from "./deps.ts";
-import type {
-  Req,
-  Res,
-  NextFunc,
-} from "./deps.ts";
+import type { NextFunc, Req, Res } from "./deps.ts";
 
 // will emit a http server in entity
 @StartApplication

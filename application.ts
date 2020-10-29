@@ -1,12 +1,14 @@
-import {colors, HTTPSOptions, serve, serveTLS, Status} from "./deps.ts";
+import { colors, HTTPSOptions, serve, serveTLS, Status } from "./deps.ts";
 import { Router } from "./router.ts";
 import { Middleware } from "./middleware.ts";
 import { parseAddress } from "./utils/parse/address.ts";
 import {
-  AppConfig, HandlerFunc,
+  AppConfig,
+  HandlerFunc,
   ListenOptions,
   MethodFuncArgument,
-  MiddlewareFunc, NextFunc,
+  MiddlewareFunc,
+  NextFunc,
   Req,
   ReqMethod,
   Res,
@@ -152,7 +154,8 @@ export class Application {
           response.status = execFunc ? Status.OK : Status.NotFound;
         }
         try {
-          return fn && fn(request, response, dispatch.bind(null, index + 1) as NextFunc);
+          return fn &&
+            fn(request, response, dispatch.bind(null, index + 1) as NextFunc);
         } catch (err) {
           return Promise.reject(err);
         }

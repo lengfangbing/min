@@ -13,7 +13,7 @@ import {
   RoutesConfig,
 } from "../model.ts";
 import { RouteValue } from "./model.ts";
-import {colors, HTTPSOptions, serve, serveTLS, Status} from "../deps.ts";
+import { colors, HTTPSOptions, serve, serveTLS, Status } from "../deps.ts";
 import { parseAddress } from "../utils/parse/address.ts";
 import { cors } from "../cors.ts";
 import { assets } from "../assets.ts";
@@ -137,7 +137,8 @@ export class DecorationApplication {
         }
         index = i;
         // deno-lint-ignore no-explicit-any
-        let fn: ((...func: Array<any>) => Promise<void> | void) | undefined = middleware[i];
+        let fn: ((...func: Array<any>) => Promise<void> | void) | undefined =
+          middleware[i];
         if (i === middleware.length) {
           fn = execFunc;
           response.status = execFunc ? Status.OK : Status.NotFound;

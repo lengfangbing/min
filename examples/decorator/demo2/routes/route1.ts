@@ -1,9 +1,5 @@
 import { Get, Middleware, Route } from "../deps.ts";
-import type {
-  Req,
-  Res,
-  NextFunc,
-} from '../deps.ts';
+import type { NextFunc, Req, Res } from "../deps.ts";
 
 // to add a new Route in entity
 @Route

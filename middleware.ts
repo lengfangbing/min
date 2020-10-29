@@ -1,4 +1,4 @@
-import {MethodFuncArgument, MiddlewareFunc} from "./model.ts";
+import { MethodFuncArgument, MiddlewareFunc } from "./model.ts";
 
 export class Middleware {
   static middle: MethodFuncArgument = [];
