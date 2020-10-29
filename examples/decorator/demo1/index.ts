@@ -2,10 +2,12 @@ import {
   App,
   ApplyMiddleware,
   assets,
+  Body,
   cors,
   Get,
   Middleware,
   Param,
+  Post,
   Query,
   Req,
   Res,
@@ -58,6 +60,17 @@ export class TestClass extends App {
     res.cookies.append("name", "123");
     res.cookies.append("age", "22");
     res.body = req.query;
+  }
+
+  @Get("/")
+  async index(req: Req, res: Res) {
+    res.body = "hello world";
+  }
+
+  @Post("/login")
+  async handler(@Body() body: Record<string, string>, res: Res, req: Req) {
+    console.log(body);
+    res.body = 123;
   }
 
   @Start({ port: 8000, hostname: "127.0.0.1" })

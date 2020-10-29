@@ -1,5 +1,3 @@
-import { is } from "../../deps.ts";
-
 export function getRequestType(contentType: string) {
   const typeRes = {
     isText: false,
@@ -8,19 +6,19 @@ export function getRequestType(contentType: string) {
     isFormData: false,
   };
   s: {
-    if (is(contentType, ["json"])) {
+    if (contentType.includes("application/json")) {
       typeRes.isJson = true;
       break s;
     }
-    if (is(contentType, ["urlencoded"])) {
+    if (contentType.includes("application/x-www-form-urlencoded")) {
       typeRes.isUrlencoded = true;
       break s;
     }
-    if (is(contentType, ["multipart"])) {
+    if (contentType.includes("multipart/form-data")) {
       typeRes.isFormData = true;
       break s;
     }
-    if (is(contentType, ["text"])) {
+    if (contentType.includes("text")) {
       typeRes.isText = true;
       break s;
     }

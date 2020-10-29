@@ -5,7 +5,6 @@ import {
   MultipartReader,
   ServerRequest,
 } from "../../deps.ts";
-import { decoder } from "../../request.ts";
 
 export function parseResponseBody(res: Res) {
   const { response, body, headers = new Headers() } = res;
@@ -33,6 +32,7 @@ export async function parseFormData(
     const form = await mr.readForm(20 * 1024 * 1024);
     // const form: any = await multiParser(request);
     if (form) {
+      const decoder = new TextDecoder();
       for (const [key, value] of form.entries()) {
         const newValue: any = value || {};
         const val = <FormFile> value;

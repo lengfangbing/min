@@ -100,17 +100,19 @@ manual respond with the req and res that user provided
 ```typescript
 import {
   App,
+  StartApplication,
   ApplyMiddleware,
+  Middleware,
   assets,
   cors,
   Get,
-  Middleware,
+  Post,
   Req,
   Res,
-  Start,
-  StartApplication,
   Query,
-  Param
+  Param,
+  Body,
+  Start,
 } from "https://raw.githubusercontent.com/lengfangbing/min/master/decorator/mod.ts";
 
 @StartApplication
@@ -140,8 +142,6 @@ export class TestClass extends App {
     // if you use some ParameterDecorator like Query
     // the handlers arguments will end with req
     // and the res is behind the last ParameterDecorator 
-    
-    // The same between @Param and @Query
     console.log(id);
     console.log(name);
     console.log(age);
@@ -170,6 +170,14 @@ export class TestClass extends App {
     res.cookies.append('age', '22');
     res.body = req.query;
   }
+
+  @Post("/login")
+   async handler(@Body() body: Record<string, string>, res: Res, req: Req) {
+     console.log(body);
+     res.body = 123;
+  }
+
+  // The same for @Param and @Query and @Body
 
   @Start({port: 8000, hostname: '127.0.0.1'})
   async start() {
@@ -257,7 +265,7 @@ await app.listen('http://127.0.0.1:8000');
 
 ```
 # TODO
-* [x] add Query and Param decorator
+* [x] add Query and Param and Body decorator
 * [ ] add global error resolve
 * [ ] add cli for create api or web app
 * [ ] make a doc for min (it's a private repository, will open it when finished. This would take a few months)

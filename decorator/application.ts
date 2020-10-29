@@ -231,7 +231,7 @@ export class DecorationApplication {
           request,
         });
         const res: Res = Response.createResponse();
-        await this.#handleRequest(req, res);
+        this.#handleRequest(req, res);
       }
     } catch (e) {
       console.error(e);
@@ -244,11 +244,11 @@ export class DecorationApplication {
     } else {
       appConfig.server = config as ListenOptions;
     }
-    await this.#listen();
+    this.#listen();
   }
 
   async start(config: any) {
     await this.#readConfig(config);
-    await this.#listen();
+    this.#listen();
   }
 }

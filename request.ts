@@ -5,6 +5,7 @@ import { parseFormData } from "./utils/parse/body.ts";
 import { getRequestType } from "./utils/contentType/contentType.ts";
 
 export const decoder = new TextDecoder();
+
 export class Request {
   static createRequest(config: any) {
     return {
@@ -65,7 +66,6 @@ export class Request {
       }
       body["type"] = type;
       body["value"] = _body;
-      Object.assign(body, { value: _body }, { type });
     } else {
       body = {
         type: "",
