@@ -17,8 +17,10 @@ export {
   unescape,
 } from "https://deno.land/std@0.75.0/node/querystring.ts";
 export {
-  FormFile,
   MultipartReader,
+} from "https://deno.land/std@0.75.0/mime/multipart.ts";
+export type {
+  FormFile,
 } from "https://deno.land/std@0.75.0/mime/multipart.ts";
 export {
   basename,
