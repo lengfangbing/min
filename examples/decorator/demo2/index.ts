@@ -16,7 +16,7 @@ import type { NextFunc, Req, Res } from "./deps.ts";
 @StartApplication
 export class TestClass extends App {
   // ApplyMiddleware is to add third middleware func
-  @ApplyMiddleware([assets("/examples/decorator/demo2/static"), cors()])
+  @ApplyMiddleware([assets("/static"), cors()])
   // use own middleware
   @Middleware
   async middle1(req: Req, res: Res, next: NextFunc) {
