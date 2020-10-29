@@ -1,23 +1,25 @@
 export {
   App,
-  StartApplication,
   ApplyMiddleware,
-  Middleware,
-  Prefix,
-  Route,
-  Query,
-  Param,
   Body,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Options,
-  Patch,
-  Head,
   Connect,
-  Trace,
+  Delete,
+  Get,
+  Head,
+  Middleware,
+  Options,
+  Param,
+  Patch,
+  Post,
+  Prefix,
+  Put,
+  Query,
+  Route,
   Start,
+  StartApplication,
+  Trace,
 } from "./decorator.ts";
 
-export { assets, cors, Req, Res } from "../mod.ts";
+export { assets, cors } from "../mod.ts";
+
+export type { NextFunc, Req, Res } from "../mod.ts";

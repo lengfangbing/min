@@ -1,4 +1,5 @@
 import { Application, MiddlewareFunc, Req, Res } from "./deps.ts";
+import {NextFunc} from "../../model.ts";
 
 const app = new Application();
 
@@ -11,7 +12,7 @@ function routerLogger(): MiddlewareFunc {
   };
 }
 function requestLogger() {
-  return async function (req: Req, res: Res, next: Function) {
+  return async function (req: Req, res: Res, next: NextFunc) {
     const time1 = performance.now();
     await next();
     const time2 = performance.now();

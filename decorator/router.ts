@@ -1,5 +1,6 @@
 import { NewRoute, RouteValue, SingleRoute } from "./model.ts";
 import { parseUrlQuery, splitPath, splitUrl } from "../utils/parse/url.ts";
+import { HandlerFunc, MethodFuncArgument } from "../model.ts";
 
 export class Router {
   #tree: Record<string, Record<string, NewRoute>>;
@@ -41,8 +42,8 @@ export class Router {
   add(
     method: string,
     url: string,
-    handler: Function,
-    middleware: Function[] = [],
+    handler: HandlerFunc,
+    middleware: MethodFuncArgument = [],
   ) {
     const fM = this.#tree[method];
     const us = splitPath(url);
@@ -122,12 +123,12 @@ export class Router {
     let nF: boolean = false;
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i];
-      const nN: any = rV ? rV.next : map;
+      const nN: Record<string, NewRoute | null> | null = rV ? rV.next : map;
       if (nN === null) {
         return this.#forEachBackMap(_m);
       }
-      const sV = nN[url];
-      const dV = nN[""];
+      const sV: NewRoute | null = nN[url];
+      const dV: NewRoute | null = nN[""];
       if (sV) {
         rV = sV;
         if (dV) {
@@ -185,39 +186,39 @@ export class Router {
     };
   }
 
-  get(url: string, handler: Function, middleware: Function[]) {
+  get(url: string, handler: HandlerFunc, middleware: MethodFuncArgument) {
     this.add("get", url, handler, middleware);
   }
 
-  post(url: string, handler: Function, middleware: Function[]) {
+  post(url: string, handler: HandlerFunc, middleware: MethodFuncArgument) {
     this.add("post", url, handler, middleware);
   }
 
-  put(url: string, handler: Function, middleware: Function[]) {
+  put(url: string, handler: HandlerFunc, middleware: MethodFuncArgument) {
     this.add("put", url, handler, middleware);
   }
 
-  delete(url: string, handler: Function, middleware: Function[]) {
+  delete(url: string, handler: HandlerFunc, middleware: MethodFuncArgument) {
     this.add("delete", url, handler, middleware);
   }
 
-  options(url: string, handler: Function, middleware: Function[]) {
+  options(url: string, handler: HandlerFunc, middleware: MethodFuncArgument) {
     this.add("options", url, handler, middleware);
   }
 
-  head(url: string, handler: Function, middleware: Function[]) {
+  head(url: string, handler: HandlerFunc, middleware: MethodFuncArgument) {
     this.add("head", url, handler, middleware);
   }
 
-  connect(url: string, handler: Function, middleware: Function[]) {
+  connect(url: string, handler: HandlerFunc, middleware: MethodFuncArgument) {
     this.add("connect", url, handler, middleware);
   }
 
-  trace(url: string, handler: Function, middleware: Function[]) {
+  trace(url: string, handler: HandlerFunc, middleware: MethodFuncArgument) {
     this.add("trace", url, handler, middleware);
   }
 
-  patch(url: string, handler: Function, middleware: Function[]) {
+  patch(url: string, handler: HandlerFunc, middleware: MethodFuncArgument) {
     this.add("patch", url, handler, middleware);
   }
 }

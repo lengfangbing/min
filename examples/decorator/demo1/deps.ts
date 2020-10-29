@@ -1,18 +1,24 @@
 export {
   App,
-  StartApplication,
-  Route,
   ApplyMiddleware,
-  Middleware,
   assets,
+  Body,
   cors,
-  Req,
-  Res,
   Get,
+  Middleware,
+  Param,
   Post,
   Query,
-  Param,
-  Body,
+  Route,
   Start,
-} from "https://raw.githubusercontent.com/lengfangbing/min/master/decorator/mod.ts";
-// the same to https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts.
+  StartApplication,
+  // } from "https://raw.githubusercontent.com/lengfangbing/min/master/decorator/mod.ts";
+  // the same to https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts.
+} from "../../../decorator/mod.ts";
+
+export type {
+  Req,
+  Res,
+  NextFunc,
+// } from 'https://raw.githubusercontent.com/lengfangbing/min/master/decorator/mod.ts';
+} from "../../../decorator/mod.ts";

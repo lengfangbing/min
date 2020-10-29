@@ -8,9 +8,15 @@ export {
   Post,
   Prefix,
   Put,
-  Req,
-  Res,
   Route,
   Start,
   StartApplication,
-} from "https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts";
+// } from "https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts";
+} from "../../../decorator/mod.ts";
+
+export type {
+  Req,
+  Res,
+  NextFunc,
+// } from "https://raw.githubusercontent.com/lengfangbing/min/master/mod.ts";
+} from "../../../decorator/mod.ts";

@@ -2,11 +2,11 @@ import { urlDecode } from "../../deps.ts";
 import { RealUrl } from "../../model.ts";
 declare global {
   interface Map<K, V> {
-    toObj: Function;
+    toObj: () => Record<string, string>;
   }
 }
 Map.prototype.toObj = function () {
-  const r: Record<string, any> = {};
+  const r: Record<string, string> = {};
   for (const [k, v] of this.entries()) {
     r[k.trim()] = v;
   }
@@ -14,11 +14,11 @@ Map.prototype.toObj = function () {
 };
 export function parseUrlQuery(url: string): RealUrl {
   const s: number = url.lastIndexOf("?");
-  let query: { [key: string]: any } = {};
+  let query: { [key: string]: string } = {};
   if (s >= 0) {
     const q = url.substring(s + 1);
     url = url.substring(0, s);
-    query = urlDecode(q);
+    query = urlDecode(q) as {[key: string]: string};
   }
   if (url.endsWith("/")) {
     url = url.substring(0, url.length - 1) || "/";
@@ -84,7 +84,7 @@ export function splitPath(path: string) {
   return res;
 }
 export function parseQsToMap(url: string) {
-  const r: Map<string, any> = new Map<string, any>();
+  const r: Map<string, string | boolean> = new Map<string, string | boolean>();
   if (url === null) {
     return r;
   }
@@ -108,7 +108,7 @@ export function parseResponseCookie(options?: Record<string, unknown>) {
   if (!options) return "";
   const res = [];
   for (const i in options) {
-    if (options.hasOwnProperty(i)) {
+    if (Object.prototype.hasOwnProperty.call(options, i)) {
       if (typeof options[i] === "boolean") {
         res.push(i);
       } else {

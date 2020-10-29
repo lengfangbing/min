@@ -34,10 +34,14 @@ export async function parseFormData(
     if (form) {
       const decoder = new TextDecoder();
       for (const [key, value] of form.entries()) {
-        const newValue: any = value || {};
+        const newValue: string | FormFile | FormFile[] | undefined | {
+          value: string
+        } = value || { value: '' };
         const val = <FormFile> value;
         if (val.content) {
-          newValue.value = decoder.decode(val.content);
+          (newValue as {
+            value: string
+          }).value = decoder.decode(val.content);
         }
         res[key] = <string | FormFile> value;
       }

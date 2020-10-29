@@ -9,17 +9,16 @@ import {
   Param,
   Post,
   Query,
-  Req,
-  Res,
   Start,
   StartApplication,
 } from "./deps.ts";
+import type { NextFunc, Req, Res } from "./deps.ts";
 
 @StartApplication
 export class TestClass extends App {
   @ApplyMiddleware([assets("/static"), cors()])
   @Middleware
-  async middle1(req: Req, res: Res, next: Function) {
+  async middle1(req: Req, res: Res, next: NextFunc) {
     console.log("middle1");
     await next();
     console.log("middle1 end");

@@ -24,7 +24,7 @@ export { assets } from "./assets.ts";
 
 export { cors } from "./cors.ts";
 
-export { HandlerFunc, MiddlewareFunc, MinConfig, Req, Res } from "./model.ts";
+export  { HandlerFunc, MiddlewareFunc, NextFunc, MinConfig, Req, Res } from "./model.ts";
 
 export { Request } from "./request.ts";
 

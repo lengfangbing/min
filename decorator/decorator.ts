@@ -14,8 +14,9 @@ import {
 } from "./entity.ts";
 import { App } from "./app.ts";
 import { DecorationApplication } from "./application.ts";
-import { ListenOptions, MethodFuncArgument } from "../model.ts";
+import {ListenOptions, MethodFuncArgument, MiddlewareFunc} from "../model.ts";
 
+// deno-lint-ignore ban-types
 const consumeApplication: ClassDecorator = (target: Function) => {
   const middleware = getMiddlewareInitial();
   const router = getRouterInitial();
@@ -30,6 +31,7 @@ const consumeApplication: ClassDecorator = (target: Function) => {
   clearRoutes();
 };
 
+// deno-lint-ignore ban-types
 const consumeRoutes: ClassDecorator = (target: Function) => {
   const router = getRouterInitial();
   const path = target.prototype.decorator_prefix_min || "";
@@ -78,12 +80,19 @@ const Prefix = (path: string): ClassDecorator => {
   };
 };
 
-const Middleware: MethodDecorator = (
-  target,
-  propertyKey,
-  descriptor: TypedPropertyDescriptor<any>,
+const Middleware: MethodDecorator = <T>(
+  target: unknown,
+  propertyKey: string | symbol,
+  descriptor: TypedPropertyDescriptor<T>,
 ) => {
-  setMiddlewares(descriptor.value);
+  const isFunction = (func: unknown): func is MiddlewareFunc => {
+    return typeof func === 'function';
+  };
+  if (isFunction(descriptor.value)) {
+    setMiddlewares(descriptor.value);
+  } else {
+    throw Error(`${descriptor.value} is not a Function`);
+  }
   return descriptor;
 };
 
@@ -98,16 +107,17 @@ const ApplyMiddleware = (args: MethodFuncArgument): MethodDecorator => {
 
 const Start = (server: ListenOptions): MethodDecorator => {
   setServer(server);
-  return (target, propertyKey, descriptor) => {
+  return (target: unknown, propertyKey: string | symbol, descriptor) => {
     return descriptor;
   };
 };
 
 const Query = (qid?: string): ParameterDecorator => {
   const exec = qid ? `query.${qid}` : "query";
-  return (target: any, propertyKey: string | symbol) => {
+  // deno-lint-ignore ban-types
+  return (target: Object, propertyKey: string | symbol) => {
     const func = Reflect.getOwnPropertyDescriptor(target, propertyKey)?.value as
-      | Function
+      | (() => void | Promise<void>)
       | undefined;
     if (!func) {
       throw Error("Query decorator can only be used as function parameter");
@@ -119,9 +129,10 @@ const Query = (qid?: string): ParameterDecorator => {
 
 const Param = (pid?: string): ParameterDecorator => {
   const exec = pid ? `params.${pid}` : "params";
-  return (target: any, propertyKey: string | symbol) => {
+  // deno-lint-ignore ban-types
+  return (target: Object, propertyKey: string | symbol) => {
     const func = Reflect.getOwnPropertyDescriptor(target, propertyKey)?.value as
-      | Function
+      | (() => void | Promise<void>)
       | undefined;
     if (!func) {
       throw Error("Query decorator can only be used as function parameter");
@@ -133,9 +144,10 @@ const Param = (pid?: string): ParameterDecorator => {
 
 const Body = (bid?: string): ParameterDecorator => {
   const exec = bid ? `body.value.${bid}` : "body.value";
-  return (target: any, propertyKey: string | symbol) => {
+  // deno-lint-ignore ban-types
+  return (target: Object, propertyKey: string | symbol) => {
     const func = Reflect.getOwnPropertyDescriptor(target, propertyKey)?.value as
-      | Function
+      | (() => void | Promise<void>)
       | undefined;
     if (!func) {
       throw Error("Query decorator can only be used as function parameter");

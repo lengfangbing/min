@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
-import { colors, serve, serveTLS, Status } from "../../deps.ts";
+import {colors, HTTPSOptions, serve, serveTLS, Status} from "../../deps.ts";
 import { Router, RouteValue } from "./router_test.ts";
 import { Middleware } from "../../middleware.ts";
 import { parseAddress } from "../parse/address.ts";
@@ -8,7 +8,7 @@ import {
   HandlerFunc,
   ListenOptions,
   MethodFuncArgument,
-  MiddlewareFunc,
+  MiddlewareFunc, NextFunc,
   Req,
   ReqMethod,
   Res,
@@ -63,7 +63,7 @@ export class Application {
     }
   };
 
-  #parseHandler = (handlers: any[]): RouteHandlers => {
+  #parseHandler = (handlers: MethodFuncArgument): RouteHandlers => {
     if (handlers.length < 1) {
       throw new Error("router has no match url or handler function");
     }
@@ -132,10 +132,10 @@ export class Application {
   }
 
   #composeMiddle = (
-    middleware: Function[],
+    middleware: MethodFuncArgument,
     request: Req,
     response: Res,
-    execFunc: Function | undefined,
+    execFunc: HandlerFunc | undefined,
   ) => {
     if (!Array.isArray(middleware)) {
       throw new TypeError("Middleware must be an array!");
@@ -144,19 +144,19 @@ export class Application {
       let index = -1;
       return dispatch(0);
 
-      async function dispatch(i: number): Promise<any> {
+      async function dispatch(i: number): Promise<unknown> {
         if (i <= index) {
           return Promise.reject(new Error("next() called multiple times"));
         }
         index = i;
-        let fn: Function | undefined = middleware[i];
+        let fn: MiddlewareFunc | undefined = middleware[i];
         if (i === middleware.length) {
           fn = execFunc as HandlerFunc;
           response.status = execFunc ? Status.OK : Status.NotFound;
         }
         try {
           if (fn) {
-            return fn(request, response, dispatch.bind(null, index + 1));
+            return fn(request, response, dispatch.bind(null, index + 1) as NextFunc);
           }
           return fn;
         } catch (err) {
@@ -169,7 +169,7 @@ export class Application {
   #handleRequest = async (request: Req, response: Res) => {
     const { url, method } = request;
     const fv: RouteValue | null = this.#router.find(method, url);
-    let fn: Function | undefined = undefined;
+    let fn: HandlerFunc | undefined = undefined;
     const _m = this.#middleware.getMiddle();
     let m = [..._m];
     if (fv) {
@@ -181,13 +181,20 @@ export class Application {
       m = [...m, ...middleware];
     }
     await this.request.parseBody(request);
+    // 注入参数只能ignore了
+    // deno-lint-ignore ban-ts-comment
+    // @ts-ignore
     response.redirect = response.redirect.bind(globalThis, response);
+    // deno-lint-ignore ban-ts-comment
+    // @ts-ignore
     response.render = response.render.bind(globalThis, response);
     const f = this.#composeMiddle(m, request, response, fn);
     await f.call(globalThis);
     response.send(request, response);
   };
 
+  // 配置文件后续再补充类型
+  // deno-lint-ignore no-explicit-any
   #readConfig = async (config?: any) => {
     // config.constructor === undefined => config = await import('./min.config.ts')
     config = config.constructor ? config : config.default;
@@ -209,7 +216,7 @@ export class Application {
     const isTls = server.secure;
     const protocol = isTls ? "https" : "http";
     try {
-      const Server = isTls ? serveTLS(server as any) : serve(server);
+      const Server = isTls ? serveTLS(server as HTTPSOptions) : serve(server);
       console.log(
         colors.white(
           `server is listening ${protocol}://${server.hostname}:${server.port} `,
@@ -222,6 +229,9 @@ export class Application {
           headers: request.headers,
           request,
         });
+        // 注入参数只能ignore了
+        // deno-lint-ignore ban-ts-comment
+        // @ts-ignore
         const res: Res = Response.createResponse();
         await this.#handleRequest(req, res);
       }
@@ -239,6 +249,8 @@ export class Application {
     await this.#listen();
   }
 
+  // 配置文件后续再补充类型
+  // deno-lint-ignore no-explicit-any
   async start(config: any) {
     await this.#readConfig(config);
     await this.#listen();

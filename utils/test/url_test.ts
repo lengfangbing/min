@@ -5,7 +5,7 @@ const url = "/homed/api/information/detail/v4";
 const url1 = "/homed/api/information/detail/v4/";
 const url3 =
   "/homed/api/information/detail/v4/?name=冷方冰&age=22&location=beijing";
-function timeTest(func: Function) {
+function timeTest(func: () => unknown) {
   const time1 = performance.now();
   func.call(null);
   const time2 = performance.now();
@@ -96,17 +96,17 @@ export function splitPath(path: string) {
 }
 declare global {
   interface Map<K, V> {
-    toObj: Function;
+    toObj: () => Record<string, string>;
   }
 }
 Map.prototype.toObj = function () {
-  const r: Record<string, any> = {};
+  const r: Record<string, string> = {};
   for (const [k, v] of this.entries()) {
     r[k.trim()] = v;
   }
   return r;
 };
-export function parseMapToString(map: Map<any, any>) {
+export function parseMapToString(map: Map<string, string | boolean>) {
   let res = "";
   for (const [k, v] of map.entries()) {
     res += typeof v === "boolean" ? `${k}; ` : `${k}=${v}; `;
@@ -117,7 +117,7 @@ export function parseResponseCookie(options?: Record<string, unknown>) {
   if (!options) return "";
   const res = [];
   for (const i in options) {
-    if (options.hasOwnProperty(i)) {
+    if (Object.prototype.hasOwnProperty.call(options, i)) {
       if (typeof options[i] === "boolean") {
         if (options[i]) res.push(i);
       } else {
