@@ -6,6 +6,7 @@
 [![license](https://img.shields.io/github/license/lengfangbing/min.svg)](https://github.com/lengfangbing/min)
 [![tag](https://img.shields.io/badge/deno->=1.0.0-green.svg)](https://github.com/denoland/deno)
 [![tag](https://img.shields.io/badge/std-0.75.0-green.svg)](https://github.com/denoland/deno)
+## <strong>Now, I'm working on rewrite decorator's usage for more convenient and faster use!</strong>
 ## <strong>it supports decorator now! you could find demos in examples directory~</strong>
 ## introduction
 A framework for Deno's http server, combine Koa's middleware and Express's internal feature. If you are used to using Koa or Express, it'll be easy for you~<br/>
