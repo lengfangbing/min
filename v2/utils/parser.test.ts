@@ -3,7 +3,7 @@ import { Min } from "../type.ts";
 /**
  * 解析uri路径
  * @param {string} uri 需要进行解析的路由路径, need parsed uri
- * @param {boolean} isRouteParse 是否是路由uri解析, 如果是false, 则只需要split, whether the uri is for route, default false
+ * @param {boolean} isRouteParse 是否是路由uri解析, 如果是false, 则只会split, whether the uri is for route, default false
  */
 const parseRouteUri = (uri: string, isRouteParse?: boolean) => {
 	let flagUri = String(uri);
