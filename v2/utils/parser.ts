@@ -1,9 +1,6 @@
 import { Min } from "../type.ts";
-/**
- * 解析路由路径
- * @param {string} u 需要进行解析的路由路径 need parsed uri
- */
-export const parseRouteUri = (u: string) => {
+
+export const parseRouteUri = (u: string, i?: boolean) => {
 	let fu = String(u);
 	while (fu.endsWith('/')) {
 		fu = fu.slice(0, fu.length - 1);
@@ -11,7 +8,11 @@ export const parseRouteUri = (u: string) => {
 	while (fu.startsWith('/')) {
 		fu = fu.slice(1);
 	}
-	return fu.split('/').reduce((p: Min.ParsedRouteUri, c, _index, v: Min.ParsedRouteUri) => {
+	const su = fu.split('/');
+	if (!i) {
+		return su;
+	}
+	return su.reduce((p: Min.ParsedRouteUri, c, _index, v: Min.ParsedRouteUri) => {
 		if (p.length === 0) {
 			v = [];
 		}
