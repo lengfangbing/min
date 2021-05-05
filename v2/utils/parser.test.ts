@@ -1,11 +1,14 @@
 import { assertEquals }  from '../deps.ts';
 import { Min } from "../type.ts";
+
+function parseRouteUri(uri: string): Array<string>;
+function parseRouteUri(uri: string, isRouteParse: boolean): Min.ParsedRouteUri;
 /**
  * 解析uri路径
  * @param {string} uri 需要进行解析的路由路径, need parsed uri
  * @param {boolean} isRouteParse 是否是路由uri解析, 如果是false, 则只会split, whether the uri is for route, default false
  */
-const parseRouteUri = (uri: string, isRouteParse?: boolean) => {
+function parseRouteUri (uri: string, isRouteParse?: boolean) {
 	let flagUri = String(uri);
 	// 对uri进行前后的'/'删除
 	while (flagUri.endsWith('/')) {
@@ -33,7 +36,7 @@ const parseRouteUri = (uri: string, isRouteParse?: boolean) => {
 		}
 		return arr;
 	}, []);
-};
+}
 
 Deno.test({
 	name: 'parse single request uri test case',
