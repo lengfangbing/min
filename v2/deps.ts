@@ -9,8 +9,8 @@
 } from "https://deno.land/std@0.95.0/http/server.ts";
 export { decode, encode } from "https://deno.land/std@0.95.0/encoding/base64.ts";
 export {
-  decode as urlDecode,
-  encode as urlEncode,
+  parse,
+  stringify,
   escape,
   unescape,
 } from "https://deno.land/std@0.95.0/node/querystring.ts";
@@ -23,7 +23,6 @@ export {
   isAbsolute,
   join,
   normalize,
-  parse,
   resolve,
   sep,
 } from "https://deno.land/std@0.95.0/path/mod.ts";
