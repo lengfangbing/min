@@ -1,6 +1,7 @@
 import type { Min } from "./type.ts";
 import { colors } from "../deps.ts";
 import { parseRouteUri } from "./utils/parser.ts";
+import { DYNAMIC_ROUTER_TREE_KEY, GLOBAL_ROUTER_TREE_KEY } from "./constants.ts";
 
 const INIT_ROUTER_TREE = {
   get: {},
@@ -13,11 +14,6 @@ const INIT_ROUTER_TREE = {
   trace: {},
   patch: {},
 } as Min.RouterTree;
-
-// 动态路由的key
-const DYNAMIC_ROUTER_TREE_KEY = "#";
-// 全局路由的key
-const GLOBAL_ROUTER_TREE_KEY = "";
 
 export class Router {
   #tree: Min.RouterTree;
@@ -62,7 +58,6 @@ export class Router {
 				return { replace: false, value: void 0 };
       } else {
         // 如果不是最后一段
-        newTreeNode = newTreeNode[key].next;
 				return { replace: true, value: newTreeNode[key].next };
       }
     } else {
@@ -71,7 +66,6 @@ export class Router {
       if (isLastRouteSlice) {
         // 如果是最后一段, 则把其他的配置项加上, 比如handler, middlewares, dynamicValues等
         newTreeNode[key] = {
-          next: {},
           ...otherOptions,
         };
 				return { replace: false, value: void 0 };
