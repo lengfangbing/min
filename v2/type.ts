@@ -28,7 +28,7 @@ export declare namespace Min {
   // 每一段路由uri的值, every slice route options in router
 	type RouteOptions = {
 		// 当前节点的下一节点, the next tree node under this tree node
-		next: Record<string, RouteOptions>;
+		next?: Record<string, RouteOptions>;
 		// 处理方法, the handler for this match route
 		handler?: HandlerFunc;
 		// 当前节点的中间件, the middleware function for this match route
