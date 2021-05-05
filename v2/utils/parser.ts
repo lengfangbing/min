@@ -13,7 +13,7 @@ export const parseRouteUri = (uri: string, isParse4Route?: boolean) => {
 	while (fu.startsWith('/')) {
 		fu = fu.slice(1);
 	}
-	const su = fu.split('/');
+	const su = fu.split('/').map(item => `/${item}`);
 	if (!isParse4Route) {
 		return su;
 	}
@@ -21,10 +21,10 @@ export const parseRouteUri = (uri: string, isParse4Route?: boolean) => {
 		if (p.length === 0) {
 			v = [];
 		}
-		if (c.startsWith(':')) {
-			v = [...p, { type: 'dynamic', paramName: c.slice(1) }];
-		} else if (c.startsWith('*')) {
-			v = [...p, { type: 'global', paramName: c.slice(1) }];
+		if (c.startsWith('/*')) {
+			v = [...p, { type: 'global', paramName: c.slice(2) }];
+		} else if (c.startsWith('/:')) {
+			v = [...p, { type: 'dynamic', paramName: c.slice(2) }];
 		} else {
 			v = [...p, c];
 		}

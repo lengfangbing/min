@@ -14,7 +14,7 @@ const parseRouteUri = (uri: string, isRouteParse?: boolean) => {
 	while (flagUri.startsWith('/')) {
 		flagUri = flagUri.slice(1);
 	}
-	const splitedUri = flagUri.split('/');
+	const splitedUri = flagUri.split('/').map(item => `/${item}`);
 	// 如果不是路由uri解析, 是普通的请求uri解析
 	if (!isRouteParse) {
 		return splitedUri;
@@ -24,11 +24,11 @@ const parseRouteUri = (uri: string, isRouteParse?: boolean) => {
 		if (prev.length === 0) {
 			arr = [];
 		}
-		if (curr.startsWith(':')) {
-			arr = [...prev, { type: 'dynamic', paramName: curr.slice(1) }];
-		} else if (curr.startsWith('*')) {
-			arr = [...prev, { type: 'global', paramName: curr.slice(1) }];
-		} else {
+		if (curr.startsWith('/*')) {
+			arr = [...prev, { type: 'global', paramName: curr.slice(2) }];
+		} else if (curr.startsWith('/:')) {
+			arr = [...prev, { type: 'dynamic', paramName: curr.slice(2) }];
+		}  else {
 			arr = [...prev, curr];
 		}
 		return arr;
@@ -39,7 +39,7 @@ Deno.test({
 	name: 'parse single request uri test case',
 	fn() {
 		assertEquals(
-			['api', 'v1', 'test'],
+			['/api', '/v1', '/test'],
 			parseRouteUri('api/v1/test'),
 		);
 	}
@@ -49,7 +49,7 @@ Deno.test({
 	name: 'parse single route uri test case',
 	fn() {
 		assertEquals(
-			['api', 'v1', 'test'],
+			['/api', '/v1', '/test'],
 			parseRouteUri('api/v1/test', true),
 		);
 	}
@@ -59,7 +59,7 @@ Deno.test({
 	name: 'parse dynamic request uri test case',
 	fn() {
 		assertEquals(
-			['api', 'v1', ':test'],
+			['/api', '/v1', '/:test'],
 			parseRouteUri('/api/v1/:test'),
 		);
 	}
@@ -69,7 +69,7 @@ Deno.test({
 	name: 'parse dynamic route uri test case',
 	fn() {
 		assertEquals(
-			['api', 'v1', { type: 'dynamic', paramName: 'test' }],
+			['/api', '/v1', { type: 'dynamic', paramName: 'test' }],
 			parseRouteUri('/api/v1/:test', true),
 		);
 	}
@@ -79,7 +79,7 @@ Deno.test({
 	name: 'parse global request uri test case',
 	fn() {
 		assertEquals(
-			['api', 'v1', '*'],
+			['/api', '/v1', '/*'],
 			parseRouteUri('/api/v1/*'),
 		);
 	}
@@ -89,7 +89,7 @@ Deno.test({
 	name: 'parse global route uri test case',
 	fn() {
 		assertEquals(
-			['api', 'v1', { type: 'global', paramName: '' }],
+			['/api', '/v1', { type: 'global', paramName: '' }],
 			parseRouteUri('/api/v1/*', true),
 		);
 	}
