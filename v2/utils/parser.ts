@@ -59,7 +59,6 @@ function parseUriAndQuery<
   T extends Record<string, unknown> = Record<string, unknown>,
 >(uri: string) {
   const [ou, qs = ""] = uri.split("?");
-  console.log(ou, qs);
   return {
     uri: formatUri(ou, "/"),
     query: qs ? parse(qs) as T : {} as T,
