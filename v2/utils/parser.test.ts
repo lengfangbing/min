@@ -93,8 +93,8 @@ Deno.test({
 	name: 'parse global request uri test case',
 	fn() {
 		assertEquals(
-			['api', 'v1', '*'],
-			parseRouteUri('/api/v1/*'),
+			['api', 'v1', '*name'],
+			parseRouteUri('/api/v1/*name'),
 		);
 	}
 });
@@ -103,8 +103,8 @@ Deno.test({
 	name: 'parse global route uri test case',
 	fn() {
 		assertEquals(
-			['api', 'v1', { type: 'global', paramName: '' }],
-			parseRouteUri('/api/v1/*', true),
+			['api', 'v1', { type: 'global', paramName: 'name' }],
+			parseRouteUri('/api/v1/*name', true),
 		);
 	}
 });
@@ -117,7 +117,6 @@ function parseUriAndQuery
 <T extends Record<string, unknown> = Record<string, unknown>>
 (uri: string) {
 	const [originUri, queryString = ''] = uri.split('?');
-	console.log(originUri, queryString);
 	return {
 		uri: formatUri(originUri, '/'),
 		query: queryString ? parse(queryString) as T : {} as T,
