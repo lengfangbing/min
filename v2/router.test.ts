@@ -17,6 +17,17 @@ const INIT_ROUTER_TREE = {
   patch: {},
 } as Min.RouterTree;
 
+// findInLoop的类型
+type FindInLoop = (
+  urls?: Array<string>,
+  map?: Record<string, Min.RouteOptions>,
+) => {
+  handler: Min.HandlerFunc;
+  middleware?: Min.MiddlewareFunc[];
+  dynamicValues?: Record<string, string>;
+  exec?: string[];
+} | undefined;
+
 export class Router {
   #tree: Min.RouterTree;
 
@@ -24,44 +35,154 @@ export class Router {
     this.#tree = INIT_ROUTER_TREE;
   }
 
+  // 回溯查找的方法
+  #backtrackingFindLoop = (func: Array<NonNullable<FindInLoop>>) => {
+    for (let i = func.length - 1; i >= 0; i--) {
+      const res = func[i]();
+      if (res !== void 0) {
+        return res;
+      }
+    }
+    return void 0;
+  };
+
   // 根据提供的map和分割的url数组进行递归查找
-  #findInLoop = (
-    urls: Array<string>,
-    map: Record<string, Min.RouteOptions>,
+  #findInLoop: FindInLoop = (
+    urls?: Array<string>,
+    map?: Record<string, Min.RouteOptions>,
   ) => {
+    if (urls === void 0 || map === void 0) {
+      return void 0;
+    }
     // 查找遵循静态路由优先, 动态路由次之, 全局路由最后的规则
     // 用变量保存下变化的map
     let routeMap = map;
+    // 用变量保存下得到的RouteOptons
+    let findRouteOptions: Min.RouteOptions | undefined = void 0;
+    // 数组保存动态路由和全局路由所有可能的链路, 因为要深度优先, 所以遍历两者从后往前遍历
     // 动态路由保存的执行方法
-    const dynamicFuncs: Array<() => unknown> = [];
+    const dynamicFuncs: Array<FindInLoop> = [];
     // 全局路由保存的执行方法
-    const globalFuncs: Array<() => unknown> = [];
+    const globalFuncs: Array<FindInLoop> = [];
+    // 是否需要回溯查找动态路由和全局路由
+    let needBacktracking = false;
     // 遍历urls进行查找
     for (let i = 0; i < urls.length; i++) {
       const findKey = urls[i];
-      if (i === urls.length) {
-        // 如果是最后一次查找
-        // 如果有findKey这一项并且有handler, 说明这是要查找的静态路由
-        // 直接把静态路由返回就行
-        if (routeMap[findKey] && routeMap[findKey].handler) {
-          return {
-            handler: routeMap[findKey].handler as Min.HandlerFunc,
-            middleware: routeMap[findKey].middleware,
-            params: routeMap[findKey].dynamicValues,
-            exec: routeMap[findKey].exec,
+      // 静态路由查找项
+      const singleRouteOptions = routeMap[findKey];
+      // 动态路由查找项
+      const dynamicRouteOptions = routeMap[DYNAMIC_ROUTER_TREE_KEY];
+      // 全局路由查找项
+      const globalRouteOptions = routeMap[GLOBAL_ROUTER_TREE_KEY];
+      // 如果查到了动态查找项
+      if (dynamicRouteOptions) {
+        dynamicFuncs.push(
+          this.#findInLoop.bind(this, urls.slice(i), {
+            [DYNAMIC_ROUTER_TREE_KEY]: dynamicRouteOptions,
+          }),
+        );
+      }
+      // 如果查到了全局查找项
+      if (globalRouteOptions) {
+        globalFuncs.push(
+          this.#findInLoop.bind(this, urls.slice(i), {
+            [GLOBAL_ROUTER_TREE_KEY]: globalRouteOptions,
+          }),
+        );
+      }
+      // 判断是否查到了静态查找项
+      if (singleRouteOptions) {
+        // 如果查到了静态查找项, 赋值value
+        findRouteOptions = singleRouteOptions;
+        // 如果不是最后一次匹配, 则修改routeMap指向下一个next
+        if (i !== urls.length - 1) {
+          if (singleRouteOptions.next === void 0) {
+            // 如果没有next, 并且当前不是最后一次查找, 那么break掉, 进行回溯查找
+            needBacktracking = true;
+            break;
+          } else {
+            // 如果有next, 因为这不是最后一次匹配, 所以把routeMap指向next进行下一次查找
+            routeMap = singleRouteOptions.next;
           }
         } else {
-          // 如果没有findKey这一项或者没有对应的handler
-          // 则说明静态路由不匹配, 需要查找动态路由和全局路由
-          // @TODO: 可以保存下动态路由和全局路由的相关的urls和map, 然后这里递归执行.
-          // 当然, 也可以想想有没有其他的好的实现方式
+          // 如果是最后一次匹配, 因为前面已经赋值过value, 所以不需要什么操作
+        }
+      } else if (dynamicRouteOptions) {
+        // 如果没查到静态路由但是查到了动态路由
+        findRouteOptions = dynamicRouteOptions;
+        // 如果不是最后一次匹配, 则修改routeMap指向下一个next
+        if (i !== urls.length - 1) {
+          if (dynamicRouteOptions.next === void 0) {
+            // 如果没有next, 并且当前不是最后一次查找, 那么break掉, 进行回溯查找
+            needBacktracking = true;
+            break;
+          } else {
+            // 如果有next, 因为这不是最后一次匹配, 所以把routeMap指向next进行下一次查找
+            routeMap = dynamicRouteOptions.next;
+          }
+        } else {
+          // 如果是最后一次匹配, 因为前面已经赋值过value, 所以不需要什么操作
+        }
+      } else if (globalRouteOptions) {
+        // 如果没查到静态路由也没有查到动态路由但是查到了全局路由
+        findRouteOptions = globalRouteOptions;
+        // 如果不是最后一次匹配, 则修改routeMap指向下一个next
+        if (i !== urls.length - 1) {
+          if (globalRouteOptions.next === void 0) {
+            // 如果没有next, 并且当前不是最后一次查找, 那么break掉, 进行回溯查找
+            needBacktracking = true;
+            break;
+          } else {
+            // 如果有next, 因为这不是最后一次匹配, 所以把routeMap指向next进行下一次查找
+            routeMap = globalRouteOptions.next;
+          }
+        } else {
+          // 如果是最后一次匹配, 因为前面已经赋值过value, 所以不需要什么操作
         }
       } else {
-        // 如果不是最后一次查找
-        // 动态修改routeMap指向找到的next
-        // @TODO: 如果选择保存动态路由和全局路由相关的urls和map, 那么在这里需要手动保存到数组里面
+        // 如果这一次查找三者都没找到, 那么break掉, 进行回溯查找
+        // 如果没找到静态查找项, 则需要回溯查找, break掉去走后面的逻辑
+        needBacktracking = true;
+        break;
       }
     }
+    // 如果needBacktracking是true, 表示在之前查找中发生了next为void 0的情况, 则直接进行回溯查找即可
+    if (needBacktracking) {
+      // 如果需要回溯查找但是回溯查找的两个数组都是空, 则表示不可能有匹配项, 直接返回void 0
+      if (dynamicFuncs.length === 0 && globalFuncs.length === 0) {
+        return void 0;
+      }
+      // 先回溯查找动态路由
+      const dynamicFindRouteOptions = this.#backtrackingFindLoop(dynamicFuncs);
+      if (dynamicFindRouteOptions !== void 0) {
+        // 如果查到了动态路由的匹配项, 那么直接返回了
+        return dynamicFindRouteOptions;
+      }
+      // 没查到动态路由, 查找全局路由
+      const globalFindRouteOptions = this.#backtrackingFindLoop(globalFuncs);
+      if (globalFindRouteOptions) {
+        // 如果查到了全局路由的匹配项, 那么直接返回了
+        return globalFindRouteOptions;
+      }
+    } else {
+      // 如果不需要回溯查找, 那么查看找到的findRouteOptions指向的是否是注册过的路由
+      if (findRouteOptions !== void 0) {
+        // 如果指向的不是空
+        if (findRouteOptions.handler !== void 0) {
+          // 如果有注册过的方法, 那么表示这个RouteOptions是注册过的路由, 直接返回
+          return findRouteOptions as Omit<Min.RouteOptions, 'handler'> & Pick<NonNullable<ReturnType<FindInLoop>>, 'handler'>;
+        } else {
+          // 如果没有注册过的方法, 则表示这个路由是没有注册过的, 直接返回void 0就行
+          return void 0;
+        }
+      } else {
+        // 如果指向的是空, 表示没有找到相应的注册过的路由, 那么返回void 0就行
+        return void 0;
+      }
+    }
+    // 如果回溯查找也是void 0, 则会走到这一步, 表示没有符合的一项, 所以直接返回void 0
+    return void 0;
   };
 
   // 根据uri, method在tree中进行查找, tree默认是内置只读的tree
@@ -81,11 +202,11 @@ export class Router {
       console.log("uri的query: ", query);
       console.log("递归查找的结果: ", findResult);
       // 如果查找到的时空, 则直接返回空
-      if (findResult === null) {
+      if (findResult === void 0) {
         return null;
       }
       // 如果查到了数据, 则进行进一步的处理
-      return 1;
+      return findResult;
     }
     // 如果method不存在, 直接返回null
     return null;
@@ -193,7 +314,7 @@ export class Router {
               GLOBAL_ROUTER_TREE_KEY,
               treeNode,
               index === parsedUri.length - 1,
-              { handler, middleware },
+              { handler, middleware, dynamicValues },
             );
             // 如果需要替换并且value有值
             if (replace && value) {
@@ -222,6 +343,7 @@ function dynamicTestTest() {}
 function dynamicTestTestMiddleware() {}
 function globalTestV1() {}
 function globalTestV1Middleware() {}
+function globalAndDynamicTestV1() {}
 function dynamicTestTestAndV1() {}
 function dynamicTestTestAndV1Middleware() {}
 
@@ -252,9 +374,14 @@ router.add(
 );
 router.add(
   "get",
-  "/api/test/*",
+  "/api/test/*static",
   globalTestV1,
   [globalTestV1Middleware],
+);
+router.add(
+  "get",
+  "/api/:test/*static",
+  globalAndDynamicTestV1,
 );
 
 const findSingle = router.find(
