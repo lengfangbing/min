@@ -36,9 +36,9 @@ export class Router {
   }
 
   // 回溯查找的方法
-  #backtrackingFindLoop = (func: Array<NonNullable<FindInLoop>>) => {
+  #backtrackingFindLoop = (func: Array<{ urls?: Array<string>; map?: Record<string, Min.RouteOptions> }>) => {
     for (let i = func.length - 1; i >= 0; i--) {
-      const res = func[i]();
+      const res = this.#findInLoop(func[i]?.urls, func[i]?.map);
       if (res !== void 0) {
         return res;
       }
@@ -61,9 +61,9 @@ export class Router {
     let findRouteOptions: Min.RouteOptions | undefined = void 0;
     // 数组保存动态路由和全局路由所有可能的链路, 因为要深度优先, 所以遍历两者从后往前遍历
     // 动态路由保存的执行方法
-    const dynamicFuncs: Array<FindInLoop> = [];
+    const dynamicFuncs: Array<{ urls: typeof urls, map: typeof map }> = [];
     // 全局路由保存的执行方法
-    const globalFuncs: Array<FindInLoop> = [];
+    const globalFuncs: Array<{ urls: typeof urls, map: typeof map }> = [];
     // 是否需要回溯查找动态路由和全局路由
     let needBacktracking = false;
     // 遍历urls进行查找
@@ -77,19 +77,21 @@ export class Router {
       const globalRouteOptions = routeMap[GLOBAL_ROUTER_TREE_KEY];
       // 如果查到了动态查找项
       if (dynamicRouteOptions) {
-        dynamicFuncs.push(
-          this.#findInLoop.bind(this, urls.slice(i), {
+        dynamicFuncs.push({
+          urls: urls.slice(i),
+          map: {
             [DYNAMIC_ROUTER_TREE_KEY]: dynamicRouteOptions,
-          }),
-        );
+          }
+        });
       }
       // 如果查到了全局查找项
       if (globalRouteOptions) {
-        globalFuncs.push(
-          this.#findInLoop.bind(this, urls.slice(i), {
+        globalFuncs.push({
+          urls: urls.slice(i),
+          map: {
             [GLOBAL_ROUTER_TREE_KEY]: globalRouteOptions,
-          }),
-        );
+          }
+        });
       }
       // 判断是否查到了静态查找项
       if (singleRouteOptions) {
