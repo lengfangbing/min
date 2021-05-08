@@ -1,10 +1,5 @@
-import type { Min } from "./type.ts";
-import { parseRouteUri, parseUriAndQuery } from "./utils/parser.ts";
-import {
-  DYNAMIC_ROUTER_TREE_KEY,
-  GLOBAL_ROUTER_TREE_KEY,
-} from "./constants.ts";
-
+const DYNAMIC_ROUTER_TREE_KEY = '#';
+const GLOBAL_ROUTER_TREE_KEY = '##';
 const INIT_ROUTER_TREE = {
   get: {},
   post: {},
@@ -15,50 +10,46 @@ const INIT_ROUTER_TREE = {
   connect: {},
   trace: {},
   patch: {},
-} as Min.RouterTree;
-
-// findInLoop的类型
-type FindInLoop = (
-  urls?: Array<string>,
-  map?: Record<string, Min.RouteOptions>,
-) =>
-  | (
-    & Omit<Min.RouteOptions, "handler">
-    & { handler: Min.HandlerFunc }
-  )
-  | undefined;
-
-export class Router {
-  #tree: Min.RouterTree;
+};
+const parseRouteUri = (uri, isRouteParse) => {
+  let flagUri = String(uri);
+  // 对uri进行前后的'/'删除
+  while (flagUri.endsWith('/')) {
+    flagUri = flagUri.slice(0, flagUri.length - 1);
+  }
+  while (flagUri.startsWith('/')) {
+    flagUri = flagUri.slice(1);
+  }
+  const splitedUri = flagUri.split('/');
+  // 如果不是路由uri解析, 是普通的请求uri解析
+  if (!isRouteParse) {
+    return splitedUri;
+  }
+  // 构造解析后的uri数组
+  return splitedUri.reduce((prev, curr, _index, arr) => {
+    if (prev.length === 0) {
+      arr = [];
+    }
+    if (curr.startsWith('*')) {
+      arr = [...prev, { type: 'global', paramName: curr.slice(1) }];
+    } else if (curr.startsWith(':')) {
+      arr = [...prev, { type: 'dynamic', paramName: curr.slice(1) }];
+    } else {
+      arr = [...prev, curr];
+    }
+    return arr;
+  }, []);
+};
+class Router {
+  #tree = void 0;
 
   constructor() {
     this.#tree = INIT_ROUTER_TREE;
   }
-
-  // 构造params的方法
-  #format2Prams = (
-    url: Array<string>,
-    values: Min.RouteOptions["paramsValue"],
-    isGlobal: Min.RouteOptions["isGlobal"],
-  ) => {
-    const res: Record<string, string> = {};
-    if (values === void 0) {
-      return res;
-    }
-    for (const [k, v] of Object.entries(values)) {
-      const numberIndex = Number(k);
-      res[v] = url[numberIndex];
-    }
-  };
-
   // 回溯查找的方法
-  #backtrackingFindLoop = (
-    func: Array<
-      { urls?: Array<string>; map?: Record<string, Min.RouteOptions> }
-    >,
-  ) => {
+  #backtrackingFindLoop = func => {
     for (let i = func.length - 1; i >= 0; i--) {
-      const res = this.#findInLoop(func[i]?.urls, func[i]?.map);
+      const res = this.#findInLoop(func[i].urls, func[i].map);
       if (res !== void 0) {
         return res;
       }
@@ -67,10 +58,8 @@ export class Router {
   };
 
   // 根据提供的map和分割的url数组进行递归查找
-  #findInLoop: FindInLoop = (
-    urls?: Array<string>,
-    map?: Record<string, Min.RouteOptions>,
-  ) => {
+  // eslint-disable-next-line max-lines-per-function
+  #findInLoop = (urls, map) => {
     if (urls === void 0 || map === void 0) {
       return void 0;
     }
@@ -78,9 +67,9 @@ export class Router {
     // 用变量保存下变化的map
     let routeMap = map;
     // 用变量保存下得到的RouteOptons
-    let findRouteOptions: undefined | Min.RouteOptions = void 0;
+    let findRouteOptions = void 0;
     // 回溯的方法
-    const backtrackingFunc: Array<{ urls: typeof urls; map: typeof map }> = [];
+    const backtrackingFunc = [];
     // 是否需要回溯查找动态路由和全局路由
     let needBacktracking = false;
     // 遍历的当前索引
@@ -153,9 +142,7 @@ export class Router {
       if (backtrackingFunc.length === 0) {
         return void 0;
       }
-      const backtrackingRouteOptions = this.#backtrackingFindLoop(
-        backtrackingFunc,
-      );
+      const backtrackingRouteOptions = this.#backtrackingFindLoop(backtrackingFunc);
       if (backtrackingRouteOptions !== void 0) {
         // 如果查到了回溯的匹配项
         return backtrackingRouteOptions;
@@ -166,8 +153,7 @@ export class Router {
         // 如果指向的不是空
         if (findRouteOptions.handler !== void 0) {
           // 如果有注册过的方法, 那么表示这个RouteOptions是注册过的路由, 直接返回
-          // 这里已经保证handler不会是undefined了
-          return findRouteOptions as NonNullable<ReturnType<FindInLoop>>;
+          return findRouteOptions;
         } else {
           // 如果没有注册过的方法, 则表示这个路由是没有注册过的, 直接返回void 0就行
           return void 0;
@@ -182,40 +168,33 @@ export class Router {
   };
 
   // 根据uri, method在tree中进行查找, tree默认是内置只读的tree
-  find(uri: string, method: string) {
+  find(uri, method) {
+    console.time('a');
     // 当前的目标一级RouteOptions
     const targetRouteOptionsRoot = this.#tree[method];
     // 如果options存在
     if (targetRouteOptionsRoot) {
-      const { uri: requestUri, query } = parseUriAndQuery(uri);
-      const routerFindUri = requestUri.slice(1).split("/");
-      const findResult = this.#findInLoop(
-        routerFindUri,
-        targetRouteOptionsRoot,
-      );
-      console.log("要查找的uris: ", routerFindUri);
-      console.log("请求的真实uri: ", requestUri);
-      console.log("uri的query: ", query);
-      console.log("递归查找的结果: ", findResult);
+      const routerFindUri = uri.slice(1).split('/');
+      const findResult = this.#findInLoop(routerFindUri, targetRouteOptionsRoot);
+      // console.log('要查找的uris: ', routerFindUri);
+      // console.log('请求的真实uri: ', uri);
+      // console.log('uri的query: (fake)', {});
+      console.log('递归查找的结果: ', findResult);
       // 如果查找到的时空, 则直接返回空
       if (findResult === void 0) {
+        console.timeEnd('a');
         return null;
       }
-      const { handler, middleware, paramsValue, exec, isGlobal } = findResult;
+      console.timeEnd('a');
       // 如果查到了数据, 则进行进一步的处理
       return findResult;
     }
+    console.timeEnd('a');
     // 如果method不存在, 直接返回null
     return null;
   }
-
   // 用来根据路由key动态增加新的路由或者修改传入的路由指向
-  #updateTreeNode4AddOrReplace = (
-    key: string,
-    newTreeNode: Record<string, Min.RouteOptions>,
-    isLastRouteSlice?: boolean,
-    otherOptions?: Partial<Min.RouteOptions>,
-  ) => {
+  #resolveTreeNode2AddOrPoint = (key, newTreeNode, isLastRouteSlice, otherOptions) => {
     // 如果已经有了这一段uri, 则把treeNode指向这一段uri
     if (newTreeNode[key]) {
       // 需要判断是否是最后一段uri, 如果是最后一段, 则进行写操作, 执行结束
@@ -249,12 +228,7 @@ export class Router {
   };
 
   // 方法类型; 路由uri, 处理方法, 中间件
-  add(
-    method: string,
-    uri: string,
-    handler?: Min.HandlerFunc,
-    middleware?: Array<Min.MiddlewareFunc>,
-  ) {
+  add(method, uri, handler, middleware) {
     // 将method进行忽略大小写操作
     const realMethod = method.toLowerCase();
     // 解析路由uri
@@ -263,26 +237,20 @@ export class Router {
     const tree = this.#tree;
     // 动态拿到下一级的tree node进行操作
     let treeNode = tree[realMethod];
-    // paramsValue, 在增加操作的时候加上
-    let paramsValue: Min.RouteOptions["paramsValue"] = void 0;
+    // 将每一段的dynamicValue保存, 在增加操作的时候加上
+    let dynamicValues = void 0;
     // paramsValue的个数
     let paramsCount = 0;
     // 遍历解析后的路由uri, 进行增加或替换(如果之前已经定义过这个路由的话)
     parsedUri.forEach((item, index) => {
-      if (item === DYNAMIC_ROUTER_TREE_KEY || item === GLOBAL_ROUTER_TREE_KEY) {
-        throw new Error(
-          `dont add '${DYNAMIC_ROUTER_TREE_KEY}' or '${GLOBAL_ROUTER_TREE_KEY}' as a part of route path, use other instead!`,
-        );
-      }
       if (treeNode) {
-        if (typeof item === "string") {
+        if (typeof item === 'string') {
           // 如果是简单路由
-          const { replace, value } = this.#updateTreeNode4AddOrReplace(
-            item,
-            treeNode,
-            index === parsedUri.length - 1,
-            { handler, middleware },
-          );
+          const { replace, value } = this.#resolveTreeNode2AddOrPoint(item, treeNode, index === parsedUri.length - 1, {
+            handler,
+            middleware,
+            paramsCount,
+          });
           // 如果需要替换并且value有值
           if (replace && value) {
             treeNode = value;
@@ -290,43 +258,39 @@ export class Router {
         } else {
           // 如果是动态路由或者全局路由
           const { type, paramName } = item;
-          if (type === "dynamic") {
+          if (type === 'dynamic') {
             // 如果是动态路由
             // 修改动态路由保存的值
-            paramsValue = {
-              ...paramsValue,
+            dynamicValues = {
+              ...dynamicValues,
               [index]: paramName,
             };
-            const { replace, value } = this.#updateTreeNode4AddOrReplace(
-              DYNAMIC_ROUTER_TREE_KEY,
-              treeNode,
-              index === parsedUri.length - 1,
-              { handler, middleware, paramsValue, paramsCount: ++paramsCount },
-            );
+            const { replace, value } = this.#resolveTreeNode2AddOrPoint('#', treeNode, index === parsedUri.length - 1, {
+              handler,
+              middleware,
+              dynamicValues,
+              paramsCount: ++paramsCount
+            });
             // 如果需要替换并且value有值
+            // eslint-disable-next-line max-depth
             if (replace && value) {
               treeNode = value;
             }
           } else {
             // 如果是全局路由
             // 修改动态路由保存的值
-            paramsValue = {
-              ...paramsValue,
+            dynamicValues = {
+              ...dynamicValues,
               [index]: paramName,
             };
-            const { replace, value } = this.#updateTreeNode4AddOrReplace(
-              GLOBAL_ROUTER_TREE_KEY,
+            const { replace, value } = this.#resolveTreeNode2AddOrPoint(
+              '##',
               treeNode,
               index === parsedUri.length - 1,
-              {
-                handler,
-                middleware,
-                paramsValue,
-                isGlobal: true,
-                paramsCount: ++paramsCount,
-              },
+              { handler, middleware, dynamicValues, isGlobal: true, paramsCount: ++paramsCount },
             );
             // 如果需要替换并且value有值
+            // eslint-disable-next-line max-depth
             if (replace && value) {
               treeNode = value;
             }
@@ -335,6 +299,7 @@ export class Router {
       } else {
         // treeNode无效
         throw new Error(
+          // eslint-disable-next-line max-len
           `${method} is not supported, occured during adding ${uri} route, if you still have questions, please open an issue, :)`,
         );
       }
@@ -356,61 +321,13 @@ function globalTestV1Middleware() {}
 function globalAndDynamicTestV1() {}
 function dynamicTestTestAndV1() {}
 function dynamicTestTestAndV1Middleware() {}
-function testRoot() {}
-function testOnlyTest() {}
 
 const router = new Router();
-router.add(
-  "get",
-  "/api/test/v1",
-  singleTest,
-  [singleTestMiddleware],
-);
-router.add(
-  "get",
-  "/api/test/:v1",
-  dynamicTestV1,
-  [dynamicTestV1Middleware],
-);
-router.add(
-  "get",
-  "/api/:test/v1",
-  dynamicTestTest,
-  [dynamicTestTestMiddleware],
-);
-router.add(
-  "get",
-  "/api/:test/:v1",
-  dynamicTestTestAndV1,
-  [dynamicTestTestAndV1Middleware],
-);
-router.add(
-  "get",
-  "/api/test/*static",
-  globalTestV1,
-  [globalTestV1Middleware],
-);
-router.add(
-  "get",
-  "/api/:test/*static",
-  globalAndDynamicTestV1,
-);
-router.add(
-  "get",
-  "/",
-  testRoot,
-);
-router.add(
-  "get",
-  "/api/test",
-  testOnlyTest,
-);
-
-const onlyTestUri = "/api/test";
-const rootUrl = "/";
-const singTestUri = "/api/test/v1?name=lfb&age=456";
-const testV1Uri = "/api/test/v12431/?fruit=apple&fruit=banana&name=unknown";
-const testTestUri = "/api/test1231/v1";
-const testTestAndV1Uri = "/api/test123/v213";
-const globalTestV1Uri = "/api/test/123/532";
-const globalTestDynamicTestV1Uri = "/api/test123/647/658";
+router.add('get', '/api/test/v1', singleTest, [singleTestMiddleware]);
+router.add('get', '/api/test/:v1', dynamicTestV1, [dynamicTestV1Middleware]);
+router.add('get', '/api/:test/v1', dynamicTestTest, [dynamicTestTestMiddleware]);
+router.add('get', '/api/:test/:v1', dynamicTestTestAndV1, [dynamicTestTestAndV1Middleware]);
+router.add('get', '/api/test/*static', globalTestV1, [globalTestV1Middleware]);
+router.add('get', '/api/:test/*static', globalAndDynamicTestV1);
+router.add('get', '/', function testRoot() {});
+router.add('get', '/api/test', function testOnlyTest() {});
