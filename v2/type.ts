@@ -33,10 +33,14 @@ export declare namespace Min {
 		handler?: HandlerFunc;
 		// 当前节点的中间件, the middleware function for this match route
 		middleware?: Array<MiddlewareFunc>;
-		// 动态路由的kv, key是第几位, v是注册路由时的value, dynamic routes [key: string]: value, key is index
-		dynamicValues?: Record<string, string>;
+		// 动态路由和全局路由的kv, key是第几位, v是注册路由时的value, dynamic and global route [key: string]: value, key is index
+		paramsValue?: Record<string, string>;
+		// 动态路由和全局路由值的个数, dynamic and global route values count
+		paramsCount?: number;
 		// 手动处理装饰器的调用顺序和值, use for decorator, save the execution expression
 		exec?: Array<string>;
+		// 是否是全局路由
+		isGlobal?: boolean;
 	};
 	// 匹配到路由的处理方法, handler function's type
 	type HandlerFunc = (...args: Array<unknown>) => Promise<void> | void;
