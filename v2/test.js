@@ -229,6 +229,7 @@ class Router {
 
   // 方法类型; 路由uri, 处理方法, 中间件
   add(method, uri, handler, middleware) {
+    debugger;
     // 将method进行忽略大小写操作
     const realMethod = method.toLowerCase();
     // 解析路由uri
@@ -250,6 +251,7 @@ class Router {
             handler,
             middleware,
             paramsCount,
+            dynamicValues,
           });
           // 如果需要替换并且value有值
           if (replace && value) {
@@ -323,11 +325,11 @@ function dynamicTestTestAndV1() {}
 function dynamicTestTestAndV1Middleware() {}
 
 const router = new Router();
-router.add('get', '/api/test/v1', singleTest, [singleTestMiddleware]);
-router.add('get', '/api/test/:v1', dynamicTestV1, [dynamicTestV1Middleware]);
+// router.add('get', '/api/test/v1', singleTest, [singleTestMiddleware]);
+// router.add('get', '/api/test/:v1', dynamicTestV1, [dynamicTestV1Middleware]);
 router.add('get', '/api/:test/v1', dynamicTestTest, [dynamicTestTestMiddleware]);
-router.add('get', '/api/:test/:v1', dynamicTestTestAndV1, [dynamicTestTestAndV1Middleware]);
-router.add('get', '/api/test/*static', globalTestV1, [globalTestV1Middleware]);
-router.add('get', '/api/:test/*static', globalAndDynamicTestV1);
-router.add('get', '/', function testRoot() {});
-router.add('get', '/api/test', function testOnlyTest() {});
+// router.add('get', '/api/:test/:v1', dynamicTestTestAndV1, [dynamicTestTestAndV1Middleware]);
+// router.add('get', '/api/test/*static', globalTestV1, [globalTestV1Middleware]);
+// router.add('get', '/api/:test/*static', globalAndDynamicTestV1);
+// router.add('get', '/', function testRoot() {});
+// router.add('get', '/api/test', function testOnlyTest() {});

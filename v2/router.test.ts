@@ -37,19 +37,36 @@ export class Router {
   }
 
   // 构造params的方法
-  #format2Prams = (
-    url: Array<string>,
+  #format2Prams = ({
+    uri,
+    values,
+    isGlobal,
+    count,
+  }: {
+    uri: Array<string>,
     values: Min.RouteOptions["paramsValue"],
     isGlobal: Min.RouteOptions["isGlobal"],
-  ) => {
+    count: Min.RouteOptions['paramsCount']
+  }) => {
     const res: Record<string, string> = {};
     if (values === void 0) {
       return res;
     }
+    // 当前处理的个数, 如果和count相等, 表示是处理的最后一个
+    let index = 0;
     for (const [k, v] of Object.entries(values)) {
+      index++;
       const numberIndex = Number(k);
-      res[v] = url[numberIndex];
+      if (index === count) {
+        // 表示是处理的最后一个数据, 判断是不是全局查找的, 如果是就把剩余的url给join'/'处理
+        if (isGlobal) {
+          res[v] = uri.slice(numberIndex).join('/');
+          continue;
+        }
+      }
+      res[v] = uri[numberIndex];
     }
+    return res;
   };
 
   // 回溯查找的方法
@@ -202,12 +219,20 @@ export class Router {
       if (findResult === void 0) {
         return null;
       }
-      const { handler, middleware, paramsValue, exec, isGlobal } = findResult;
+      const { handler, middleware, paramsValue, exec, isGlobal, paramsCount } = findResult;
       // 如果查到了数据, 则进行进一步的处理
       return {
-        ...findResult,
         query,
-        url: requestUri
+        url: requestUri,
+        params: this.#format2Prams({
+          uri: routerFindUri,
+          values: paramsValue,
+          count: paramsCount,
+          isGlobal,
+        }),
+        middleware,
+        handler,
+        exec,
       };
     }
     // 如果method不存在, 直接返回null
@@ -286,7 +311,7 @@ export class Router {
             item,
             treeNode,
             index === parsedUri.length - 1,
-            { handler, middleware },
+            { handler, middleware, paramsValue },
           );
           // 如果需要替换并且value有值
           if (replace && value) {
@@ -459,6 +484,13 @@ Deno.test({
 });
 
 Deno.test({
+  name: 'testDynamicV1Params',
+  fn() {
+    assertEquals(findGet(testV1Uri)?.params, { v1: 'v12431' });
+  }
+});
+
+Deno.test({
   name: 'testDynamicV1Query',
   fn() {
     assertEquals(findGet(testV1Uri)?.query, { name: 'unknown', fruit: ['apple', 'banana'] });
@@ -473,9 +505,23 @@ Deno.test({
 });
 
 Deno.test({
+  name: 'testDynamicTestParams',
+  fn() {
+    assertEquals(findGet(testTestUri)?.params, { test: 'test1231' });
+  }
+});
+
+Deno.test({
   name: 'testDynamicTestV1',
   fn() {
     assertEquals(findGet(testTestAndV1Uri)?.handler, dynamicTestTestAndV1);
+  }
+});
+
+Deno.test({
+  name: 'testDynamicTestV1Params',
+  fn() {
+    assertEquals(findGet(testTestAndV1Uri)?.params, { test: 'test123', v1: 'v213' });
   }
 });
 
@@ -490,6 +536,13 @@ Deno.test({
   name: 'testDynamicTestGlobalV1',
   fn() {
     assertEquals(findGet(globalTestDynamicTestV1Uri)?.handler, globalAndDynamicTestV1);
+  }
+});
+
+Deno.test({
+  name: 'testDynamicTestGlobalV1Params',
+  fn() {
+    assertEquals(findGet(globalTestDynamicTestV1Uri)?.params, { test: 'test123', 'static': '647/658' });
   }
 });
 
