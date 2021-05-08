@@ -4,6 +4,7 @@ import {
   DYNAMIC_ROUTER_TREE_KEY,
   GLOBAL_ROUTER_TREE_KEY,
 } from "./constants.ts";
+import { assertEquals } from "./deps.ts";
 
 const INIT_ROUTER_TREE = {
   get: {},
@@ -193,17 +194,21 @@ export class Router {
         routerFindUri,
         targetRouteOptionsRoot,
       );
-      console.log("要查找的uris: ", routerFindUri);
-      console.log("请求的真实uri: ", requestUri);
-      console.log("uri的query: ", query);
-      console.log("递归查找的结果: ", findResult);
+      // console.log("要查找的uris: ", routerFindUri);
+      // console.log("请求的真实uri: ", requestUri);
+      // console.log("uri的query: ", query);
+      // console.log("递归查找的结果: ", findResult);
       // 如果查找到的时空, 则直接返回空
       if (findResult === void 0) {
         return null;
       }
       const { handler, middleware, paramsValue, exec, isGlobal } = findResult;
       // 如果查到了数据, 则进行进一步的处理
-      return findResult;
+      return {
+        ...findResult,
+        query,
+        url: requestUri
+      };
     }
     // 如果method不存在, 直接返回null
     return null;
@@ -345,8 +350,8 @@ export class Router {
 /**
  * test case
  */
-function singleTest() {}
-function singleTestMiddleware() {}
+function simpleTest() {}
+function simpleTestMiddleware() {}
 function dynamicTestV1() {}
 function dynamicTestV1Middleware() {}
 function dynamicTestTest() {}
@@ -363,8 +368,8 @@ const router = new Router();
 router.add(
   "get",
   "/api/test/v1",
-  singleTest,
-  [singleTestMiddleware],
+  simpleTest,
+  [simpleTestMiddleware],
 );
 router.add(
   "get",
@@ -407,10 +412,90 @@ router.add(
 );
 
 const onlyTestUri = "/api/test";
-const rootUrl = "/";
-const singTestUri = "/api/test/v1?name=lfb&age=456";
+const rootUri = "/";
+const simpleTestUri = "/api/test/v1?name=lfb&age=456";
 const testV1Uri = "/api/test/v12431/?fruit=apple&fruit=banana&name=unknown";
 const testTestUri = "/api/test1231/v1";
 const testTestAndV1Uri = "/api/test123/v213";
 const globalTestV1Uri = "/api/test/123/532";
 const globalTestDynamicTestV1Uri = "/api/test123/647/658";
+const errorTestUri = '/api';
+
+const findGet = (uri: string) => router.find(uri, 'get');
+
+Deno.test({
+  name: 'testRoot',
+  fn() {
+    assertEquals(findGet(rootUri)?.handler, testRoot);
+  }
+});
+
+Deno.test({
+  name: 'testOnlyTest',
+  fn() {
+    assertEquals(findGet(onlyTestUri)?.handler, testOnlyTest);
+  }
+});
+
+Deno.test({
+  name: 'testSimple',
+  fn() {
+    assertEquals(findGet(simpleTestUri)?.handler, simpleTest);
+  }
+});
+
+Deno.test({
+  name: 'testSimpleQuery',
+  fn() {
+    assertEquals(findGet(simpleTestUri)?.query, { name: 'lfb', age: '456' });
+  }
+});
+
+Deno.test({
+  name: 'testDynamicV1',
+  fn() {
+    assertEquals(findGet(testV1Uri)?.handler, dynamicTestV1);
+  }
+});
+
+Deno.test({
+  name: 'testDynamicV1Query',
+  fn() {
+    assertEquals(findGet(testV1Uri)?.query, { name: 'unknown', fruit: ['apple', 'banana'] });
+  }
+});
+
+Deno.test({
+  name: 'testDynamicTest',
+  fn() {
+    assertEquals(findGet(testTestUri)?.handler, dynamicTestTest);
+  }
+});
+
+Deno.test({
+  name: 'testDynamicTestV1',
+  fn() {
+    assertEquals(findGet(testTestAndV1Uri)?.handler, dynamicTestTestAndV1);
+  }
+});
+
+Deno.test({
+  name: 'testGlobalV1',
+  fn() {
+    assertEquals(findGet(globalTestV1Uri)?.handler, globalTestV1);
+  }
+});
+
+Deno.test({
+  name: 'testDynamicTestGlobalV1',
+  fn() {
+    assertEquals(findGet(globalTestDynamicTestV1Uri)?.handler, globalAndDynamicTestV1);
+  }
+});
+
+Deno.test({
+  name: 'testError',
+  fn() {
+    assertEquals(findGet(errorTestUri), null);
+  }
+});
