@@ -191,7 +191,7 @@ export class Router {
   // 根据uri, method在tree中进行查找, tree默认是内置只读的tree
   find(uri: string, method: string) {
     // 当前的目标一级RouteOptions
-    const targetRouteOptionsRoot = this.#tree[method];
+    const targetRouteOptionsRoot = this.#tree[method.toLowerCase()];
     // 如果options存在
     if (targetRouteOptionsRoot) {
       const { uri: requestUri, query } = parseUriAndQuery(uri);
