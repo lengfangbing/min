@@ -1,15 +1,3 @@
-// 支持的路由类型, route method support
-export enum RouteMethod {
-  Get,
-  Post,
-  Put,
-  Delete,
-  Options,
-  Head,
-  Connect,
-  Trace,
-  Patch,
-}
 export declare namespace Min {
   // 路由类型
   namespace Router {
@@ -67,8 +55,8 @@ export declare namespace Min {
       handler: Min.Router.HandlerFunc;
       exec: string[];
     };
-    // Router的类型
-    interface Router {
+    // Router的对外暴露的类型定义
+    class Router {
       /**
        * 添加路由的方法. method to add route
        * @param {string} method 添加的方法类型. route method
