@@ -19,14 +19,14 @@ const INIT_ROUTER_TREE = {
 } as Min.Router.Tree;
 
 export class Router implements Min.Router.Router {
-  #tree: Min.Router.Tree;
+  private tree: Min.Router.Tree;
 
   constructor() {
-    this.#tree = INIT_ROUTER_TREE;
+    this.tree = INIT_ROUTER_TREE;
   }
 
   // 构造params的方法
-  #format2Prams = ({
+  private format2Prams = ({
     uri,
     values,
     isGlobal,
@@ -59,13 +59,13 @@ export class Router implements Min.Router.Router {
   };
 
   // 回溯查找的方法
-  #backtrackingFindLoop = (
+  private backtrackingFindLoop = (
     func: Array<
       { urls?: Array<string>; map?: Record<string, Min.Router.ItemOptions> }
     >,
   ) => {
     for (let i = func.length - 1; i >= 0; i--) {
-      const res = this.#findInLoop(func[i]?.urls, func[i]?.map);
+      const res = this.findInLoop(func[i]?.urls, func[i]?.map);
       if (res !== void 0) {
         return res;
       }
@@ -74,7 +74,7 @@ export class Router implements Min.Router.Router {
   };
 
   // 根据提供的map和分割的url数组进行递归查找
-  #findInLoop: Min.Router.FindInLoop = (
+  private findInLoop: Min.Router.FindInLoop = (
     urls?: Array<string>,
     map?: Record<string, Min.Router.ItemOptions>,
   ) => {
@@ -160,7 +160,7 @@ export class Router implements Min.Router.Router {
       if (backtrackingFunc.length === 0) {
         return void 0;
       }
-      const backtrackingRouteOptions = this.#backtrackingFindLoop(
+      const backtrackingRouteOptions = this.backtrackingFindLoop(
         backtrackingFunc,
       );
       if (backtrackingRouteOptions !== void 0) {
@@ -191,12 +191,12 @@ export class Router implements Min.Router.Router {
   // 根据uri, method在tree中进行查找, tree默认是内置只读的tree
   find(uri: string, method: string) {
     // 当前的目标一级RouteOptions
-    const targetRouteOptionsRoot = this.#tree[method.toLowerCase()];
+    const targetRouteOptionsRoot = this.tree[method.toLowerCase()];
     // 如果options存在
     if (targetRouteOptionsRoot) {
       const { uri: requestUri, query } = parseUriAndQuery(uri);
       const routerFindUri = requestUri.slice(1).split("/");
-      const findResult = this.#findInLoop(
+      const findResult = this.findInLoop(
         routerFindUri,
         targetRouteOptionsRoot,
       );
@@ -213,7 +213,7 @@ export class Router implements Min.Router.Router {
       return {
         query,
         url: requestUri,
-        params: this.#format2Prams({
+        params: this.format2Prams({
           uri: routerFindUri,
           values: paramsValue,
           count: paramsCount,
@@ -229,7 +229,7 @@ export class Router implements Min.Router.Router {
   }
 
   // 用来根据路由key动态增加新的路由或者修改传入的路由指向
-  #updateTreeNode4AddOrReplace = (
+  private updateTreeNode4AddOrReplace = (
     key: string,
     newTreeNode: Record<string, Min.Router.ItemOptions>,
     isLastRouteSlice?: boolean,
@@ -279,7 +279,7 @@ export class Router implements Min.Router.Router {
     // 解析路由uri
     const parsedUri = parseRouteUri(uri, true);
     // 对tree进行动态增加
-    const tree = this.#tree;
+    const tree = this.tree;
     // 动态拿到下一级的tree node进行操作
     let treeNode = tree[realMethod];
     // paramsValue, 在增加操作的时候加上
@@ -296,7 +296,7 @@ export class Router implements Min.Router.Router {
       if (treeNode) {
         if (typeof item === "string") {
           // 如果是简单路由
-          const { replace, value } = this.#updateTreeNode4AddOrReplace(
+          const { replace, value } = this.updateTreeNode4AddOrReplace(
             item,
             treeNode,
             index === parsedUri.length - 1,
@@ -316,7 +316,7 @@ export class Router implements Min.Router.Router {
               ...paramsValue,
               [index]: paramName,
             };
-            const { replace, value } = this.#updateTreeNode4AddOrReplace(
+            const { replace, value } = this.updateTreeNode4AddOrReplace(
               DYNAMIC_ROUTER_TREE_KEY,
               treeNode,
               index === parsedUri.length - 1,
@@ -333,7 +333,7 @@ export class Router implements Min.Router.Router {
               ...paramsValue,
               [index]: paramName,
             };
-            const { replace, value } = this.#updateTreeNode4AddOrReplace(
+            const { replace, value } = this.updateTreeNode4AddOrReplace(
               GLOBAL_ROUTER_TREE_KEY,
               treeNode,
               index === parsedUri.length - 1,
