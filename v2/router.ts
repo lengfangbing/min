@@ -24,37 +24,36 @@ export class Router {
     this.#tree = INIT_ROUTER_TREE;
   }
 
-  // 构造params的方法
   #format2Prams = ({
-    uri,
-    values,
-    isGlobal,
-    count,
+    u,
+    val,
+    g,
+    c,
   }: {
-    uri: Array<string>,
-    values: Min.Router.ItemOptions["paramsValue"],
-    isGlobal: Min.Router.ItemOptions["isGlobal"],
-    count: Min.Router.ItemOptions['paramsCount']
+    u: Array<string>,
+    val: Min.Router.ItemOptions["paramsValue"],
+    g: Min.Router.ItemOptions["isGlobal"],
+    c: Min.Router.ItemOptions['paramsCount']
   }) => {
-    const res: Record<string, string> = {};
-    if (values === void 0) {
-      return res;
+    const r: Record<string, string> = {};
+    if (val === void 0) {
+      return r;
     }
     // 当前处理的个数, 如果和count相等, 表示是处理的最后一个
-    let index = 0;
-    for (const [k, v] of Object.entries(values)) {
-      index++;
-      const numberIndex = Number(k);
-      if (index === count) {
+    let i = 0;
+    for (const [k, v] of Object.entries(val)) {
+      i++;
+      const n = Number(k);
+      if (i === c) {
         // 表示是处理的最后一个数据, 判断是不是全局查找的, 如果是就把剩余的url给join'/'处理
-        if (isGlobal) {
-          res[v] = uri.slice(numberIndex).join('/');
+        if (g) {
+          r[v] = u.slice(n).join('/');
           continue;
         }
       }
-      res[v] = uri[numberIndex];
+      r[v] = u[n];
     }
-    return res;
+    return r;
   };
 
   // 回溯查找的方法
@@ -213,10 +212,10 @@ export class Router {
         query,
         url: requestUri,
         params: this.#format2Prams({
-          uri: routerFindUri,
-          values: paramsValue,
-          count: paramsCount,
-          isGlobal,
+          u: routerFindUri,
+          val: paramsValue,
+          c: paramsCount,
+          g: isGlobal,
         }),
         middleware,
         handler,
