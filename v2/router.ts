@@ -24,7 +24,7 @@ export class Router {
     this.#tree = INIT_ROUTER_TREE;
   }
 
-  #format2Prams = ({
+  #f2p = ({
     u,
     val,
     g,
@@ -211,7 +211,7 @@ export class Router {
       return {
         query,
         url: requestUri,
-        params: this.#format2Prams({
+        params: this.#f2p({
           u: routerFindUri,
           val: paramsValue,
           c: paramsCount,
