@@ -116,7 +116,7 @@ Deno.test({
 function parseUriAndQuery
 <T extends Record<string, unknown> = Record<string, unknown>>
 (uri: string) {
-	const [originUri, queryString = ''] = uri.split('?');
+	const [originUri, queryString] = uri.split('?');
 	return {
 		uri: formatUri(originUri, '/'),
 		query: queryString ? parse(queryString) as T : {} as T,
