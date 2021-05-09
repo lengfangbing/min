@@ -39,13 +39,11 @@ export class Router {
     if (val === void 0) {
       return r;
     }
-    // 当前处理的个数, 如果和count相等, 表示是处理的最后一个
     let i = 0;
     for (const [k, v] of Object.entries(val)) {
       i++;
       const n = Number(k);
       if (i === c) {
-        // 表示是处理的最后一个数据, 判断是不是全局查找的, 如果是就把剩余的url给join'/'处理
         if (g) {
           r[v] = u.slice(n).join('/');
           continue;
