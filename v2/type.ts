@@ -58,6 +58,33 @@ export declare namespace Min {
         & { handler: Min.Router.HandlerFunc }
       )
       | undefined;
+    // 查找的返回数据类型
+    type FindResult = {
+      query: Record<string, unknown>;
+      url: string;
+      params: Record<string, string>;
+      middleware: Min.Router.MiddlewareFunc[];
+      handler: Min.Router.HandlerFunc;
+      exec: string[];
+    };
+    // Router的类型
+    interface Router {
+      /**
+       * 添加路由的方法. method to add route
+       * @param {string} method 添加的方法类型. route method
+       * @param {string} uri 添加的uri. route uri
+       * @param {Min.Router.HandlerFunc} [handler] 该路由的处理函数. route handler
+       * @param {Array<Min.Router.MiddlewareFunc>} [middleware] 该路由的中间件. route middleware 
+       */
+      add(method: string, uri: string, handler?: Min.Router.HandlerFunc, middleware?: Array<Min.Router.MiddlewareFunc>): void;
+      /**
+       * 查找路由的方法. method to find route
+       * @param {string} uri 要查找的uri. target uri
+       * @param {string} method 要查找的请求方法类型. target method
+       * @returns {FindResult | null} 返回的数据类型, 查不到返回null. return FindResult is exists, or null
+       */
+      find(uri: string, method: string): FindResult | null;
+    }
   }
 
   // url解析类型

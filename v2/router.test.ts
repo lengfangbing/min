@@ -18,7 +18,7 @@ const INIT_ROUTER_TREE = {
   patch: {},
 } as Min.Router.Tree;
 
-export class Router {
+export class Router implements Min.Router.Router {
   #tree: Min.Router.Tree;
 
   constructor() {
