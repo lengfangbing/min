@@ -20,7 +20,7 @@ function formatUri(uri: string, startSeq = '', endSeq = '') {
 }
 
 function parseRouteUri(uri: string): Array<string>;
-function parseRouteUri(uri: string, isRouteParse: boolean): Min.ParsedRouteUri;
+function parseRouteUri(uri: string, isRouteParse: boolean): Min.Parser.RouteUri;
 /**
  * 解析uri路径
  * @param {string} uri 需要进行解析的路由路径, need parsed uri
@@ -34,7 +34,7 @@ function parseRouteUri (uri: string, isRouteParse?: boolean) {
 		return splitedUri;
 	}
 	// 构造解析后的uri数组
-	return splitedUri.reduce((prev: Min.ParsedRouteUri, curr, _index, arr: Min.ParsedRouteUri) => {
+	return splitedUri.reduce((prev: Min.Parser.RouteUri, curr, _index, arr: Min.Parser.RouteUri) => {
 		if (prev.length === 0) {
 			arr = [];
 		}

@@ -20,7 +20,7 @@ function formatUri(uri: string, startSeq = "", endSeq = "") {
 }
 
 function parseRouteUri(uri: string): Array<string>;
-function parseRouteUri(uri: string, isRouteParse: boolean): Min.ParsedRouteUri;
+function parseRouteUri(uri: string, isRouteParse: boolean): Min.Parser.RouteUri;
 
 /**
  * 解析uri路径
@@ -34,7 +34,7 @@ function parseRouteUri(uri: string, isParse4Route?: boolean) {
     return su;
   }
   return su.reduce(
-    (p: Min.ParsedRouteUri, c, _index, v: Min.ParsedRouteUri) => {
+    (p: Min.Parser.RouteUri, c, _index, v: Min.Parser.RouteUri) => {
       if (p.length === 0) {
         v = [];
       }
