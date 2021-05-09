@@ -54,16 +54,15 @@ export class Router {
     return r;
   };
 
-  // 回溯查找的方法
-  #backtrackingFindLoop = (
-    func: Array<
+  #bfl = (
+    f: Array<
       { urls?: Array<string>; map?: Record<string, Min.Router.ItemOptions> }
     >,
   ) => {
-    for (let i = func.length - 1; i >= 0; i--) {
-      const res = this.#findInLoop(func[i]?.urls, func[i]?.map);
-      if (res !== void 0) {
-        return res;
+    for (let i = f.length - 1; i >= 0; i--) {
+      const r = this.#findInLoop(f[i]?.urls, f[i]?.map);
+      if (r !== void 0) {
+        return r;
       }
     }
     return void 0;
@@ -156,7 +155,7 @@ export class Router {
       if (backtrackingFunc.length === 0) {
         return void 0;
       }
-      const backtrackingRouteOptions = this.#backtrackingFindLoop(
+      const backtrackingRouteOptions = this.#bfl(
         backtrackingFunc,
       );
       if (backtrackingRouteOptions !== void 0) {
