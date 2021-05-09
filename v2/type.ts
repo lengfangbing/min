@@ -1,7 +1,7 @@
 export declare namespace Min {
-  // 路由类型
+  // 路由类型. Router's namespace
   namespace Router {
-    // 路由树, route tree
+    // 路由树. route tree
     type Tree = {
       get: Record<string, ItemOptions>;
       post: Record<string, ItemOptions>;
@@ -15,28 +15,28 @@ export declare namespace Min {
       // 对于不支持的路由, 直接忽略掉即可, 加上这个类型是为了方便动态查找
       [key: string]: Record<string, ItemOptions> | undefined;
     };
-    // 每一段路由uri的值, every slice route options in router
+    // 每一段路由uri的值. every slice route options in router
     type ItemOptions = {
-      // 当前节点的下一节点, the next tree node under this tree node
+      // 当前节点的下一节点. the next tree node under this tree node
       next?: Record<string, ItemOptions>;
-      // 处理方法, the handler for this match route
+      // 处理方法. the handler for this match route
       handler?: HandlerFunc;
-      // 当前节点的中间件, the middleware function for this match route
+      // 当前节点的中间件. the middleware function for this match route
       middleware?: Array<MiddlewareFunc>;
-      // 动态路由和全局路由的kv, key是第几位, v是注册路由时的value, dynamic and global route [key: string]: value, key is index
+      // 动态路由和全局路由的kv, key是第几位, v是注册路由时的value. dynamic and global route [key: string]: value, key is index
       paramsValue?: Record<string, string>;
-      // 动态路由和全局路由值的个数, dynamic and global route values count
+      // 动态路由和全局路由值的个数. dynamic and global route values count
       paramsCount?: number;
-      // 手动处理装饰器的调用顺序和值, use for decorator, save the execution expression
+      // 手动处理装饰器的调用顺序和值. use for decorator, save the execution expression
       exec?: Array<string>;
-      // 是否是全局路由
+      // 是否是全局路由. whether is global route
       isGlobal?: boolean;
     };
-    // 匹配到路由的处理方法, handler function's type
+    // 匹配到路由的处理方法. handler function's type
     type HandlerFunc = (...args: Array<unknown>) => Promise<void> | void;
-    // 中间件的处理方法, middlewares' functions' type
+    // 中间件的处理方法. middlewares' functions' type
     type MiddlewareFunc = (...args: Array<unknown>) => Promise<void> | void;
-    // 递归查找方法的类型
+    // 递归查找方法的类型. define recursion find function type
     type FindInLoop = (
       urls?: Array<string>,
       map?: Record<string, Min.Router.ItemOptions>,
@@ -46,7 +46,7 @@ export declare namespace Min {
         & { handler: Min.Router.HandlerFunc }
       )
       | undefined;
-    // 查找的返回数据类型
+    // 查找的返回数据类型. define find function type is exists route
     type FindResult = {
       query: Record<string, unknown>;
       url: string;
@@ -55,7 +55,7 @@ export declare namespace Min {
       handler: Min.Router.HandlerFunc;
       exec: string[];
     };
-    // Router的对外暴露的类型定义
+    // Router的对外暴露的类型定义. define class Router properties type
     class Router {
       /**
        * 添加路由的方法. method to add route
@@ -69,15 +69,15 @@ export declare namespace Min {
        * 查找路由的方法. method to find route
        * @param {string} uri 要查找的uri. target uri
        * @param {string} method 要查找的请求方法类型. target method
-       * @returns {FindResult | null} 返回的数据类型, 查不到返回null. return FindResult is exists, or null
+       * @returns {FindResult | null} 返回的数据类型. 查不到返回null. return FindResult is exists, or null
        */
       find(uri: string, method: string): FindResult | null;
     }
   }
 
-  // url解析类型
+  // url解析类型. Parser's namespace
   namespace Parser {
-    // 路由路径解析后的值, value parsed route uri
+    // 路由路径解析后的值. value parsed route uri
     type RouteUri = Array<
       | string
       | {
@@ -85,7 +85,7 @@ export declare namespace Min {
         paramName: string;
       }
     >;
-    // 路由路径解析复杂类型的类型, type parsed route uri to check this is a dynamic(:) route or global(*) route
+    // 路由路径解析复杂类型的类型. type parsed route uri to check this is a dynamic(:) route or global(*) route
     type RouteUriTypeStr = "dynamic" | "global";
   }
 }
