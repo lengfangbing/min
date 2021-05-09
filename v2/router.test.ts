@@ -219,7 +219,7 @@ export class Router {
       if (findResult === void 0) {
         return null;
       }
-      const { handler, middleware, paramsValue, exec, isGlobal, paramsCount } = findResult;
+      const { handler, middleware = [], paramsValue, exec = [], isGlobal, paramsCount } = findResult;
       // 如果查到了数据, 则进行进一步的处理
       return {
         query,
