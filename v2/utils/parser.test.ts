@@ -7,7 +7,7 @@ import type { Min } from "../type.ts";
  * @param {string} [startSeq] 在默认的格式前面添加的字符, seq add before default uri
  * @param {string} [endSeq]  在默认的格式后面添加的字符, seq append default uri
  */
-function formatUri(uri: string, startSeq = '', endSeq = '') {
+export function formatUri(uri: string, startSeq = '', endSeq = '') {
 	let flagUri = String(uri);
 	// 对uri进行前后的'/'删除
 	while (flagUri.endsWith('/')) {
@@ -19,14 +19,14 @@ function formatUri(uri: string, startSeq = '', endSeq = '') {
 	return `${startSeq}${flagUri}${endSeq}`;
 }
 
-function parseRouteUri(uri: string): Array<string>;
-function parseRouteUri(uri: string, isRouteParse: boolean): Min.Parser.RouteUri;
+export function parseRouteUri(uri: string): Array<string>;
+export function parseRouteUri(uri: string, isRouteParse: boolean): Min.Parser.RouteUri;
 /**
  * 解析uri路径
  * @param {string} uri 需要进行解析的路由路径, need parsed uri
  * @param {boolean} [isRouteParse] 是否是路由uri解析, 如果是false, 则只会split, whether the uri is for route, default false
  */
-function parseRouteUri (uri: string, isRouteParse?: boolean) {
+export function parseRouteUri (uri: string, isRouteParse?: boolean) {
 	const flagUri = formatUri(uri);
 	const splitedUri = flagUri.split('/');
 	// 如果不是路由uri解析, 是普通的请求uri解析
@@ -113,7 +113,7 @@ Deno.test({
  * 解析请求的uri和query
  * @param {string} uri 要解析的uri, uri need parsed
  */
-function parseUriAndQuery
+export function parseUriAndQuery
 <T extends Record<string, unknown> = Record<string, unknown>>
 (uri: string) {
 	const [originUri, queryString] = uri.split('?');

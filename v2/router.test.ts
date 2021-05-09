@@ -1,5 +1,5 @@
 import type { Min } from "./type.ts";
-import { parseRouteUri, parseUriAndQuery } from "./utils/parser.ts";
+import { parseRouteUri, parseUriAndQuery } from "./utils/parser.test.ts";
 import {
   DYNAMIC_ROUTER_TREE_KEY,
   GLOBAL_ROUTER_TREE_KEY,
