@@ -7,6 +7,7 @@
   ServerRequest,
   serveTLS,
 } from "https://deno.land/std@0.95.0/http/server.ts";
+export { getCookies, deleteCookie, setCookie } from "https://deno.land/std@0.95.0/http/cookie.ts";
 export { decode, encode } from "https://deno.land/std@0.95.0/encoding/base64.ts";
 export {
   parse,
@@ -40,6 +41,9 @@ export { assertEquals }  from 'https://deno.land/std@0.95.0/testing/asserts.ts';
   HTTPSOptions,
   Response,
 } from "https://deno.land/std@0.95.0/http/server.ts";
+export type {
+  Cookie
+} from "https://deno.land/std@0.95.0/http/cookie.ts";
 export type {
   FormFile,
 } from "https://deno.land/std@0.95.0/mime/multipart.ts";
