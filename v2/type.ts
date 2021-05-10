@@ -1,6 +1,9 @@
 import { ServerRequest, Response, Cookie, Status, FormFile } from "./deps.ts";
 
 export declare namespace Min {
+  // 通用的JSON的value的type和value
+  type JsonValueType = string | number | Array<unknown> | Record<string, unknown> | null | unknown;
+  type JsonValue<T extends Record<string, JsonValueType> = Record<string, unknown>> = T;
   // 路由类型. Router's namespace
   namespace Router {
     // 允许的方法
@@ -117,6 +120,6 @@ export declare namespace Min {
       files?: Array<FormFile>;
     };
     // 封装的返回的body类型. response body internal
-    type ResponseBody = string | number | Uint8Array | Deno.Reader | Record<string, unknown>;
+    type ResponseBody<T extends Response['body'] | JsonValue = string> = T;
   }
 }
