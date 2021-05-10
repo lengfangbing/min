@@ -1,3 +1,5 @@
+import { ServerRequest, Response, Cookie, Status, FormFile } from "./deps.ts";
+
 export declare namespace Min {
   // 路由类型. Router's namespace
   namespace Router {
@@ -86,5 +88,35 @@ export declare namespace Min {
     >;
     // 路由路径解析复杂类型的类型. type parsed route uri to check this is a dynamic(:) route or global(*) route
     type RouteUriTypeStr = "dynamic" | "global";
+  }
+
+  // Application, 主应用程序. Application's namespace
+  namespace Application {
+    // 上下文变量
+    type Ctx = {
+      originRequest: ServerRequest; // Deno的http服务的原生请求. deno http service origin request
+      originResponse: Response; // Deno的http服务的原生请求, 除非你知道自己在干什么, 否则不建议使用该属性进行设置. deno https service origin response, dont use it if you know what youre doing
+      request: { // 自定义的request, 封装后的request. Application created a simple and convenient request
+        query: Record<string, unknown>;
+        url: string;
+        params: Record<string, string>;
+        headers: Headers;
+        cookie: Cookie;
+        body: RequestBody;
+      };
+      response: { // 自定义的response, 封装后的response。 Application created a simple and convenient response
+        headers?: Headers;
+        body?: ResponseBody;
+        status?: Status;
+        cookie?: Cookie;
+      }
+    }
+    // 封装的请求的body类型. request body internal
+    type RequestBody<T = unknown> = {
+      value: T;
+      files?: Array<FormFile>;
+    };
+    // 封装的返回的body类型. response body internal
+    type ResponseBody = string | number | Uint8Array | Deno.Reader | Record<string, unknown>;
   }
 }
