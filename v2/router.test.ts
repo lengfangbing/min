@@ -7,15 +7,12 @@ import {
 import { assertEquals } from "./deps.ts";
 
 const INIT_ROUTER_TREE = {
-  get: {},
-  post: {},
-  put: {},
-  delete: {},
-  options: {},
-  head: {},
-  connect: {},
-  trace: {},
-  patch: {},
+  GET: {},
+  POST: {},
+  PUT: {},
+  DELETE: {},
+  OPTIONS: {},
+  PATCH: {},
 } as Min.Router.Tree;
 
 export class Router implements Min.Router.Router {
@@ -189,9 +186,9 @@ export class Router implements Min.Router.Router {
   };
 
   // 根据uri, method在tree中进行查找, tree默认是内置只读的tree
-  find(uri: string, method: string) {
+  find(uri: string, method: Min.Router.Method) {
     // 当前的目标一级RouteOptions
-    const targetRouteOptionsRoot = this.tree[method.toLowerCase()];
+    const targetRouteOptionsRoot = this.tree[method.toUpperCase()];
     // 如果options存在
     if (targetRouteOptionsRoot) {
       const { uri: requestUri, query } = parseUriAndQuery(uri);
@@ -269,13 +266,13 @@ export class Router implements Min.Router.Router {
 
   // 方法类型; 路由uri, 处理方法, 中间件
   add(
-    method: string,
+    method: Min.Router.Method,
     uri: string,
     handler?: Min.Router.HandlerFunc,
     middleware?: Array<Min.Router.MiddlewareFunc>,
   ) {
     // 将method进行忽略大小写操作
-    const realMethod = method.toLowerCase();
+    const realMethod = method.toUpperCase();
     // 解析路由uri
     const parsedUri = parseRouteUri(uri, true);
     // 对tree进行动态增加
@@ -380,47 +377,47 @@ function testOnlyTest() {}
 
 const router = new Router();
 router.add(
-  "get",
+  "GET",
   "/api/test/v1",
   simpleTest,
   [simpleTestMiddleware],
 );
 router.add(
-  "get",
+  "GET",
   "/api/test/:v1",
   dynamicTestV1,
   [dynamicTestV1Middleware],
 );
 router.add(
-  "get",
+  "GET",
   "/api/:test/v1",
   dynamicTestTest,
   [dynamicTestTestMiddleware],
 );
 router.add(
-  "get",
+  "GET",
   "/api/:test/:v1",
   dynamicTestTestAndV1,
   [dynamicTestTestAndV1Middleware],
 );
 router.add(
-  "get",
+  "GET",
   "/api/test/*static",
   globalTestV1,
   [globalTestV1Middleware],
 );
 router.add(
-  "get",
+  "GET",
   "/api/:test/*static",
   globalAndDynamicTestV1,
 );
 router.add(
-  "get",
+  "GET",
   "/",
   testRoot,
 );
 router.add(
-  "get",
+  "GET",
   "/api/test",
   testOnlyTest,
 );
@@ -435,7 +432,7 @@ const globalTestV1Uri = "/api/test/123/532";
 const globalTestDynamicTestV1Uri = "/api/test123/647/658";
 const errorTestUri = '/api';
 
-const findGet = (uri: string) => router.find(uri, 'get');
+const findGet = (uri: string) => router.find(uri, 'GET');
 
 Deno.test({
   name: 'testRoot',

@@ -6,15 +6,12 @@ import {
 } from "./constants.ts";
 
 const INIT_ROUTER_TREE = {
-  get: {},
-  post: {},
-  put: {},
-  delete: {},
-  options: {},
-  head: {},
-  connect: {},
-  trace: {},
-  patch: {},
+  GET: {},
+  POST: {},
+  PUT: {},
+  DELETE: {},
+  OPTIONS: {},
+  PATCH: {},
 } as Min.Router.Tree;
 
 export class Router implements Min.Router.Router {
@@ -149,8 +146,8 @@ export class Router implements Min.Router.Router {
     return void 0;
   };
 
-  find(uri: string, method: string) {
-    const targetRouteOptionsRoot = this.tree[method.toLowerCase()];
+  find(uri: string, method: Min.Router.Method) {
+    const targetRouteOptionsRoot = this.tree[method.toUpperCase()];
     if (targetRouteOptionsRoot) {
       const { uri: requestUri, query } = parseUriAndQuery(uri);
       const routerFindUri = requestUri.slice(1).split("/");
@@ -211,12 +208,12 @@ export class Router implements Min.Router.Router {
   };
 
   add(
-    method: string,
+    method: Min.Router.Method,
     uri: string,
     handler?: Min.Router.HandlerFunc,
     middleware?: Array<Min.Router.MiddlewareFunc>,
   ) {
-    const realMethod = method.toLowerCase();
+    const realMethod = method.toUpperCase();
     const parsedUri = parseRouteUri(uri, true);
     const tree = this.tree;
     let treeNode = tree[realMethod];

@@ -1,17 +1,16 @@
 export declare namespace Min {
   // 路由类型. Router's namespace
   namespace Router {
+    // 允许的方法
+    type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS';
     // 路由树. route tree
     type Tree = {
-      get: Record<string, ItemOptions>;
-      post: Record<string, ItemOptions>;
-      put: Record<string, ItemOptions>;
-      delete: Record<string, ItemOptions>;
-      options: Record<string, ItemOptions>;
-      head: Record<string, ItemOptions>;
-      connect: Record<string, ItemOptions>;
-      trace: Record<string, ItemOptions>;
-      patch: Record<string, ItemOptions>;
+      GET: Record<string, ItemOptions>;
+      POST: Record<string, ItemOptions>;
+      PUT: Record<string, ItemOptions>;
+      DELETE: Record<string, ItemOptions>;
+      OPTIONS: Record<string, ItemOptions>;
+      PATCH: Record<string, ItemOptions>;
       // 对于不支持的路由, 直接忽略掉即可, 加上这个类型是为了方便动态查找
       [key: string]: Record<string, ItemOptions> | undefined;
     };
@@ -59,19 +58,19 @@ export declare namespace Min {
     class Router {
       /**
        * 添加路由的方法. method to add route
-       * @param {string} method 添加的方法类型. route method
+       * @param {Method} method 添加的方法类型. route method
        * @param {string} uri 添加的uri. route uri
        * @param {Min.Router.HandlerFunc} [handler] 该路由的处理函数. route handler
        * @param {Array<Min.Router.MiddlewareFunc>} [middleware] 该路由的中间件. route middleware 
        */
-      add(method: string, uri: string, handler?: Min.Router.HandlerFunc, middleware?: Array<Min.Router.MiddlewareFunc>): void;
+      add(method: Method, uri: string, handler?: Min.Router.HandlerFunc, middleware?: Array<Min.Router.MiddlewareFunc>): void;
       /**
        * 查找路由的方法. method to find route
        * @param {string} uri 要查找的uri. target uri
-       * @param {string} method 要查找的请求方法类型. target method
+       * @param {Method} method 要查找的请求方法类型. target method
        * @returns {FindResult | null} 返回的数据类型. 查不到返回null. return FindResult is exists, or null
        */
-      find(uri: string, method: string): FindResult | null;
+      find(uri: string, method: Method): FindResult | null;
     }
   }
 
