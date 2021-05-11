@@ -102,6 +102,7 @@ export declare namespace Min {
       readonly request: { // 自定义的request, 封装后的request. Application created a simple and convenient request
         query: Record<string, unknown>;
         url: string;
+        method: string;
         params: Record<string, string>;
         readonly headers: Headers;
         // cookie: Record<string, string>;

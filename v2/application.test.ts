@@ -16,6 +16,7 @@ export class Application {
 				query: {},
         url: '',
         params: {},
+				method: req.method,
         headers: req.headers,
         // cookie: getCookies(req),
         body: {
@@ -44,6 +45,8 @@ export class Application {
 		}
 	}
 }
+
+new Application().start();
 
 /**
  * test case
