@@ -14,7 +14,7 @@ export class Application {
 			originResponse: {},
 			request: {
 				query: {},
-        url: '',
+        url: req.url,
         params: {},
 				method: req.method,
         headers: req.headers,
