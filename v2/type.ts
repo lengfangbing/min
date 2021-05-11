@@ -97,25 +97,25 @@ export declare namespace Min {
   namespace Application {
     // 上下文变量
     type Ctx = {
-      originRequest: ServerRequest; // Deno的http服务的原生请求. deno http service origin request
-      originResponse: Response; // Deno的http服务的原生请求, 除非你知道自己在干什么, 否则不建议使用该属性进行设置. deno https service origin response, dont use it if you know what youre doing
-      request: { // 自定义的request, 封装后的request. Application created a simple and convenient request
+      readonly originRequest: ServerRequest; // Deno的http服务的原生请求. deno http service origin request
+      readonly originResponse: Response; // Deno的http服务的原生请求, 除非你知道自己在干什么, 否则不建议使用该属性进行设置. deno https service origin response, dont use it if you know what youre doing
+      readonly request: { // 自定义的request, 封装后的request. Application created a simple and convenient request
         query: Record<string, unknown>;
         url: string;
         params: Record<string, string>;
-        headers: Headers;
-        cookie: Cookie;
+        readonly headers: Headers;
+        // cookie: Record<string, string>;
         body: RequestBody;
       };
-      response: { // 自定义的response, 封装后的response。 Application created a simple and convenient response
-        headers?: Headers;
-        body?: ResponseBody;
-        status?: Status;
-        cookie?: Cookie;
+      readonly response: { // 自定义的response, 封装后的response。 Application created a simple and convenient response
+        headers: Headers;
+        body: ResponseBody;
+        status: Status;
+        // cookie: Record<string, string>;
       }
     }
     // 封装的请求的body类型. request body internal
-    type RequestBody<T = unknown> = {
+    type RequestBody<T = null> = {
       value: T;
       files?: Array<FormFile>;
     };
