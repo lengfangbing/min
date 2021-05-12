@@ -1,4 +1,4 @@
-import { ServerRequest, Response, Cookie, Status, FormFile } from "./deps.ts";
+import { ServerRequest, Response, Status, FormFile } from "./deps.ts";
 
 export declare namespace Min {
   // 通用的JSON的value的type和value
@@ -39,7 +39,7 @@ export declare namespace Min {
     // 匹配到路由的处理方法. handler function's type
     type HandlerFunc = (...args: Array<unknown>) => Promise<void> | void;
     // 中间件的处理方法. middlewares' functions' type
-    type MiddlewareFunc = (...args: Array<unknown>) => Promise<void> | void;
+    type MiddlewareFunc = Min.Middleware.MiddlewareFunc;
     // 递归查找方法的类型. define recursion find function type
     type FindInLoop = (
       urls?: Array<string>,
@@ -122,5 +122,11 @@ export declare namespace Min {
     };
     // 封装的返回的body类型. response body internal
     type ResponseBody<T extends Response['body'] | JsonValue = string> = T;
+  }
+
+  // Middleware, 中间件
+  namespace Middleware {
+    // 中间件方法
+    type MiddlewareFunc = (ctx: Min.Application.Ctx, next: MiddlewareFunc) => Promise<void>;
   }
 }
