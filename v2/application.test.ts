@@ -41,7 +41,7 @@ export class Application {
 		for await (const request of server) {
 			const originRequest = request;
 			const ctx = this.#createCtx(originRequest);
-			await new Request().handleRequest(originRequest, ctx);
+			await new Request().handleRequest(ctx);
 		}
 	}
 }
