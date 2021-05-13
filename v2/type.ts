@@ -122,6 +122,7 @@ export declare namespace Min {
       files?: Array<FormFile>;
     };
     // 封装的返回的body类型. response body internal
+    // @TODO: 修改返回的body根据file, json, text进行处理
     type ResponseBody<T extends Response['body'] | JsonValue = string> = T;
   }
 
