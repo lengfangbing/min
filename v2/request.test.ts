@@ -23,15 +23,15 @@ export class Request {
 	}
 
 	// 针对数组进行顺序的执行
-	#composeExecMiddleware = (middle: Array<Min.Middleware.MiddlewareFunc>) => {
+	#composeExecMiddleware = (middle: Array<Min.Middleware.MiddlewareFunc>, handler: Min.Router.HandlerFunc) => {
 		// 摘自https://github.com/koajs/compose/blob/25568a36509fefc58914bc2a7600f787b16aa0df/index.js#L19
 		// references https://github.com/koajs/compose/blob/25568a36509fefc58914bc2a7600f787b16aa0df/index.js#L19
-		return function (ctx: Min.Application.Ctx, next: Min.Middleware.MiddlewareFunc) {
+		return function (ctx: Min.Application.Ctx) {
 			// 当前取值的索引
 			let index = -1;
 			// 默认执行方法
 			return dispatch(0);
-			function dispatch(i: number): Promise<void> {
+			async function dispatch(i: number): Promise<void> {
 				// 错误检测, 同一个中间件内只能调用一次await next方法
 				if (i <= index) {
 					return Promise.reject(new Error('next() called multiple times'));
@@ -39,20 +39,20 @@ export class Request {
 				// 赋值当前取值的索引
 				index = i;
 				// 取到当前的执行方法
-				let fn = middle[i];
+				const fn = middle[i];
 				if (i === middle.length) {
 					// 最后一个的时候, 因为也会取值next, 这时next会是undefined, 就表示是最后一个了
-					fn = next;
+					await handler();
 				}
 				// 这里加判断是因为可能是上面的fn最后一个执行下一个方法的next为undefined, 需要结束执行
 				// 还可能是取到的方法就是空
 				// 如果是空, 直接返回执行结束
 				if (!fn) {
-					return Promise.resolve();
+					return await void 0;
 				}
 				try {
 					// 这是下一个中间件的方法, 被bind绑定了
-					return Promise.resolve(fn(ctx, dispatch.bind(null, i + 1)));
+					return await fn(ctx, dispatch.bind(null, i + 1));
 				} catch (err) {
 					return Promise.reject(err)
 				}
@@ -63,13 +63,13 @@ export class Request {
 	// 针对findRoute和ctx进行操作
 	#handleRouteCtx = async (route: Min.Router.FindResult, ctx: Min.Application.Ctx) => {
 		const { handler, middleware, exec, query, params, url } = route;
-		// 执行完全局的中间件
-		await this.#composeExecMiddleware(this.middleware);
+		// @TODO: 根据exec构造真正的路由处理方法
 		// 赋值ctx
 		ctx.request.params = params;
 		ctx.request.url = url;
 		ctx.request.query = query;
-		await 1;
+		// 执行完全局的中间件和处理函数
+		await this.#composeExecMiddleware(this.middleware, handler);
 	}
 
 	// 获取原生req和赋值ctx的request的处理方法
