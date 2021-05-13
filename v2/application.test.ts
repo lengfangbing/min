@@ -20,6 +20,7 @@ export class Application {
         headers: req.headers,
         // cookie: getCookies(req),
         body: {
+					type: 'text',
 					value: null,
 				},
 			},
