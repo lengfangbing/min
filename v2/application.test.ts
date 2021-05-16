@@ -2,13 +2,16 @@ import { serve, ServerRequest, Status, assertEquals } from './deps.ts';
 import { Request } from './request.test.ts';
 import type { Min } from './type.ts';
 
+// type alias
+export type Ctx = Min.Application.Ctx;
+
 const PORT = 3000;
 const HOST = '127.0.0.1';
 
 export class Application {
 	#DEFAULT_STATUS = Status.NotFound;
 	// 创建上下文变量Ctx
-	#createCtx = (req: ServerRequest): Min.Application.Ctx => {
+	#createCtx = (req: ServerRequest): Ctx => {
 		return {
 			originRequest: req,
 			originResponse: {},
