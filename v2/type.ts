@@ -129,6 +129,12 @@ export declare namespace Min {
   // Middleware, 中间件
   namespace Middleware {
     // 中间件方法
-    type MiddlewareFunc = (ctx: Min.Application.Ctx, next: MiddlewareFunc) => Promise<void>;
+    type MiddlewareFunc = (ctx: Min.Application.Ctx, next: MiddlewareFunc) => Promise<void> | void;
+  }
+
+  // mime type
+  namespace Mime {
+    // 通用的检测content类型
+    type MidiaTypeArray = Array<string>;
   }
 }
