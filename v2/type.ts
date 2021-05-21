@@ -116,9 +116,9 @@ export declare namespace Min {
       }
     }
     // 封装的请求的body类型. request body internal
-    type RequestBody<T = null> = {
-      type: 'form' | 'text' | 'json' | 'multipart';
-      value: T;
+    type RequestBody<T = unknown> = {
+      type: 'form' | 'text' | 'json' | 'multipart' | 'unit8array';
+      value?: T;
       files?: Array<FormFile>;
     };
     // 封装的返回的body类型. response body internal
