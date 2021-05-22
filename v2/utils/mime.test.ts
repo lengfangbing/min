@@ -222,7 +222,7 @@ export async function parseUint8Array(ctx: Min.Application.Ctx) {
 }
 
 Deno.test({
-  name: "test parse form data",
+  name: "test parse form-data",
   async fn() {
     const testFormData = await Deno.open(join(Deno.cwd(), '../test_files/multipart.txt'));
     const ctx = {
@@ -259,7 +259,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: 'test parse form',
+  name: 'test parse form data',
   async fn() {
     const ctx = {
       originRequest: {
@@ -274,7 +274,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: 'test parse text',
+  name: 'test parse text data',
   async fn() {
     const ctx = {
       originRequest: {
@@ -289,7 +289,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: 'test parse uint8array',
+  name: 'test parse uint8array data',
   async fn() {
     const ctx = {
       originRequest: {
