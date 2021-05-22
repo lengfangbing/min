@@ -34,7 +34,6 @@ export function mimeTypeIs(ctx: Min.Application.Ctx) {
   // 优先级 Json > Form > Multipart > Text
   parse: {
     if (contentType === null) {
-      type.Text = true;
       break parse;
     }
     if (MIME_JSON.includes(contentType)) {
