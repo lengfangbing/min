@@ -1,4 +1,5 @@
 import { assertEquals, parse }  from '../deps.ts';
+import { mimeTypeIs, parseForm, parseFormData, parseJson, parseText, parseUint8Array } from "./mime.test.ts";
 import type { Min } from "../type.ts";
 
 /**
@@ -208,3 +209,23 @@ Deno.test({
 		);
 	}
 });
+
+export async function parseRequestBody(ctx: Min.Application.Ctx) {
+	// 判断当前请求体是什么类型
+	const typeIs = mimeTypeIs(ctx);
+	// 根据content-type的类型就行解析
+	if (typeIs.Multipart) {
+		await parseFormData(ctx);
+	} else {
+		
+		if (typeIs.Json) {
+			await parseJson(ctx);
+		} else if (typeIs.Form) {
+			await parseForm(ctx);
+		} else if (typeIs.Text) {
+			await parseText(ctx);
+		} else {
+			await parseUint8Array(ctx);
+		}
+	}
+}
