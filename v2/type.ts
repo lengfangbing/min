@@ -116,8 +116,9 @@ export declare namespace Min {
       }
     }
     // 封装的请求的body类型. request body internal
-    type RequestBody<T = unknown> = {
-      type: 'form' | 'text' | 'json' | 'multipart' | 'unit8array';
+    // deno-lint-ignore no-explicit-any
+    type RequestBody<T = any> = {
+      type: 'form' | 'text' | 'json' | 'multipart' | 'uint8array';
       value?: T;
       files?: Array<FormFile>;
     };
