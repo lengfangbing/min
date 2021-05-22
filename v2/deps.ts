@@ -15,6 +15,7 @@ export {
   escape,
   unescape,
 } from "https://deno.land/std@0.97.0/node/querystring.ts";
+export { StringReader } from 'https://deno.land/std@0.97.0/io/readers.ts';
 export {
   MultipartReader,
 } from "https://deno.land/std@0.97.0/mime/multipart.ts";
