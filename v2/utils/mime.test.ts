@@ -36,19 +36,19 @@ export function mimeTypeIs(ctx: Min.Application.Ctx) {
     if (contentType === null) {
       break parse;
     }
-    if (MIME_JSON.includes(contentType)) {
+    if (MIME_JSON.some(item => contentType.startsWith(item))) {
       type.Json = true;
       break parse;
     }
-    if (MIME_FORM.includes(contentType)) {
+    if (MIME_FORM.some(item => contentType.startsWith(item))) {
       type.Form = true;
       break parse;
     }
-    if (MIME_MULTIPART.includes(contentType)) {
+    if (MIME_MULTIPART.some(item => contentType.startsWith(item))) {
       type.Multipart = true;
       break parse;
     }
-    if (MIME_TEXT.includes(contentType)) {
+    if (MIME_TEXT.some(item => contentType.startsWith(item))) {
       type.Text = true;
       break parse;
     }
