@@ -24,7 +24,8 @@ export class Application {
         // cookie: getCookies(req),
         body: {
 					type: 'text',
-					value: null,
+					value: void 0,
+					files: void 0,
 				},
 			},
 			response: {
