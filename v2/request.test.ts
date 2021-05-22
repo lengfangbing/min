@@ -1,5 +1,6 @@
 import { Router } from './router.test.ts';
 import { Status } from './deps.ts';
+import { parseRequestBody } from "./utils/parser.test.ts";
 import type { Min } from './type.ts';
 
 export class Request {
@@ -68,6 +69,7 @@ export class Request {
 		ctx.request.params = params;
 		ctx.request.url = url;
 		ctx.request.query = query;
+		await parseRequestBody(ctx);
 		// 执行完全局的中间件和处理函数
 		await this.#composeExecMiddleware(this.middleware, handler);
 	}
