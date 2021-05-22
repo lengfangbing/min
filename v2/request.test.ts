@@ -24,7 +24,10 @@ export class Request {
 	}
 
 	// 针对数组进行顺序的执行
-	#composeExecMiddleware = (middle: Array<Min.Middleware.MiddlewareFunc>, handler: Min.Router.HandlerFunc) => {
+	#composeExecMiddleware = (
+		middle: Array<Min.Middleware.MiddlewareFunc>,
+		handler: Min.Router.HandlerFunc,
+	) => {
 		// 摘自https://github.com/koajs/compose/blob/25568a36509fefc58914bc2a7600f787b16aa0df/index.js#L19
 		// references https://github.com/koajs/compose/blob/25568a36509fefc58914bc2a7600f787b16aa0df/index.js#L19
 		return function (ctx: Min.Application.Ctx) {
@@ -61,8 +64,17 @@ export class Request {
 		}
 	}
 
+	// 根据exec和handler解析真正执行的handler
+	#getHandler = async (
+		originHandler: Min.Router.FindResult['handler'],
+		exec: Min.Router.FindResult['exec'],
+		ctx: Min.Application.Ctx,
+	): Min.Router.HandlerFunc => {
+
+	};
+
 	// 针对findRoute和ctx进行操作
-	#handleRouteCtx = async (route: Min.Router.FindResult, ctx: Min.Application.Ctx) => {
+	#handleRoute4Ctx = async (route: Min.Router.FindResult, ctx: Min.Application.Ctx) => {
 		const { handler, middleware, exec, query, params, url } = route;
 		// @TODO: 根据exec构造真正的路由处理方法
 		// 赋值ctx
@@ -70,8 +82,9 @@ export class Request {
 		ctx.request.url = url;
 		ctx.request.query = query;
 		await parseRequestBody(ctx);
+		const realHandler = this.#getHandler(handler, exec, ctx);
 		// 执行完全局的中间件和处理函数
-		await this.#composeExecMiddleware(this.middleware, handler);
+		await this.#composeExecMiddleware(this.middleware.concat(middleware), realHandler);
 	}
 
 	// 获取原生req和赋值ctx的request的处理方法
@@ -81,7 +94,7 @@ export class Request {
 		// 如果找到了这个路由
 		if (findRoute) {
 			// 等执行完成之后再对ctx进行response操作
-			await this.#handleRouteCtx(findRoute, ctx);
+			await this.#handleRoute4Ctx(findRoute, ctx);
 		} else {
 			// 没找到路由设置status为404
 			ctx.response.status = Status.NotFound;
