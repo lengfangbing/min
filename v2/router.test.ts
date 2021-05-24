@@ -29,10 +29,10 @@ export class Router implements Min.Router.Router {
     isGlobal,
     count,
   }: {
-    uri: Array<string>,
-    values: Min.Router.ItemOptions["paramsValue"],
-    isGlobal: Min.Router.ItemOptions["isGlobal"],
-    count: Min.Router.ItemOptions['paramsCount']
+    uri: Array<string>;
+    values: Min.Router.ItemOptions["paramsValue"];
+    isGlobal: Min.Router.ItemOptions["isGlobal"];
+    count: Min.Router.ItemOptions["paramsCount"];
   }) => {
     const res: Record<string, string> = {};
     if (values === void 0) {
@@ -46,7 +46,7 @@ export class Router implements Min.Router.Router {
       if (index === count) {
         // 表示是处理的最后一个数据, 判断是不是全局查找的, 如果是就把剩余的url给join'/'处理
         if (isGlobal) {
-          res[v] = uri.slice(numberIndex).join('/');
+          res[v] = uri.slice(numberIndex).join("/");
           continue;
         }
       }
@@ -171,7 +171,9 @@ export class Router implements Min.Router.Router {
         if (findRouteOptions.handler !== void 0) {
           // 如果有注册过的方法, 那么表示这个RouteOptions是注册过的路由, 直接返回
           // 这里已经保证handler不会是undefined了
-          return findRouteOptions as NonNullable<ReturnType<Min.Router.FindInLoop>>;
+          return findRouteOptions as NonNullable<
+            ReturnType<Min.Router.FindInLoop>
+          >;
         } else {
           // 如果没有注册过的方法, 则表示这个路由是没有注册过的, 直接返回void 0就行
           return void 0;
@@ -205,7 +207,14 @@ export class Router implements Min.Router.Router {
       if (findResult === void 0) {
         return null;
       }
-      const { handler, middleware = [], paramsValue, exec = [], isGlobal, paramsCount } = findResult;
+      const {
+        handler,
+        middleware = [],
+        paramsValue,
+        exec = [],
+        isGlobal,
+        paramsCount,
+      } = findResult;
       // 如果查到了数据, 则进行进一步的处理
       return {
         query,
@@ -430,111 +439,123 @@ const testTestUri = "/api/test1231/v1";
 const testTestAndV1Uri = "/api/test123/v213";
 const globalTestV1Uri = "/api/test/123/532";
 const globalTestDynamicTestV1Uri = "/api/test123/647/658";
-const errorTestUri = '/api';
+const errorTestUri = "/api";
 
-const findGet = (uri: string) => router.find(uri, 'GET');
+const findGet = (uri: string) => router.find(uri, "GET");
 
 Deno.test({
-  name: 'testRoot',
+  name: "testRoot",
   fn() {
     assertEquals(findGet(rootUri)?.handler, testRoot);
-  }
+  },
 });
 
 Deno.test({
-  name: 'testOnlyTest',
+  name: "testOnlyTest",
   fn() {
     assertEquals(findGet(onlyTestUri)?.handler, testOnlyTest);
-  }
+  },
 });
 
 Deno.test({
-  name: 'testSimple',
+  name: "testSimple",
   fn() {
     assertEquals(findGet(simpleTestUri)?.handler, simpleTest);
-  }
+  },
 });
 
 Deno.test({
-  name: 'testSimpleQuery',
+  name: "testSimpleQuery",
   fn() {
-    assertEquals(findGet(simpleTestUri)?.query, { name: 'lfb', age: '456' });
-  }
+    assertEquals(findGet(simpleTestUri)?.query, { name: "lfb", age: "456" });
+  },
 });
 
 Deno.test({
-  name: 'testDynamicV1',
+  name: "testDynamicV1",
   fn() {
     assertEquals(findGet(testV1Uri)?.handler, dynamicTestV1);
-  }
+  },
 });
 
 Deno.test({
-  name: 'testDynamicV1Params',
+  name: "testDynamicV1Params",
   fn() {
-    assertEquals(findGet(testV1Uri)?.params, { v1: 'v12431' });
-  }
+    assertEquals(findGet(testV1Uri)?.params, { v1: "v12431" });
+  },
 });
 
 Deno.test({
-  name: 'testDynamicV1Query',
+  name: "testDynamicV1Query",
   fn() {
-    assertEquals(findGet(testV1Uri)?.query, { name: 'unknown', fruit: ['apple', 'banana'] });
-  }
+    assertEquals(findGet(testV1Uri)?.query, {
+      name: "unknown",
+      fruit: ["apple", "banana"],
+    });
+  },
 });
 
 Deno.test({
-  name: 'testDynamicTest',
+  name: "testDynamicTest",
   fn() {
     assertEquals(findGet(testTestUri)?.handler, dynamicTestTest);
-  }
+  },
 });
 
 Deno.test({
-  name: 'testDynamicTestParams',
+  name: "testDynamicTestParams",
   fn() {
-    assertEquals(findGet(testTestUri)?.params, { test: 'test1231' });
-  }
+    assertEquals(findGet(testTestUri)?.params, { test: "test1231" });
+  },
 });
 
 Deno.test({
-  name: 'testDynamicTestV1',
+  name: "testDynamicTestV1",
   fn() {
     assertEquals(findGet(testTestAndV1Uri)?.handler, dynamicTestTestAndV1);
-  }
+  },
 });
 
 Deno.test({
-  name: 'testDynamicTestV1Params',
+  name: "testDynamicTestV1Params",
   fn() {
-    assertEquals(findGet(testTestAndV1Uri)?.params, { test: 'test123', v1: 'v213' });
-  }
+    assertEquals(findGet(testTestAndV1Uri)?.params, {
+      test: "test123",
+      v1: "v213",
+    });
+  },
 });
 
 Deno.test({
-  name: 'testGlobalV1',
+  name: "testGlobalV1",
   fn() {
     assertEquals(findGet(globalTestV1Uri)?.handler, globalTestV1);
-  }
+  },
 });
 
 Deno.test({
-  name: 'testDynamicTestGlobalV1',
+  name: "testDynamicTestGlobalV1",
   fn() {
-    assertEquals(findGet(globalTestDynamicTestV1Uri)?.handler, globalAndDynamicTestV1);
-  }
+    assertEquals(
+      findGet(globalTestDynamicTestV1Uri)?.handler,
+      globalAndDynamicTestV1,
+    );
+  },
 });
 
 Deno.test({
-  name: 'testDynamicTestGlobalV1Params',
+  name: "testDynamicTestGlobalV1Params",
   fn() {
-    assertEquals(findGet(globalTestDynamicTestV1Uri)?.params, { test: 'test123', 'static': '647/658' });
-  }
+    assertEquals(findGet(globalTestDynamicTestV1Uri)?.params, {
+      test: "test123",
+      "static": "647/658",
+    });
+  },
 });
 
 Deno.test({
-  name: 'testError',
+  name: "testError",
   fn() {
     assertEquals(findGet(errorTestUri), null);
-  }
+  },
 });

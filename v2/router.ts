@@ -27,10 +27,10 @@ export class Router implements Min.Router.Router {
     isGlobal,
     count,
   }: {
-    uri: Array<string>,
-    values: Min.Router.ItemOptions["paramsValue"],
-    isGlobal: Min.Router.ItemOptions["isGlobal"],
-    count: Min.Router.ItemOptions['paramsCount']
+    uri: Array<string>;
+    values: Min.Router.ItemOptions["paramsValue"];
+    isGlobal: Min.Router.ItemOptions["isGlobal"];
+    count: Min.Router.ItemOptions["paramsCount"];
   }) => {
     const res: Record<string, string> = {};
     if (values === void 0) {
@@ -42,7 +42,7 @@ export class Router implements Min.Router.Router {
       const numberIndex = Number(k);
       if (index === count) {
         if (isGlobal) {
-          res[v] = uri.slice(numberIndex).join('/');
+          res[v] = uri.slice(numberIndex).join("/");
           continue;
         }
       }
@@ -135,7 +135,9 @@ export class Router implements Min.Router.Router {
     } else {
       if (findRouteOptions !== void 0) {
         if (findRouteOptions.handler !== void 0) {
-          return findRouteOptions as NonNullable<ReturnType<Min.Router.FindInLoop>>;
+          return findRouteOptions as NonNullable<
+            ReturnType<Min.Router.FindInLoop>
+          >;
         } else {
           return void 0;
         }
@@ -158,7 +160,14 @@ export class Router implements Min.Router.Router {
       if (findResult === void 0) {
         return null;
       }
-      const { handler, middleware = [], paramsValue, exec = [], isGlobal, paramsCount } = findResult;
+      const {
+        handler,
+        middleware = [],
+        paramsValue,
+        exec = [],
+        isGlobal,
+        paramsCount,
+      } = findResult;
       return {
         query,
         url: requestUri,

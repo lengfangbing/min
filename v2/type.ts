@@ -1,13 +1,21 @@
-import { ServerRequest, Response, Status, FormFile } from "./deps.ts";
+import { FormFile, Response, ServerRequest, Status } from "./deps.ts";
 
 export declare namespace Min {
   // 通用的JSON的value的type和value
-  type JsonValueType = string | number | Array<unknown> | Record<string, unknown> | null | unknown;
-  type JsonValue<T extends Record<string, JsonValueType> = Record<string, unknown>> = T;
+  type JsonValueType =
+    | string
+    | number
+    | Array<unknown>
+    | Record<string, unknown>
+    | null
+    | unknown;
+  type JsonValue<
+    T extends Record<string, JsonValueType> = Record<string, unknown>,
+  > = T;
   // 路由类型. Router's namespace
   namespace Router {
     // 允许的方法
-    type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS';
+    type Method = "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "OPTIONS";
     // 路由树. route tree
     type Tree = {
       GET: Record<string, ItemOptions>;
@@ -66,9 +74,14 @@ export declare namespace Min {
        * @param {Method} method 添加的方法类型. route method
        * @param {string} uri 添加的uri. route uri
        * @param {Min.Router.HandlerFunc} [handler] 该路由的处理函数. route handler
-       * @param {Array<Min.Router.MiddlewareFunc>} [middleware] 该路由的中间件. route middleware 
+       * @param {Array<Min.Router.MiddlewareFunc>} [middleware] 该路由的中间件. route middleware
        */
-      add(method: Method, uri: string, handler?: Min.Router.HandlerFunc, middleware?: Array<Min.Router.MiddlewareFunc>): void;
+      add(
+        method: Method,
+        uri: string,
+        handler?: Min.Router.HandlerFunc,
+        middleware?: Array<Min.Router.MiddlewareFunc>,
+      ): void;
       /**
        * 查找路由的方法. method to find route
        * @param {string} uri 要查找的uri. target uri
@@ -113,24 +126,27 @@ export declare namespace Min {
         body: ResponseBody;
         status: Status;
         // cookie: Record<string, string>;
-      }
-    }
+      };
+    };
     // 封装的请求的body类型. request body internal
     // deno-lint-ignore no-explicit-any
     type RequestBody<T = any> = {
-      type: 'form' | 'text' | 'json' | 'multipart' | 'uint8array';
+      type: "form" | "text" | "json" | "multipart" | "uint8array";
       value?: T;
       files?: Array<FormFile>;
     };
     // 封装的返回的body类型. response body internal
     // @TODO: 修改返回的body根据file, json, text进行处理
-    type ResponseBody<T extends Response['body'] | JsonValue = string> = T;
+    type ResponseBody<T extends Response["body"] | JsonValue = string> = T;
   }
 
   // Middleware, 中间件
   namespace Middleware {
     // 中间件方法
-    type MiddlewareFunc = (ctx: Min.Application.Ctx, next: MiddlewareFunc) => Promise<void> | void;
+    type MiddlewareFunc = (
+      ctx: Min.Application.Ctx,
+      next: MiddlewareFunc,
+    ) => Promise<void> | void;
   }
 
   // mime type

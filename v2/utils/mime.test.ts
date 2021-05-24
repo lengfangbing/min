@@ -1,4 +1,11 @@
-import { assertEquals, join, MultipartReader, parse, readAll, StringReader } from "../deps.ts";
+import {
+  assertEquals,
+  join,
+  MultipartReader,
+  parse,
+  readAll,
+  StringReader,
+} from "../deps.ts";
 import { getHeaders } from "./helper.test.ts";
 import type { Min } from "../type.ts";
 import { decoder, encoder } from "../constants.ts";
@@ -36,19 +43,19 @@ export function mimeTypeIs(ctx: Min.Application.Ctx) {
     if (contentType === null) {
       break parse;
     }
-    if (MIME_JSON.some(item => contentType.startsWith(item))) {
+    if (MIME_JSON.some((item) => contentType.startsWith(item))) {
       type.Json = true;
       break parse;
     }
-    if (MIME_FORM.some(item => contentType.startsWith(item))) {
+    if (MIME_FORM.some((item) => contentType.startsWith(item))) {
       type.Form = true;
       break parse;
     }
-    if (MIME_MULTIPART.some(item => contentType.startsWith(item))) {
+    if (MIME_MULTIPART.some((item) => contentType.startsWith(item))) {
       type.Multipart = true;
       break parse;
     }
-    if (MIME_TEXT.some(item => contentType.startsWith(item))) {
+    if (MIME_TEXT.some((item) => contentType.startsWith(item))) {
       type.Text = true;
       break parse;
     }
@@ -123,7 +130,7 @@ export async function parseFormData(ctx: Min.Application.Ctx) {
           }
         }
       }
-			ctx.request.body = formValue;
+      ctx.request.body = formValue;
     } else {
       // boundary不存在, 就不进行解析
       ctx.request.body = {
@@ -143,42 +150,42 @@ export async function parseFormData(ctx: Min.Application.Ctx) {
 
 // 解析application/json
 export async function parseJson(ctx: Min.Application.Ctx) {
-	try {
+  try {
     // get net request body text
-		const readContent = await readAll(ctx.originRequest.body);
-		const body = decoder.decode(readContent);
-		ctx.request.body = {
-			type: "json",
-			value: JSON.parse(body),
-			files: void 0,
-		};
-	} catch (_error) {
-		ctx.request.body = {
-			type: "json",
-			value: void 0,
-			files: void 0,
-		};
-	}
+    const readContent = await readAll(ctx.originRequest.body);
+    const body = decoder.decode(readContent);
+    ctx.request.body = {
+      type: "json",
+      value: JSON.parse(body),
+      files: void 0,
+    };
+  } catch (_error) {
+    ctx.request.body = {
+      type: "json",
+      value: void 0,
+      files: void 0,
+    };
+  }
 }
 
 // 解析form
 export async function parseForm(ctx: Min.Application.Ctx) {
-	try {
+  try {
     // get net request body text
-		const readContent = await readAll(ctx.originRequest.body);
-		const body = decoder.decode(readContent);
-		ctx.request.body = {
-			type: "form",
-			value: parse(body),
-			files: void 0,
-		};
-	} catch (_error) {
-		ctx.request.body = {
-			type: "form",
-			value: void 0,
-			files: void 0,
-		};
-	}
+    const readContent = await readAll(ctx.originRequest.body);
+    const body = decoder.decode(readContent);
+    ctx.request.body = {
+      type: "form",
+      value: parse(body),
+      files: void 0,
+    };
+  } catch (_error) {
+    ctx.request.body = {
+      type: "form",
+      value: void 0,
+      files: void 0,
+    };
+  }
 }
 
 // 解析text
@@ -223,7 +230,9 @@ export async function parseUint8Array(ctx: Min.Application.Ctx) {
 Deno.test({
   name: "test parse form-data",
   async fn() {
-    const testFormData = await Deno.open(join(Deno.cwd(), '../test_files/multipart.txt'));
+    const testFormData = await Deno.open(
+      join(Deno.cwd(), "../test_files/multipart.txt"),
+    );
     const ctx = {
       originRequest: {
         r: testFormData,
@@ -235,7 +244,7 @@ Deno.test({
       request: {},
     } as unknown as Min.Application.Ctx;
     await parseFormData(ctx);
-		testFormData.close();
+    testFormData.close();
     assertEquals(ctx.request.body.type, "multipart");
     assertEquals(ctx.request.body.value?.name, "冷方冰");
     assertEquals(ctx.request.body.value?.age, "24");
@@ -243,22 +252,22 @@ Deno.test({
 });
 
 Deno.test({
-	name: 'test parse JSON data',
-	async fn() {
-		const ctx = {
+  name: "test parse JSON data",
+  async fn() {
+    const ctx = {
       originRequest: {
-        body: new StringReader(JSON.stringify({name: '冷方冰', age: 24})),
+        body: new StringReader(JSON.stringify({ name: "冷方冰", age: 24 })),
       },
       request: {},
     } as unknown as Min.Application.Ctx;
     await parseJson(ctx);
     assertEquals(ctx.request.body.type, "json");
-    assertEquals(ctx.request.body.value, {name: '冷方冰', age: 24});
-	},
+    assertEquals(ctx.request.body.value, { name: "冷方冰", age: 24 });
+  },
 });
 
 Deno.test({
-  name: 'test parse form data',
+  name: "test parse form data",
   async fn() {
     const ctx = {
       originRequest: {
@@ -268,12 +277,12 @@ Deno.test({
     } as unknown as Min.Application.Ctx;
     await parseForm(ctx);
     assertEquals(ctx.request.body.type, "form");
-    assertEquals(ctx.request.body.value, {name: "冷方冰",age: "24"});
-  }
+    assertEquals(ctx.request.body.value, { name: "冷方冰", age: "24" });
+  },
 });
 
 Deno.test({
-  name: 'test parse text data',
+  name: "test parse text data",
   async fn() {
     const ctx = {
       originRequest: {
@@ -284,11 +293,11 @@ Deno.test({
     await parseText(ctx);
     assertEquals(ctx.request.body.type, "text");
     assertEquals(ctx.request.body.value, "冷方冰帅啊");
-  }
+  },
 });
 
 Deno.test({
-  name: 'test parse uint8array data',
+  name: "test parse uint8array data",
   async fn() {
     const ctx = {
       originRequest: {
@@ -299,5 +308,5 @@ Deno.test({
     await parseUint8Array(ctx);
     assertEquals(ctx.request.body.type, "uint8array");
     assertEquals(ctx.request.body.value, encoder.encode("冷方冰帅啊"));
-  }
+  },
 });

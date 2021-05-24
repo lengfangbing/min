@@ -1,4 +1,4 @@
-import { parse }  from '../deps.ts';
+import { parse } from "../deps.ts";
 import type { Min } from "../type.ts";
 
 /**
