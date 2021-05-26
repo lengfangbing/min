@@ -6,5 +6,3 @@ unstable
 **/node_modules
 **/package.json
 **/package-lock.json
-
-**/*.http

@@ -72,7 +72,7 @@
 
     "plugins": [{
       "name": "typescript-deno-plugin",
-      "enable": true,
+      "enable": true
     }]
   }
 }
