@@ -1,4 +1,4 @@
-import { FormFile, Response, ServerRequest, Status } from "./deps.ts";
+import { FormFile, Response, ServerRequest, Status } from './deps.ts';
 
 export declare namespace Min {
   // 通用的JSON的value的type和value
@@ -40,7 +40,7 @@ export declare namespace Min {
       // 动态路由和全局路由值的个数. dynamic and global route values count
       paramsCount?: number;
       // 手动处理装饰器的调用顺序和值. use for decorator, save the execution expression
-      exec?: Array<string>;
+      exec?: Array<Array<string>>;
       // 是否是全局路由. whether is global route
       isGlobal?: boolean;
     };
@@ -65,7 +65,7 @@ export declare namespace Min {
       params: Record<string, string>;
       middleware: Min.Router.MiddlewareFunc[];
       handler: Min.Router.HandlerFunc;
-      exec: string[];
+      exec: string[][];
     };
     // Router的对外暴露的类型定义. define class Router properties type
     class Router {
