@@ -6,9 +6,6 @@ export type ReflectRuleHandlerLike = (
   properties?: Array<string>, // 按顺序从ctx一层层取值的属性key
 ) => unknown;
 
-// @TODO 优化：每一个规则映射的都是一个方法，方法接受ctx参数，然后返回每一个规则应该返回的值
-// @TODO 优化：目前只能得到一级的值，需要更好的实现方式得到二级（和多级）的值
-// @TODO 方法1：目前想到的好方法是使用数组（或者链表来实现动态从ctx取值的操作）
 /**
  * 通用的从ctx中利用反射获取值
  * @param {Min.Application.Ctx} ctx
@@ -18,7 +15,7 @@ export type ReflectRuleHandlerLike = (
  * getValueWithCtx(ctx, [['request', 'query']]), 这个就是获取query的方法
  * getValueWithCtx(ctx, [['request', 'query', 'id'], ['request', 'body']]), 这个就是获取query中的id的方法
  */
-export function getValueWithCtx(ctx: Parameters<ReflectRuleHandlerLike>[0], properties: Parameters<ReflectRuleHandlerLike>[1]) {
+export function getValueWithCtx(ctx: Min.Application.Ctx, properties: Array<string>) {
   try {
     // 示例
     let value = ctx;
