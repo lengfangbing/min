@@ -33,7 +33,7 @@ export function getValueWithCtx(ctx: Min.Application.Ctx, properties: Array<stri
 Deno.test({
   name: 'get exec value by ctx',
   fn() {
-    const obj = {
+    const ctx = {
       request: {
         query: {},
         body: {
@@ -45,8 +45,8 @@ Deno.test({
         },
       },
     } as Min.Application.Ctx;
-    assertEquals(getValueWithCtx(obj, ['request', 'query']), {});
-    assertEquals(getValueWithCtx(obj, ['request', 'body', 'value']), { name: 'lfb', age: 24 });
+    assertEquals(getValueWithCtx(ctx, ['request', 'query']), {});
+    assertEquals(getValueWithCtx(ctx, ['request', 'body', 'value']), { name: 'lfb', age: 24 });
   },
 });
 
