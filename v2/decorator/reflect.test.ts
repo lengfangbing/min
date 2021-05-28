@@ -15,7 +15,7 @@ export type ReflectRuleHandlerLike = (
  * getValueWithCtx(reflectValue, ['request', 'query']), 这个就是获取query的方法
  * getValueWithCtx(reflectValue, ['request', 'query', 'id']), 这个就是获取query中的id的方法
  */
-export function getValueByReflect(reflectValue: Record<string, unknown>, properties: Array<string>) {
+export function getValueByReflect<T = unknown>(reflectValue: Record<string, unknown>, properties: Array<string>): T | void {
   try {
     // 示例
     let value = reflectValue;
@@ -24,7 +24,7 @@ export function getValueByReflect(reflectValue: Record<string, unknown>, propert
         value = Reflect.get(value, property);
       });
     }
-    return value;
+    return value as T;
   } catch (e) {
     return void 0;
   }
