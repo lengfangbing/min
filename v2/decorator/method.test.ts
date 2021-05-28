@@ -134,5 +134,8 @@ Deno.test({
     assertEquals(secondRoute.exec, [['request', 'query'], ['request', 'query', 'name2']]);
     assertEquals(secondRoute.path, '/v2');
     assertEquals(secondRoute.middleware.length, 0);
+    assertEquals(Entity.getInstance().prefix, '');
+    assertEquals(Entity.getInstance().routes, []);
+    assertEquals(Entity.getInstance().middleware, []);
   },
 });
