@@ -1,6 +1,6 @@
 import { assertEquals } from '../deps.ts';
 import { Min } from '../type.ts';
-import { getValueWithCtx } from './reflect.test.ts';
+import { getValueByReflect } from './reflect.test.ts';
 
 export type DecoratorHandlerGetterConfig = {
   // 要执行的方法
@@ -16,16 +16,16 @@ export type DecoratorHandler = (...args: unknown[]) => void | Promise<void>;
 /**
  * 根据handler, exec构造真正的装饰器装饰后的执行方法, 如果有next, 则是构造真正的装饰器装饰后的中间件方法
  * @param {DecoratorHandlerGetterConfig} config - 构造装饰后的方法需要的依赖参数
- * @param {Min.Application.Ctx} ctx
+ * @param {Record<string, unknown>} reflectValue
  */
-export function getDecoratorHandler<T extends DecoratorHandler>(config: DecoratorHandlerGetterConfig, ctx: Min.Application.Ctx): T {
+export function getDecoratorHandler<T extends DecoratorHandler>(config: DecoratorHandlerGetterConfig, reflectValue: Record<string, unknown>): T {
   const { handler, exec, next } = config;
   let realHandler = handler;
   // 如果存在exec, 遍历反射值，然后bind参数形成真正的执行方法
   if (exec) {
     exec.forEach(item => {
       // @TODO 待增加反射规则, 根据反射规则获取到值然后bind到realHandler上
-      realHandler = realHandler.bind(null, getValueWithCtx(ctx, item));
+      realHandler = realHandler.bind(null, getValueByReflect(reflectValue, item));
     });
   }
   // 如果存在中间件的next, 则表示这是个中间件, 附加到最后
@@ -33,14 +33,14 @@ export function getDecoratorHandler<T extends DecoratorHandler>(config: Decorato
     realHandler = realHandler.bind(null, next);
   }
   // @TODO 待确定是否需要最后始终绑定上ctx
-  realHandler = realHandler.bind(null, ctx);
+  realHandler = realHandler.bind(null, reflectValue);
   return realHandler as T;
 }
 
 Deno.test({
   name: 'get real decorator handler',
   fn() {
-    const ctx = {
+    const reflectValue = {
       request: {
         query: {},
         body: {
@@ -57,9 +57,9 @@ Deno.test({
       _a['query'] = null;
       _b['value'] = null;
     }) as Min.Router.HandlerFunc;
-    const realHandler = getDecoratorHandler({ exec, handler }, ctx);
+    const realHandler = getDecoratorHandler({ exec, handler }, reflectValue);
     realHandler();
-    assertEquals(ctx.request.query, null);
-    assertEquals(ctx.request.body.value, null);
+    assertEquals(reflectValue.request.query, null);
+    assertEquals(reflectValue.request.body.value, null);
   },
 });

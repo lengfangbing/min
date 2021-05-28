@@ -7,18 +7,18 @@ export type ReflectRuleHandlerLike = (
 ) => unknown;
 
 /**
- * 通用的从ctx中利用反射获取值
- * @param {Min.Application.Ctx} ctx
+ * 通用的从反射的对象中利用反射获取值
+ * @param {Record<string, unknown>} reflectValue
  * @param {Array<Array<string>>} [properties]
  * @default 当内部出现错误就会返回void 0
  * @example
  * getValueWithCtx(ctx, [['request', 'query']]), 这个就是获取query的方法
  * getValueWithCtx(ctx, [['request', 'query', 'id'], ['request', 'body']]), 这个就是获取query中的id的方法
  */
-export function getValueWithCtx(ctx: Min.Application.Ctx, properties: Array<string>) {
+export function getValueByReflect(reflectValue: Record<string, unknown>, properties: Array<string>) {
   try {
     // 示例
-    let value = ctx;
+    let value = reflectValue;
     if (properties) {
       properties.forEach(property => {
         value = Reflect.get(value, property);
@@ -45,8 +45,8 @@ Deno.test({
         },
       },
     } as Min.Application.Ctx;
-    assertEquals(getValueWithCtx(ctx, ['request', 'query']), {});
-    assertEquals(getValueWithCtx(ctx, ['request', 'body', 'value']), { name: 'lfb', age: 24 });
+    assertEquals(getValueByReflect(ctx, ['request', 'query']), {});
+    assertEquals(getValueByReflect(ctx, ['request', 'body', 'value']), { name: 'lfb', age: 24 });
   },
 });
 
