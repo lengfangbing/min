@@ -4,8 +4,8 @@ import type { Min } from '../type.ts';
 
 // 创建基础的mime类型的数组
 function createMimeType(
-  type?: Min.Mime.MidiaTypeArray[number],
-): Min.Mime.MidiaTypeArray {
+  type?: Min.Mime.MimeTypeArray[number],
+): Min.Mime.MimeTypeArray {
   if (type) {
     return [type];
   }

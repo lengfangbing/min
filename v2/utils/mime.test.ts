@@ -1,19 +1,12 @@
-import {
-  assertEquals,
-  join,
-  MultipartReader,
-  parse,
-  readAll,
-  StringReader,
-} from "../deps.ts";
-import { getHeaders } from "./helper.test.ts";
-import type { Min } from "../type.ts";
-import { decoder, encoder } from "../constants.ts";
+import { decoder, encoder } from '../constants.ts';
+import { assertEquals, join, MultipartReader, parse, readAll, StringReader } from '../deps.ts';
+import type { Min } from '../type.ts';
+import { getHeaders } from './helper.test.ts';
 
 // 创建基础的mime类型的数组
 function createMimeType(
-  type?: Min.Mime.MidiaTypeArray[number],
-): Min.Mime.MidiaTypeArray {
+  type?: Min.Mime.MimeTypeArray[number],
+): Min.Mime.MimeTypeArray {
   if (type) {
     return [type];
   }

@@ -152,6 +152,6 @@ export declare namespace Min {
   // mime type
   namespace Mime {
     // 通用的检测content类型
-    type MidiaTypeArray = Array<string>;
+    type MimeTypeArray = Array<string>;
   }
 }
