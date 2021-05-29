@@ -2,6 +2,8 @@ import { assertEquals } from '../deps.ts';
 import { Min } from '../type.ts';
 import { Entity } from './entity.test.ts';
 
+// @TODO 实现中间件的装饰器方法需要修改数据结构
+
 export const Route: ClassDecorator = (_target) => {
   // 执行到这个decorator预示着这个路由资源已经执行完成，需要进行eat进行消费掉
   const value = Entity.getInstance().eatAll(true);
