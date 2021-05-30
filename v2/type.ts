@@ -1,17 +1,6 @@
 import { FormFile, Response, ServerRequest, Status } from './deps.ts';
 
 export declare namespace Min {
-  // 通用的JSON的value的type和value
-  type JsonValueType =
-    | string
-    | number
-    | Array<unknown>
-    | Record<string, unknown>
-    | null
-    | unknown;
-  type JsonValue<
-    T extends Record<string, JsonValueType> = Record<string, unknown>,
-  > = T;
   // 路由类型. Router's namespace
   namespace Router {
     // 允许的方法
@@ -109,7 +98,7 @@ export declare namespace Min {
   // Application, 主应用程序. Application's namespace
   namespace Application {
     // 上下文变量
-    type Ctx = {
+    type Ctx<T extends ResponseBody = string> = {
       readonly originRequest: ServerRequest; // Deno的http服务的原生请求. deno http service origin request
       readonly originResponse: Response; // Deno的http服务的原生请求, 除非你知道自己在干什么, 否则不建议使用该属性进行设置. deno https service origin response, dont use it if you know what youre doing
       readonly request: { // 自定义的request, 封装后的request. Application created a simple and convenient request
@@ -118,14 +107,12 @@ export declare namespace Min {
         method: string;
         params: Record<string, string>;
         readonly headers: Headers;
-        // cookie: Record<string, string>;
         body: RequestBody;
       };
       readonly response: { // 自定义的response, 封装后的response。 Application created a simple and convenient response
         headers: Headers;
-        body: ResponseBody;
+        body: ResponseBody<T>;
         status: Status;
-        // cookie: Record<string, string>;
       };
     };
     // 封装的请求的body类型. request body internal
@@ -137,7 +124,7 @@ export declare namespace Min {
     };
     // 封装的返回的body类型. response body internal
     // @TODO: 修改返回的body根据file, json, text进行处理
-    type ResponseBody<T extends Response["body"] | JsonValue = string> = T;
+    type ResponseBody<T = unknown> = T;
   }
 
   // Middleware, 中间件
