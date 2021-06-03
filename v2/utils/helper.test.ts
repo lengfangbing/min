@@ -1,3 +1,6 @@
+import { Status } from '../deps.ts';
+import { Min } from '../type.ts';
+
 /**
  * 仅用于单测时的辅助函数
  * @param {Record<string, string>} [value] 要映射成Header的k-v
@@ -8,4 +11,92 @@ export function getHeaders(value?: Record<string, string>) {
     headers.set(item, (value || {})[item]);
   });
   return headers;
+}
+
+/**
+ * 简化的body返回json数据
+ * @param {Min.Application.Ctx} ctx
+ * @param {Record<string, any>} value
+ */
+export function json<T extends Record<string, unknown> = Record<string, unknown>>(
+  ctx: Min.Application.Ctx<T>,
+  value: T,
+) {
+  // 设置响应头
+  ctx.response.headers.set('content-type', 'application/json');
+  // 设置相应status
+  ctx.response.status = Status.OK;
+  // 设置body
+  ctx.response.body = value;
+}
+
+/**
+ * 简化的body返回file数据
+ * @param {Min.Application.Ctx} ctx
+ * @param {string | Uint8Array} unknownValue - 如果是string，则会读取路径的文件；如果是Uint8Array，则会设置body值
+ * @param {string} [contentType] - 可选的content-type
+ */
+export async function file(
+  ctx: Min.Application.Ctx<Uint8Array>,
+  unknownValue: string | Uint8Array,
+  contentType?: string,
+) {
+  // 设置响应头
+  ctx.response.headers.set('content-type', contentType || 'application/octet-stream');
+  // 设置status
+  ctx.response.status = Status.OK;
+  // 设置body
+  let fileRef: Uint8Array;
+  if (typeof unknownValue === 'string') {
+    fileRef = await Deno.readFile(unknownValue);
+  } else {
+    fileRef = unknownValue;
+  }
+  ctx.response.body = fileRef;
+}
+
+/**
+ * 简化的body返回字符串
+ * @param {Min.Application.Ctx} ctx
+ * @param {string} value
+ */
+export function text(
+  ctx: Min.Application.Ctx,
+  value: string,
+) {
+  // 设置响应头
+  ctx.response.headers.set('content-type', 'text/plain');
+  // 设置相应status
+  ctx.response.status = Status.OK;
+  // 设置body
+  ctx.response.body = value;
+}
+
+/**
+ * 简化的body返回html文件
+ * @param {Min.Application.Ctx} ctx
+ * @param {string | Uint8Array} unknownValue - 如果是string，则会读取路径的文件；如果是Uint8Array，则会设置body值
+ * @param {string} [contentType] - 可选的content-type，默认是text/html
+ */
+export async function render(
+  ctx: Min.Application.Ctx<Uint8Array>,
+  unknownValue: string | Uint8Array,
+  contentType = 'text/html',
+) {
+  await file(ctx, unknownValue, contentType);
+}
+
+/**
+ * 简化的重定向的方法
+ * @param {Min.Application.Ctx} ctx
+ * @param {string} location - 要重定向的路径url
+ */
+export function redirect(
+  ctx: Min.Application.Ctx,
+  location: string,
+) {
+  // 设置header
+  ctx.response.headers.set('Location', location);
+  // 设置status
+  ctx.response.status = Status.Found;
 }
