@@ -114,6 +114,11 @@ export declare namespace Min {
         body: ResponseBody<T>;
         status: Status;
       };
+      json(value: Record<string, unknown>): void;
+      file(value: string | Uint8Array, contentType?: string): void;
+      text(value: string): void;
+      render(value: string | Uint8Array, contentType?: string): void;
+      redirect(location: string, status?: Status): void;
     };
     // 封装的请求的body类型. request body internal
     // deno-lint-ignore no-explicit-any
