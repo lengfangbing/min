@@ -1,4 +1,4 @@
-import { Status } from '../deps.ts';
+import { assertEquals, join, Status } from '../deps.ts';
 import { Min } from '../type.ts';
 
 /**
@@ -23,7 +23,7 @@ export function json<T extends Record<string, unknown> = Record<string, unknown>
   value: T,
 ) {
   // 设置响应头
-  ctx.response.headers.set('content-type', 'application/json');
+  ctx.response.headers.set('Content-Type', 'application/json');
   // 设置相应status
   ctx.response.status = Status.OK;
   // 设置body
@@ -42,7 +42,7 @@ export async function file(
   contentType?: string,
 ) {
   // 设置响应头
-  ctx.response.headers.set('content-type', contentType || 'application/octet-stream');
+  ctx.response.headers.set('Content-Type', contentType || 'application/octet-stream');
   // 设置status
   ctx.response.status = Status.OK;
   // 设置body
@@ -65,7 +65,7 @@ export function text(
   value: string,
 ) {
   // 设置响应头
-  ctx.response.headers.set('content-type', 'text/plain');
+  ctx.response.headers.set('Content-Type', 'text/plain');
   // 设置相应status
   ctx.response.status = Status.OK;
   // 设置body
@@ -94,9 +94,81 @@ export async function render(
 export function redirect(
   ctx: Min.Application.Ctx,
   location: string,
+  status = Status.Found
 ) {
   // 设置header
   ctx.response.headers.set('Location', location);
   // 设置status
-  ctx.response.status = Status.Found;
+  ctx.response.status = status;
 }
+
+function createCtx<T>() {
+  return {
+    response: {
+      headers: new Headers(),
+    },
+  } as Min.Application.Ctx<T>;
+}
+
+Deno.test({
+  name: 'ctx json',
+  fn() {
+    const ctx = createCtx<Record<string, unknown>>();
+    ctx.json = json.bind(null, ctx);
+    ctx.json({
+      name: 'lfb',
+      age: 23
+    });
+    assertEquals(ctx.response.body, { name: 'lfb', age: 23 });
+  }
+});
+
+Deno.test({
+  name: 'ctx file',
+  async fn() {
+    const ctx = createCtx<Uint8Array>();
+    ctx.file = file.bind(null, ctx);
+    const filePath = join(Deno.cwd(), '../test_files/multipart.txt');
+    const readFile = await Deno.readFile(filePath);
+    await ctx.file(filePath);
+    assertEquals(readFile, ctx.response.body);
+    await ctx.file(readFile);
+    assertEquals(readFile, ctx.response.body);
+  }
+});
+
+Deno.test({
+  name: 'ctx text',
+  fn() {
+    const ctx = createCtx<string>();
+    ctx.text = text.bind(null, ctx);
+    ctx.text('123');
+    assertEquals('123', ctx.response.body);
+  }
+});
+
+Deno.test({
+  name: 'ctx render',
+  async fn() {
+    const ctx = createCtx<Uint8Array>();
+    ctx.render = render.bind(null, ctx);
+    const filePath = join(Deno.cwd(), '../test_files/multipart.txt');
+    const readFile = await Deno.readFile(filePath);
+    await ctx.render(filePath);
+    assertEquals(readFile, ctx.response.body);
+    assertEquals('text/html', ctx.response.headers.get('Content-Type'));
+    ctx.render(filePath, 'text/plain');
+    assertEquals('text/plain', ctx.response.headers.get('Content-Type'));
+  }
+});
+
+Deno.test({
+  name: 'ctx redirect',
+  fn() {
+    const ctx = createCtx<string>();
+    ctx.redirect = redirect.bind(null, ctx);
+    ctx.redirect('https://www.google.com', Status.MovedPermanently);
+    assertEquals('https://www.google.com', ctx.response.headers.get('Location'));
+    assertEquals(Status.MovedPermanently, ctx.response.status);
+  }
+});
