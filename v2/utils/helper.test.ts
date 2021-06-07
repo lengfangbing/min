@@ -216,16 +216,21 @@ export function respondBody(ctx: Min.Application.Ctx<unknown>) {
     ...ctx.originResponse,
   };
 
-  // // 响应请求
-  // ctx.originRequest.respond(response);
-  
-  return response;
+  // 响应请求
+  ctx.originRequest.respond(response);
 }
 
 Deno.test({
   name: 'response body',
   async fn() {
+    let val: Record<string, unknown> = {};
+    const _ownRespond = (res: unknown) => {
+      val = res as unknown as typeof val;
+    }
     const ctx1 = createCtx<unknown>({
+      originRequest: {
+        respond: _ownRespond,
+      } as unknown as Min.Application.Ctx['originRequest'],
       request: {
         method: 'HEAD',
       } as Min.Application.Ctx['request'],
@@ -234,6 +239,9 @@ Deno.test({
       } as Min.Application.Ctx['response'],
     });
     const ctx2 = createCtx<unknown>({
+      originRequest: {
+        respond: _ownRespond,
+      } as unknown as Min.Application.Ctx['originRequest'],
       request: {
         method: 'GET',
       } as Min.Application.Ctx['request'],
@@ -244,6 +252,9 @@ Deno.test({
     const file = await Deno.open(join(Deno.cwd(), "../test_files/multipart.txt"));
     const fileArray = await Deno.readFile(join(Deno.cwd(), "../test_files/multipart.txt"));
     const ctx3 = createCtx<Record<string, unknown>>({
+      originRequest: {
+        respond: _ownRespond,
+      } as unknown as Min.Application.Ctx['originRequest'],
       request: {
         method: 'POST',
       } as Min.Application.Ctx['request'],
@@ -252,6 +263,9 @@ Deno.test({
       } as unknown as Min.Application.Ctx<Record<string, unknown>>['response'],
     });
     const ctx4 = createCtx<Uint8Array>({
+      originRequest: {
+        respond: _ownRespond,
+      } as unknown as Min.Application.Ctx['originRequest'],
       request: {
         method: 'PUT',
       } as Min.Application.Ctx['request'],
@@ -260,6 +274,9 @@ Deno.test({
       } as Min.Application.Ctx<Uint8Array>['response'],
     });
     const ctx5 = createCtx<number>({
+      originRequest: {
+        respond: _ownRespond,
+      } as unknown as Min.Application.Ctx['originRequest'],
       request: {
         method: 'DELETE',
       } as Min.Application.Ctx['request'],
@@ -268,18 +285,18 @@ Deno.test({
       } as Min.Application.Ctx<number>['response'],
     });
 
-    const testRespondBody1 = respondBody(ctx1);
-    const testRespondBody2 = respondBody(ctx2);
-    const testRespondBody3 = respondBody(ctx3);
-    const testRespondBody4 = respondBody(ctx4);
-    const testRespondBody5 = respondBody(ctx5);
-
     // 测试body值
-    assertEquals(testRespondBody1.body, void 0);
-    assertEquals(testRespondBody2.body, '123123');
-    assertEquals(testRespondBody3.body, file);
-    assertEquals(testRespondBody4.body, fileArray);
-    assertEquals(testRespondBody5.body, '123');
+    respondBody(ctx1);
+    assertEquals(val.body, void 0);
+    respondBody(ctx2);
+    assertEquals(val.body, '123123');
+    respondBody(ctx3);
+    assertEquals(val.body, file);
+    respondBody(ctx4);
+    assertEquals(val.body, fileArray);
+    respondBody(ctx5);
+    assertEquals(val.body, '123');
+
     Deno.close(file.rid);
   }
 })
