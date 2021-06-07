@@ -1,4 +1,4 @@
-import { assertEquals, join, Status } from '../deps.ts';
+import { assertEquals, join, Status, Response, STATUS_TEXT } from '../deps.ts';
 import { Min } from '../type.ts';
 
 /**
@@ -102,11 +102,12 @@ export function redirect(
   ctx.response.status = status;
 }
 
-function createCtx<T>() {
+function createCtx<T>(otherConfig?: Partial<Min.Application.Ctx<T>>) {
   return {
     response: {
       headers: new Headers(),
     },
+    ...otherConfig,
   } as Min.Application.Ctx<T>;
 }
 
@@ -172,3 +173,113 @@ Deno.test({
     assertEquals(Status.MovedPermanently, ctx.response.status);
   }
 });
+
+/**
+ * 对ctx.response.body进行解析
+ * @param {Min.Application.Ctx} ctx 
+ */
+export function respondBody(ctx: Min.Application.Ctx<unknown>) {
+  const { body: originValue, status, headers } = ctx.response;
+  // 可以设置originResponse的值，最终都会调用ctx.originRequest.respond()进行返回
+  let body: Response['body'];
+
+  h: {
+    if ('HEAD' === ctx.request.method.toUpperCase()) {
+      // 判断是不是HEAD请求，如果是，就取消设置body返回值
+      // quote https://datatracker.ietf.org/doc/html/rfc7231#section-4.3.2
+      body = void 0;
+      break h;
+    }
+    
+    // 是否是Uint8Array或者Deno.Reader或者string
+    if (
+      typeof originValue === 'string'
+      || originValue instanceof Uint8Array
+      || originValue instanceof Deno.File
+    ) {
+      body = originValue;
+      break h;
+    }
+
+    // 是json数据
+    body = JSON.stringify(originValue);
+    break h;
+  }
+
+  // 构造响应对象
+  const response: Response = {
+    status: status,
+    body,
+    headers: headers,
+    statusText: STATUS_TEXT.get(status),
+    // 以原生的response为主，所以这个在使用中不要轻易设置，除非自己清楚自己在干什么！
+    ...ctx.originResponse,
+  };
+
+  // // 响应请求
+  // ctx.originRequest.respond(response);
+  
+  return response;
+}
+
+Deno.test({
+  name: 'response body',
+  async fn() {
+    const ctx1 = createCtx<unknown>({
+      request: {
+        method: 'HEAD',
+      } as Min.Application.Ctx['request'],
+      response: {
+        body: '123123',
+      } as Min.Application.Ctx['response'],
+    });
+    const ctx2 = createCtx<unknown>({
+      request: {
+        method: 'GET',
+      } as Min.Application.Ctx['request'],
+      response: {
+        body: '123123',
+      } as Min.Application.Ctx['response'],
+    });
+    const file = await Deno.open(join(Deno.cwd(), "../test_files/multipart.txt"));
+    const fileArray = await Deno.readFile(join(Deno.cwd(), "../test_files/multipart.txt"));
+    const ctx3 = createCtx<Record<string, unknown>>({
+      request: {
+        method: 'POST',
+      } as Min.Application.Ctx['request'],
+      response: {
+        body: file,
+      } as unknown as Min.Application.Ctx<Record<string, unknown>>['response'],
+    });
+    const ctx4 = createCtx<Uint8Array>({
+      request: {
+        method: 'PUT',
+      } as Min.Application.Ctx['request'],
+      response: {
+        body: fileArray,
+      } as Min.Application.Ctx<Uint8Array>['response'],
+    });
+    const ctx5 = createCtx<number>({
+      request: {
+        method: 'DELETE',
+      } as Min.Application.Ctx['request'],
+      response: {
+        body: 123,
+      } as Min.Application.Ctx<number>['response'],
+    });
+
+    const testRespondBody1 = respondBody(ctx1);
+    const testRespondBody2 = respondBody(ctx2);
+    const testRespondBody3 = respondBody(ctx3);
+    const testRespondBody4 = respondBody(ctx4);
+    const testRespondBody5 = respondBody(ctx5);
+
+    // 测试body值
+    assertEquals(testRespondBody1.body, void 0);
+    assertEquals(testRespondBody2.body, '123123');
+    assertEquals(testRespondBody3.body, file);
+    assertEquals(testRespondBody4.body, fileArray);
+    assertEquals(testRespondBody5.body, '123');
+    Deno.close(file.rid);
+  }
+})
