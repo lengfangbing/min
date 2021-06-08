@@ -1,6 +1,7 @@
 import { assertEquals, serve, ServerRequest, Status } from "./deps.ts";
 import { Request } from "./request.test.ts";
 import type { Min } from "./type.ts";
+import { DEFAULT_STATUS } from "./utils/respond.test.ts";
 
 // type alias
 export type Ctx = Min.Application.Ctx;
@@ -9,7 +10,6 @@ const PORT = 3000;
 const HOST = "127.0.0.1";
 
 export class Application {
-  #DEFAULT_STATUS = Status.NotFound;
   // 创建上下文变量Ctx
   #createCtx = (req: ServerRequest): Ctx => {
     return {
@@ -31,7 +31,7 @@ export class Application {
       response: {
         headers: new Headers(),
         body: "",
-        status: this.#DEFAULT_STATUS,
+        status: DEFAULT_STATUS,
         // cookie: {},
       },
     };
