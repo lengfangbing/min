@@ -13,10 +13,12 @@ const INIT_ROUTER_TREE = {
   DELETE: {},
   OPTIONS: {},
   PATCH: {},
+  HEAD: {},
 } as Min.Router.Tree;
 
 export class Router implements Min.Router.Router {
   #tree: Min.Router.Tree;
+  static router: Router;
 
   constructor() {
     this.#tree = INIT_ROUTER_TREE;
@@ -364,6 +366,14 @@ export class Router implements Min.Router.Router {
         );
       }
     });
+  }
+
+  static getInstance() {
+    if (this.router) {
+      return this.router;
+    }
+
+    return (this.router = new Router());
   }
 }
 

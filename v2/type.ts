@@ -13,6 +13,7 @@ export declare namespace Min {
       DELETE: Record<string, ItemOptions>;
       OPTIONS: Record<string, ItemOptions>;
       PATCH: Record<string, ItemOptions>;
+      HEAD: Record<string, ItemOptions>;
       // 对于不支持的路由, 直接忽略掉即可, 加上这个类型是为了方便动态查找
       [key: string]: Record<string, ItemOptions> | undefined;
     };
