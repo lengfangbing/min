@@ -1,5 +1,6 @@
 import { assertEquals } from '../deps.ts';
 import { Min } from '../type.ts';
+import { setRouteByDecorator } from "./core.test.ts";
 import { Entity } from './entity.test.ts';
 
 // @TODO 实现中间件的装饰器方法需要修改数据结构
@@ -7,7 +8,7 @@ import { Entity } from './entity.test.ts';
 export const Route: ClassDecorator = (_target) => {
   // 执行到这个decorator预示着这个路由资源已经执行完成，需要进行eat进行消费掉
   const value = Entity.getInstance().eatAll(true);
-  console.log(value);
+  setRouteByDecorator(value);
 };
 
 export const Prefix = (prefix: string): ClassDecorator => {
@@ -42,6 +43,7 @@ export const Get = (path: string, ...args: Array<Min.Middleware.MiddlewareFunc>)
         // 如果找到了，就修改path，还有middleware
         findRoute.path = path;
         findRoute.middleware = middleware;
+        findRoute.method = 'GET';
       } else {
         // 如果没找到，重新添加一个新的不包含exec的route
         entity.setRoutes({
@@ -49,6 +51,7 @@ export const Get = (path: string, ...args: Array<Min.Middleware.MiddlewareFunc>)
           handler,
           exec: [],
           middleware,
+          method: 'GET',
         });
       }
     } else {
@@ -75,6 +78,7 @@ export const Query = (paramKey?: string): ParameterDecorator => {
         middleware: [],
         exec: [exec],
         handler,
+        method: 'GET', // 这个method不用关注，在Get等方法装饰器中会重新修改method的值，所以先赋值一个Get即可
       });
     }
   };

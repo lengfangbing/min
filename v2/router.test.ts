@@ -281,6 +281,7 @@ export class Router implements Min.Router.Router {
     uri: string,
     handler?: Min.Router.HandlerFunc,
     middleware?: Array<Min.Router.MiddlewareFunc>,
+    exec?: Array<Array<string>>
   ) {
     // 将method进行忽略大小写操作
     const realMethod = method.toUpperCase();
@@ -308,7 +309,7 @@ export class Router implements Min.Router.Router {
             item,
             treeNode,
             index === parsedUri.length - 1,
-            { handler, middleware, paramsValue },
+            { handler, middleware, paramsValue, exec },
           );
           // 如果需要替换并且value有值
           if (replace && value) {
@@ -328,7 +329,7 @@ export class Router implements Min.Router.Router {
               DYNAMIC_ROUTER_TREE_KEY,
               treeNode,
               index === parsedUri.length - 1,
-              { handler, middleware, paramsValue, paramsCount: ++paramsCount },
+              { handler, middleware, paramsValue, paramsCount: ++paramsCount, exec },
             );
             // 如果需要替换并且value有值
             if (replace && value) {
@@ -351,6 +352,7 @@ export class Router implements Min.Router.Router {
                 paramsValue,
                 isGlobal: true,
                 paramsCount: ++paramsCount,
+                exec,
               },
             );
             // 如果需要替换并且value有值

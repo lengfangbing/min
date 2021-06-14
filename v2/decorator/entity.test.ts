@@ -8,11 +8,12 @@ export class Entity {
     middleware: Array<Min.Middleware.MiddlewareFunc>;
     handler: Min.Router.HandlerFunc;
     exec: Array<Array<string>>;
+    method: Min.Router.Method;
   }> = [];
   // 保存需要的全局中间件
   middleware: Array<Min.Middleware.MiddlewareFunc> = [];
   // 保存需要的prefix
-  prefix: string = '';
+  prefix = '';
 
   static getInstance() {
     if (this.entity) {
@@ -26,6 +27,7 @@ export class Entity {
     middleware: Array<Min.Middleware.MiddlewareFunc>;
     handler: Min.Router.HandlerFunc;
     exec: Array<Array<string>>;
+    method: Min.Router.Method;
   }) {
     this.routes.push(route);
   }
