@@ -1,7 +1,8 @@
 import { assertEquals, serve, ServerRequest, Status } from "./deps.ts";
 import { Request } from "./request.test.ts";
-import type { Min } from "./type.ts";
 import { DEFAULT_STATUS } from "./utils/respond.test.ts";
+import { json, file, text, redirect, render } from './utils/helper.test.ts';
+import type { Min } from "./type.ts";
 
 // type alias
 export type Ctx = Min.Application.Ctx;
@@ -34,6 +35,11 @@ export class Application {
         status: DEFAULT_STATUS,
         // cookie: {},
       },
+      json: json as unknown as Min.Application.Ctx['json'],
+      file: file as unknown as Min.Application.Ctx['file'],
+      text: text as unknown as Min.Application.Ctx['text'],
+      redirect: redirect as unknown as Min.Application.Ctx['redirect'],
+      render: render as unknown as Min.Application.Ctx['render'],
     };
   };
   // start启动, 先看一下req和res然后再进行处理
