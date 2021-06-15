@@ -7,7 +7,7 @@ export type DecoratorHandlerGetterConfig = {
   handler: (...args: unknown[]) => void | Promise<void>;
   // 反射的值的list
   exec?: Min.Router.FindResult['exec'];
-  // 如果是中间件传的next方法
+  // 如果是中间件传的next方法，目前暂不实现，待之后与中间件支持装饰器一起实现
   next?: Min.Middleware.MiddlewareFunc;
 };
 
@@ -30,9 +30,9 @@ export function getDecoratorHandler<T extends DecoratorHandler>(config: Decorato
   }
   // 如果存在中间件的next, 则表示这是个中间件, 附加到最后
   if (next) {
-    realHandler = realHandler.bind(null, next);
+    realHandler = realHandler.bind(null, reflectValue, next);
   }
-  // @TODO 待确定是否需要最后始终绑定上ctx
+  // 需要最后始终绑定上ctx
   realHandler = realHandler.bind(null, reflectValue);
   return realHandler as T;
 }

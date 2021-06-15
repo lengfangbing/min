@@ -34,6 +34,7 @@ function createCtx<T>(otherConfig?: Partial<Min.Application.Ctx<T>>) {
     let { status } = ctx.response;
     // 可以设置originResponse的值，最终都会调用ctx.originRequest.respond()进行返回
     let body: Response['body'];
+    const statusOk = getStatusIfExist(status, Status.OK);
   
     h: {
       if ('HEAD' === ctx.request.method.toUpperCase()) {
@@ -41,7 +42,7 @@ function createCtx<T>(otherConfig?: Partial<Min.Application.Ctx<T>>) {
         // quote https://datatracker.ietf.org/doc/html/rfc7231#section-4.3.2
         body = void 0;
         // 设置status
-        status = getStatusIfExist(status, Status.OK);
+        status = statusOk;
         break h;
       }
       
@@ -53,14 +54,21 @@ function createCtx<T>(otherConfig?: Partial<Min.Application.Ctx<T>>) {
       ) {
         body = originValue;
         // 设置status
-        status = getStatusIfExist(status, Status.OK);
+        status = statusOk;
+        break h;
+      }
+
+      // 如果不存在body
+      if (originValue === null || originValue === void 0) {
+        body = void 0;
+        // status取值如果用户指定过，那就是用户指定的status，如果用户没指定过，那就是默认NotFound
         break h;
       }
   
       // 是json数据
       body = JSON.stringify(originValue);
       // 设置status
-      status = getStatusIfExist(status, Status.OK);
+      status = statusOk;
       break h;
     }
   
