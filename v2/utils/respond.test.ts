@@ -116,7 +116,7 @@ function createCtx<T>(otherConfig?: Partial<Min.Application.Ctx<T>>) {
         } as Min.Application.Ctx['response'],
       });
       const file = await Deno.open(join(Deno.cwd(), "../test_files/multipart.txt"));
-      const fileArray = await Deno.readFile(join(Deno.cwd(), "../test_files/multipart.txt"));
+      const fileArray = Deno.readFileSync(join(Deno.cwd(), "../test_files/multipart.txt"));
       const ctx3 = createCtx<Record<string, unknown>>({
         originRequest: {
           respond: _ownRespond,

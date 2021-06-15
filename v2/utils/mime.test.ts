@@ -83,6 +83,8 @@ Deno.test({
     assertEquals(mimeTypeIs(ctx).Multipart, false);
     assertEquals(mimeTypeIs(ctx).Form, false);
   },
+  sanitizeResources: false,
+  sanitizeOps: false
 });
 
 // 解析multipart/form-data
@@ -242,6 +244,8 @@ Deno.test({
     assertEquals(ctx.request.body.value?.name, "冷方冰");
     assertEquals(ctx.request.body.value?.age, "24");
   },
+  sanitizeResources: false,
+  sanitizeOps: false
 });
 
 Deno.test({

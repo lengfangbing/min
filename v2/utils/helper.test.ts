@@ -130,12 +130,14 @@ Deno.test({
     const ctx = createCtx<Uint8Array>();
     ctx.file = file.bind(null, ctx);
     const filePath = join(Deno.cwd(), '../test_files/multipart.txt');
-    const readFile = await Deno.readFile(filePath);
+    const readFile = Deno.readFileSync(filePath);
     await ctx.file(filePath);
     assertEquals(readFile, ctx.response.body);
     await ctx.file(readFile);
     assertEquals(readFile, ctx.response.body);
-  }
+  },
+  sanitizeResources: false,
+  sanitizeOps: false
 });
 
 Deno.test({
@@ -154,13 +156,15 @@ Deno.test({
     const ctx = createCtx<Uint8Array>();
     ctx.render = render.bind(null, ctx);
     const filePath = join(Deno.cwd(), '../test_files/multipart.txt');
-    const readFile = await Deno.readFile(filePath);
+    const readFile = Deno.readFileSync(filePath);
     await ctx.render(filePath);
     assertEquals(readFile, ctx.response.body);
     assertEquals('text/html', ctx.response.headers.get('Content-Type'));
     ctx.render(filePath, 'text/plain');
     assertEquals('text/plain', ctx.response.headers.get('Content-Type'));
-  }
+  },
+  sanitizeResources: false,
+  sanitizeOps: false
 });
 
 Deno.test({
@@ -171,5 +175,7 @@ Deno.test({
     ctx.redirect('https://www.google.com', Status.MovedPermanently);
     assertEquals('https://www.google.com', ctx.response.headers.get('Location'));
     assertEquals(Status.MovedPermanently, ctx.response.status);
-  }
+  },
+  sanitizeResources: false,
+  sanitizeOps: false
 });

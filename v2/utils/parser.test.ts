@@ -262,7 +262,7 @@ Deno.test({
       request: {},
     } as unknown as Min.Application.Ctx;
     await parseFormData(ctx);
-    testFormData.close();
+    Deno.close(testFormData.rid);
     assertEquals(ctx.request.body.type, "multipart");
     assertEquals(ctx.request.body.value?.name, "冷方冰");
     assertEquals(ctx.request.body.value?.age, "24");
