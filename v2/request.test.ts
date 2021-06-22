@@ -66,10 +66,10 @@ export class Request {
     ctx.request.query = query;
     await parseRequestBody(ctx);
     // 执行完全局的中间件和处理函数
-    await this.#composeExecMiddleware(
+    this.#composeExecMiddleware(
       this.middleware.concat(middleware),
       getDecoratorHandler({ handler, exec }, ctx),
-    );
+    )(ctx);
   };
 
   // 获取原生req和赋值ctx的request的处理方法
