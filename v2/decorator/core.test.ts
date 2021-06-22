@@ -1,6 +1,7 @@
 import { assertEquals } from "../deps.ts";
 import { Router } from "../router.test.ts";
 import { Min } from "../type.ts";
+import { Entity } from "./entity.test.ts";
 
 export function setRouteByDecorator(routeValue: {
   prefix: string;
@@ -22,6 +23,14 @@ export function setRouteByDecorator(routeValue: {
     const realPath = prefix + path;
     const realMiddleware = middleware.concat(ownMiddleware);
     router.add(method, realPath, handler, realMiddleware, exec);
+  });
+}
+
+export function loadRoutes() {
+  // 加载所有的路由
+  const entity = Entity.getInstance();
+  entity.getTargetMaps().forEach(item => {
+    setRouteByDecorator(item);
   });
 }
 
@@ -56,5 +65,12 @@ Deno.test({
     assertEquals(router.find('/api/v1', 'GET')?.handler, handler1);
     assertEquals(router.find('/api/v2', 'GET')?.exec, undefined);
     assertEquals(router.find('/api/v2', 'POST')?.exec.length, 0);
+  }
+});
+
+Deno.test({
+  name: 'load route by decorator',
+  fn() {
+    console.log('core test case moved to test_case.test.ts');
   }
 })

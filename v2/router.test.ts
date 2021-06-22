@@ -377,6 +377,10 @@ export class Router implements Min.Router.Router {
 
     return (this.router = new Router());
   }
+
+  tree() {
+    return this.#tree;
+  }
 }
 
 /**
