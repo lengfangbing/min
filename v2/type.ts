@@ -138,8 +138,10 @@ export declare namespace Min {
     // 中间件方法
     type MiddlewareFunc = (
       ctx: Min.Application.Ctx,
-      next: MiddlewareFunc,
+      next: NextFunc,
     ) => Promise<void> | void;
+    // next方法
+    type NextFunc = () => Promise<void> | void;
   }
 
   // mime type
