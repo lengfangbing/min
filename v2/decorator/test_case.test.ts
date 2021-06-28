@@ -1,8 +1,9 @@
+import { Min } from '../type.ts';
 import { assertEquals } from "../deps.ts";
 import { Router } from "../router.test.ts";
 import { loadRoutes } from "./core.test.ts";
 import { Entity } from "./entity.test.ts";
-import { Get, Middleware, Query, Route } from "./method.test.ts";
+import { Ctx, Get, Middleware, Post, Query, Route, Request } from "./method.test.ts";
 
 Deno.test({
   name: 'method, core, entity cases in once',
@@ -59,6 +60,12 @@ Deno.test({
       globalMiddle2_2() {
         console.log("global middleware2");
       }
+
+      @Post("/v3")
+      handler3_2(@Ctx _ctx: Min.Application.Ctx, @Request _request: Min.Application.Ctx['request']) {
+        console.log(_ctx);
+        console.log(_request);
+      }
     }
 
     const test1 = new Test();
@@ -71,7 +78,7 @@ Deno.test({
     assertEquals(entity.getValueByRouteTarget(Test2.prototype)?.prefix, '/api2');
 
     assertEquals(entity.getValueByRouteTarget(Test.prototype)?.routes.length, 2);
-    assertEquals(entity.getValueByRouteTarget(Test2.prototype)?.routes.length, 2);
+    assertEquals(entity.getValueByRouteTarget(Test2.prototype)?.routes.length, 3);
 
     loadRoutes();
     const router = Router.getInstance();
@@ -83,5 +90,8 @@ Deno.test({
     assertEquals(tree.GET['api2'].next?.['v2'].handler?.name, test2.handler2_2.name);
     assertEquals(tree.GET['api2'].next?.['v2'].middleware, [test2.globalMiddle1_2, test2.globalMiddle2_2]);
     assertEquals(tree.GET['api2'].next?.['v2'].exec, [['request', 'query'], ['request', 'query', 'name2']]);
+
+    assertEquals(tree.POST['api2'].next?.['v3'].handler?.name, test2.handler3_2.name);
+    assertEquals(tree.POST['api2'].next?.['v3'].exec, [[''], ['request']]);
   }
 })
