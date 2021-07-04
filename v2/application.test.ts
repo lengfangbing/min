@@ -1,13 +1,19 @@
 import { assertEquals, serve, ServerRequest, Status } from "./deps.ts";
 import { Request } from "./request.test.ts";
 import { DEFAULT_STATUS } from "./utils/respond.test.ts";
-import { json, file, text, redirect, render } from './utils/helper.test.ts';
+import { file, json, redirect, render, text } from "./utils/helper.test.ts";
 import type { Min } from "./type.ts";
+import {
+  Get,
+  Middleware,
+  Query,
+  Route,
+} from "./decorator/method.test.ts";
 
 // type alias
 export type Ctx = Min.Application.Ctx;
 
-const PORT = 3000;
+const PORT = 4000;
 const HOST = "127.0.0.1";
 
 export class Application {
@@ -35,11 +41,11 @@ export class Application {
         status: DEFAULT_STATUS,
         // cookie: {},
       },
-      json: json as unknown as Min.Application.Ctx['json'],
-      file: file as unknown as Min.Application.Ctx['file'],
-      text: text as unknown as Min.Application.Ctx['text'],
-      redirect: redirect as unknown as Min.Application.Ctx['redirect'],
-      render: render as unknown as Min.Application.Ctx['render'],
+      json: json as unknown as Min.Application.Ctx["json"],
+      file: file as unknown as Min.Application.Ctx["file"],
+      text: text as unknown as Min.Application.Ctx["text"],
+      redirect: redirect as unknown as Min.Application.Ctx["redirect"],
+      render: render as unknown as Min.Application.Ctx["render"],
     };
   };
   // start启动, 先看一下req和res然后再进行处理
@@ -48,7 +54,6 @@ export class Application {
       hostname: HOST,
       port: PORT,
     });
-
     for await (const request of server) {
       const originRequest = request;
       const ctx = this.#createCtx(originRequest);
@@ -56,8 +61,6 @@ export class Application {
     }
   }
 }
-
-new Application().start();
 
 /**
  * test case
@@ -84,3 +87,38 @@ Deno.test({
     assertEquals(testResult.status, Status.OK);
   },
 });
+
+@Route('/api')
+class Test {
+  @Middleware
+  async globalMiddle1(_ctx: Min.Application.Ctx, next: Min.Middleware.NextFunc) {
+    console.log("global middleware1");
+    await next();
+  }
+
+  @Get("/v1", async (_, next: Min.Middleware.NextFunc) => { await next() }, async (_, next: Min.Middleware.NextFunc) => { await next() })
+  handler(@Query() _query: unknown, @Query("name") _name: unknown) {
+    console.log(_query);
+    console.log(_name);
+  }
+
+  @Get("/v2")
+  handler2(@Query() _query: unknown, @Query("name2") _name: unknown) {
+    console.log(_query);
+    console.log(_name);
+  }
+
+  @Middleware
+  async globalMiddle2(_ctx: Min.Application.Ctx, next: Min.Middleware.NextFunc) {
+    console.log("global middleware2");
+    await next();
+  }
+}
+
+async function testCase() {
+  const app = new Application();
+  await app.start();
+  new Test();
+}
+
+testCase();
