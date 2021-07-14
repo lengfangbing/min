@@ -152,6 +152,7 @@ export declare namespace Min {
   }
 
   // config文件的类型
+  type Config<Ctx = Min.Application.Ctx> = MinConfig<Ctx>;
 }
 
 // 类Application的构造类
