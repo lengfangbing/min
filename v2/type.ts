@@ -1,4 +1,5 @@
-import { FormFile, Response, ServerRequest, Status } from './deps.ts';
+import { ServerRequest, Status } from './deps.ts';
+import type { HTTPSOptions, HTTPOptions, Response, FormFile } from './deps.ts';
 
 export declare namespace Min {
   // 路由类型. Router's namespace
@@ -149,4 +150,36 @@ export declare namespace Min {
     // 通用的检测content类型
     type MimeTypeArray = Array<string>;
   }
+
+  // config文件的类型
+}
+
+// 类Application的构造类
+export declare class MinApplicationLike<Ctx> {
+  // 实现自定义的ctx， 可异步返回构造的ctx
+  customCtx?(req: ServerRequest, ctx: Min.Application.Ctx): Promise<Ctx>;
+  // 每一个请求的处理回调方法，参数为原生请求和构造的ctx，返回true表示继续内部Router和Request处理，返回false表示不需要处理，已自行处理请求
+  callback?(req: ServerRequest, ctx: Ctx): Promise<boolean> | boolean;
+}
+
+// 类Router的构造类
+export declare class MinRouterLike<Ctx> {
+  // 实现自定义的查找路由的方法
+  customFind?(ctx: Ctx): Promise<Min.Router.FindResult>;
+}
+
+// 类Request的构造类
+export declare class MinRequestLike<Ctx> {
+  // 实现自定义的处理请求方法，返回true表示继续内部Request的处理，返回false表示不需要处理，已自行处理
+  customHandle?(ctx: Ctx, result: Min.Router.FindResult): Promise<boolean>;
+}
+
+// 配置文件的server选项
+export declare type MinServer = Partial<HTTPSOptions> & HTTPOptions;
+
+export interface MinConfig<Ctx = Min.Application.Ctx> {
+  application: MinApplicationLike<Ctx>;
+  router: MinRouterLike<Ctx>;
+  request: MinRequestLike<Ctx>;
+  server: MinServer;
 }

@@ -48,6 +48,7 @@ export { readAll } from "https://deno.land/std@0.97.0/io/util.ts";
  */
 export type {
   HTTPSOptions,
+  HTTPOptions,
   Response,
 } from "https://deno.land/std@0.97.0/http/server.ts";
 export type { Cookie } from "https://deno.land/std@0.97.0/http/cookie.ts";
