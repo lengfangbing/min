@@ -87,7 +87,7 @@ export class Application {
         }
       }
       // 执行内部逻辑
-      await new Request().handleRequest(ctx);
+      await new Request().handleRequest(ctx, minConfig);
     }
   }
 }
