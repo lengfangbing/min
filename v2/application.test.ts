@@ -1,8 +1,7 @@
-import { assertEquals, resolve, serve, ServerRequest, Status } from "./deps.ts";
+import { resolve, serve, ServerRequest, serveTLS } from "./deps.ts";
 import { Request } from "./request.test.ts";
 import { DEFAULT_STATUS } from "./utils/respond.test.ts";
 import { file, json, redirect, render, text } from "./utils/helper.test.ts";
-import type { Min, MinConfig } from "./type.ts";
 import {
   Get,
   Middleware,
@@ -10,17 +9,13 @@ import {
   Route,
 } from "./decorator/method.test.ts";
 import { decoder } from "./constants.ts";
-
-// type alias
-export type Ctx = Min.Application.Ctx;
-
-const PORT = 4000;
-const HOST = "127.0.0.1";
+import type { Min, MinConfig } from "./type.ts";
+import type { HTTPSOptions } from './deps.ts';
 
 export class Application {
   readConfig: MinConfig | void = void 0;
   // 创建上下文变量Ctx
-  #createCtx = (req: ServerRequest): Ctx => {
+  #createCtx = (req: ServerRequest): Min.Application.Ctx => {
     return {
       originRequest: req,
       originResponse: {},
@@ -62,14 +57,18 @@ export class Application {
     return (this.readConfig = JSON.parse(decoder.decode(file)) as MinConfig);
   }
 
-  // start启动, 先看一下req和res然后再进行处理，如果传入了MinConfig，那么就不需要再去读取min.config.ts文件了
+  // start启动, 如果传入了MinConfig，那么就不需要再去读取min.config.ts文件了
   async start(config?: MinConfig) {
-    const server = serve({
-      hostname: HOST,
-      port: PORT,
-    });
     // 获取配置信息
     const minConfig = config || await this.readConfigFile();
+    const serverConfig = minConfig.server;
+    let server;
+    // 判断是否是https
+    if (serverConfig.certFile && serverConfig.keyFile) {
+      server = serveTLS(serverConfig as HTTPSOptions);
+    } else {
+      server = serve(serverConfig as HTTPSOptions);
+    }
     for await (const request of server) {
       const originRequest = request;
       // 自定义的Application
@@ -90,35 +89,8 @@ export class Application {
       // 执行内部逻辑
       await new Request().handleRequest(ctx);
     }
-
   }
 }
-
-/**
- * test case
- */
-
-Deno.test({
-  name: "test fetch result",
-  async fn() {
-    const app = new Application();
-    app.start();
-    const testResult = await fetch("http://127.0.0.1:3000");
-    const testText = await testResult.text();
-    assertEquals(testText, "hello world");
-  },
-});
-
-Deno.test({
-  name: "test fetch status",
-  async fn() {
-    const app = new Application();
-    app.start();
-    const testResult = await fetch("http://127.0.0.1:3000");
-    const testText = await testResult.text();
-    assertEquals(testResult.status, Status.OK);
-  },
-});
 
 @Route('/api')
 class Test {
@@ -149,7 +121,14 @@ class Test {
 
 async function testCase() {
   const app = new Application();
-  await app.start();
+  const PORT = 4000;
+  const HOST = "127.0.0.1";
+  await app.start({
+    server: {
+      port: PORT,
+      hostname: HOST,
+    }
+  });
   new Test();
 }
 
