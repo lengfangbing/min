@@ -18,6 +18,7 @@ const PORT = 4000;
 const HOST = "127.0.0.1";
 
 export class Application {
+  readConfig: MinConfig | void = void 0;
   // 创建上下文变量Ctx
   #createCtx = (req: ServerRequest): Ctx => {
     return {
@@ -52,9 +53,13 @@ export class Application {
 
   // 读取min.config.ts的配置
   async readConfigFile(): Promise<MinConfig> {
+    // 避免每次都去读取配置文件
+    if (this.readConfig) {
+      return this.readConfig;
+    }
     const filePath = resolve(Deno.cwd(), 'min.config.ts');
     const file = await import(filePath);
-    return JSON.parse(decoder.decode(file)) as MinConfig;
+    return (this.readConfig = JSON.parse(decoder.decode(file)) as MinConfig);
   }
 
   // start启动, 先看一下req和res然后再进行处理，如果传入了MinConfig，那么就不需要再去读取min.config.ts文件了
@@ -85,6 +90,7 @@ export class Application {
       // 执行内部逻辑
       await new Request().handleRequest(ctx);
     }
+
   }
 }
 
