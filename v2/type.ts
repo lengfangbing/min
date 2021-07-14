@@ -156,7 +156,7 @@ export declare namespace Min {
 }
 
 // 类Application的构造类
-export declare class MinApplicationLike<Ctx> {
+export interface MinApplicationLike<Ctx> {
   // 实现自定义的ctx， 可异步返回构造的ctx
   customCtx?(req: ServerRequest, ctx: Min.Application.Ctx): Promise<Ctx>;
   // 每一个请求的处理回调方法，参数为原生请求和构造的ctx，返回true表示继续内部Router和Request处理，返回false表示不需要处理，已自行处理请求
@@ -164,13 +164,13 @@ export declare class MinApplicationLike<Ctx> {
 }
 
 // 类Router的构造类
-export declare class MinRouterLike<Ctx> {
+export interface MinRouterLike<Ctx> {
   // 实现自定义的查找路由的方法
   customFind?(ctx: Ctx): Promise<Min.Router.FindResult>;
 }
 
 // 类Request的构造类
-export declare class MinRequestLike<Ctx> {
+export interface MinRequestLike<Ctx> {
   // 实现自定义的处理请求方法，返回true表示继续内部Request的处理，返回false表示不需要处理，已自行处理
   customHandle?(ctx: Ctx, result: Min.Router.FindResult): Promise<boolean>;
 }
@@ -179,8 +179,8 @@ export declare class MinRequestLike<Ctx> {
 export declare type MinServer = Partial<HTTPSOptions> & HTTPOptions;
 
 export interface MinConfig<Ctx = Min.Application.Ctx> {
-  application: MinApplicationLike<Ctx>;
-  router: MinRouterLike<Ctx>;
-  request: MinRequestLike<Ctx>;
+  application?: MinApplicationLike<Ctx>;
+  router?: MinRouterLike<Ctx>;
+  request?: MinRequestLike<Ctx>;
   server: MinServer;
 }

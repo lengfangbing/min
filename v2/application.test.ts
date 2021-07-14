@@ -1,14 +1,15 @@
-import { assertEquals, serve, ServerRequest, Status } from "./deps.ts";
+import { assertEquals, resolve, serve, ServerRequest, Status } from "./deps.ts";
 import { Request } from "./request.test.ts";
 import { DEFAULT_STATUS } from "./utils/respond.test.ts";
 import { file, json, redirect, render, text } from "./utils/helper.test.ts";
-import type { Min } from "./type.ts";
+import type { Min, MinConfig } from "./type.ts";
 import {
   Get,
   Middleware,
   Query,
   Route,
 } from "./decorator/method.test.ts";
+import { decoder } from "./constants.ts";
 
 // type alias
 export type Ctx = Min.Application.Ctx;
@@ -48,15 +49,40 @@ export class Application {
       render: render as unknown as Min.Application.Ctx["render"],
     };
   };
-  // start启动, 先看一下req和res然后再进行处理
-  async start() {
+
+  // 读取min.config.ts的配置
+  async readConfigFile(): Promise<MinConfig> {
+    const filePath = resolve(Deno.cwd(), 'min.config.ts');
+    const file = await import(filePath);
+    return JSON.parse(decoder.decode(file)) as MinConfig;
+  }
+
+  // start启动, 先看一下req和res然后再进行处理，如果传入了MinConfig，那么就不需要再去读取min.config.ts文件了
+  async start(config?: MinConfig) {
     const server = serve({
       hostname: HOST,
       port: PORT,
     });
+    // 获取配置信息
+    const minConfig = config || await this.readConfigFile();
     for await (const request of server) {
       const originRequest = request;
-      const ctx = this.#createCtx(originRequest);
+      // 自定义的Application
+      const customApplication = minConfig.application;
+      // 检查是否有自定义ctx的实现
+      let ctx = this.#createCtx(originRequest);
+      if (customApplication?.customCtx) {
+        ctx = await customApplication.customCtx(originRequest, ctx);
+      }
+      // 检查是否有自定义的callback的实现
+      if (customApplication?.callback) {
+        const callback = await customApplication.callback(originRequest, ctx);
+        // 如果callback是false，则表示不需要继续往下执行，直接return就可以
+        if (!callback) {
+          return;
+        }
+      }
+      // 执行内部逻辑
       await new Request().handleRequest(ctx);
     }
   }
