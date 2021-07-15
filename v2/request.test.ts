@@ -1,9 +1,9 @@
 import { Router } from "./router.test.ts";
 import { Status } from "./deps.ts";
 import { parseRequestBody } from "./utils/parser.test.ts";
-import type { Min } from "./type.ts";
 import { getDecoratorHandler } from "./decorator/handler.test.ts";
 import { respondBody } from "./utils/respond.test.ts";
+import type { Min, MinConfig } from "./type.ts";
 
 export class Request {
   // 实例化router对象
@@ -58,31 +58,53 @@ export class Request {
     route: Min.Router.FindResult,
     ctx: Min.Application.Ctx,
   ) => {
-    const { handler, middleware, exec, query, params, url } = route;
+    const { query, params, url } = route;
     // @TODO: 根据exec构造真正的路由处理方法
     // 赋值ctx
     ctx.request.params = params;
     ctx.request.url = url;
     ctx.request.query = query;
     await parseRequestBody(ctx);
+  };
+
+  // 执行handler方法
+  #runHandler = (
+    ctx: Min.Application.Ctx,
+    route: Min.Router.FindResult
+  ) => {
+    const { middleware, handler, exec } = route;
     // 执行完全局的中间件和处理函数
     this.#composeExecMiddleware(
       this.middleware.concat(middleware),
       getDecoratorHandler({ handler, exec }, ctx),
     )(ctx);
-  };
+  }
 
   // 获取原生req和赋值ctx的request的处理方法
-  async handleRequest(ctx: Min.Application.Ctx) {
+  async handleRequest(ctx: Min.Application.Ctx, config: MinConfig) {
     // 找到这个url对应的请求
-    const findRoute = this.router.find(
+    let findRoute = this.router.find(
       ctx.request.url,
       ctx.request.method as Min.Router.Method,
     );
+    // 查看是否有自定义的findRoute实现
+    if (config.router?.customFind) {
+      findRoute = await config.router.customFind(ctx, findRoute);
+    }
     // 如果找到了这个路由
     if (findRoute) {
       // 等执行完成之后再对ctx进行response操作
       await this.#handleRoute4Ctx(findRoute, ctx);
+      // 查看是否有自定义的handle实现
+      if (config.request?.customHandle) {
+        const needContinue = await config.request.customHandle(ctx, findRoute);
+        if (!needContinue) {
+          // 如果不需要继续内部逻辑执行，直接return掉
+          return;
+        }
+      }
+      // 继续执行内部的逻辑
+      this.#runHandler(ctx, findRoute);
     } else {
       // 没找到路由设置status为404
       ctx.response.status = Status.NotFound;

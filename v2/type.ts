@@ -166,7 +166,7 @@ export interface MinApplicationLike<Ctx> {
 // 类Router的构造类
 export interface MinRouterLike<Ctx> {
   // 实现自定义的查找路由的方法
-  customFind?(ctx: Ctx): Promise<Min.Router.FindResult>;
+  customFind?(ctx: Ctx, findResult: Min.Router.FindResult | null): Promise<Min.Router.FindResult>;
 }
 
 // 类Request的构造类
